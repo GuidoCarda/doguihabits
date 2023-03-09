@@ -12,14 +12,11 @@ function App() {
         <HabitForm />
         <ul className="text-neutral-100 flex flex-col gap-4">
           {Boolean(habits.length) ? (
-            habits.map((habit) => {
-              console.log(habit);
-              return (
-                <li key={habit.id}>
-                  <Habit habit={habit} />
-                </li>
-              );
-            })
+            habits.map((habit) => (
+              <li key={habit.id}>
+                <Habit habit={habit} />
+              </li>
+            ))
           ) : (
             <h1>No creaste un habito!</h1>
           )}
@@ -56,13 +53,13 @@ const HabitForm = () => {
   return (
     <div className="flex gap-2 mb-10">
       <input
-        className="h-12 rounded-md"
+        className="h-12 rounded-md bg-zinc-700 text-neutral-200 px-4 outline-none w-full"
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
       <button
-        className="h-12 w-min px-6 bg-green-700 text-white font-bold rounded-md"
+        className="h-12 w-min px-6 bg-green-600 text-white font-bold rounded-md"
         onClick={createHabit}
       >
         add

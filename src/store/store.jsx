@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const day = {
   id: 1,
@@ -10,10 +11,17 @@ const randomId = (length = 6) =>
     .toString(16)
     .substring(2, length + 2);
 
+const daysInMonth = () => {
+  const date = new Date();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return new Date(year, month, 0).getDate();
+};
+
 const habit = {
   id: "asdasd",
   title: "nombre",
-  days: Array(30)
+  days: Array(daysInMonth())
     .fill({})
     .map((day, idx) => ({ id: idx, state: "pending" })),
 };
