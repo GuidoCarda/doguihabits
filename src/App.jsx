@@ -28,13 +28,45 @@ function App() {
 
 const Habit = (props) => {
   const { habit } = props;
+
+  const getHabit = useHabitsStore((state) => state.getHabit);
+  const updateHabit = useHabitsStore((state) => state.updateHabit);
+
+  const toggleDayState = (state) => {
+    if (state === "pending") return "completed";
+    if (state === "completed") return "failed";
+    if (state === "failed") return "pending";
+  };
+
+  const toggleHabitDay = (habitId, dayId) => {
+    const habit = getHabit(habitId);
+
+    const editedHabit = {
+      ...habit,
+      days: habit.days.map((day) =>
+        day.id === dayId ? { ...day, state: toggleDayState(day.state) } : day
+      ),
+    };
+
+    updateHabit(editedHabit);
+  };
+
   return (
-    <div className="bg-zinc-600 px-4 py-6 rounded-md ">
+    <div className="bg-zinc-600 px-6   py-6 rounded-md ">
       <h2 className="text-2xl mb-4 font-bold capitalize">{habit.title}</h2>
       <ul className="grid grid-cols-7 gap-2">
-        {habit.days.map((_, idx) => (
+        {habit.days.map((day, idx) => (
           <li key={idx} className="h-10 w-10">
-            <button className="w-full h-full bg-neutral-300 rounded-md"></button>
+            <button
+              onClick={() => toggleHabitDay(habit.id, idx)}
+              className={`w-full h-full ${
+                day.state === "completed"
+                  ? "bg-emerald-500"
+                  : day.state === "failed"
+                  ? "bg-red-500"
+                  : "bg-neutral-300"
+              } rounded-md `}
+            ></button>
           </li>
         ))}
       </ul>

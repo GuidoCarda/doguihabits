@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 const day = {
   id: 1,
@@ -37,6 +36,15 @@ const useHabitsStore = create((set, get) => ({
         { ...habit, id: randomId(), title: get().input },
       ],
       input: "",
+    })),
+  getHabit: (id) => get().habits.find((habit) => habit.id === id),
+  updateHabit: (editedHabit) =>
+    set(() => ({
+      habits: [
+        ...get().habits.map((habit) => {
+          return habit.id === editedHabit.id ? editedHabit : habit;
+        }),
+      ],
     })),
 }));
 
