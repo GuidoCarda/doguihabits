@@ -40,11 +40,13 @@ const useHabitsStore = create((set, get) => ({
   getHabit: (id) => get().habits.find((habit) => habit.id === id),
   updateHabit: (editedHabit) =>
     set(() => ({
-      habits: [
-        ...get().habits.map((habit) => {
-          return habit.id === editedHabit.id ? editedHabit : habit;
-        }),
-      ],
+      habits: get().habits.map((habit) => {
+        return habit.id === editedHabit.id ? editedHabit : habit;
+      }),
+    })),
+  deleteHabit: (id) =>
+    set(() => ({
+      habits: get().habits.filter((habit) => habit.id !== id),
     })),
 }));
 
