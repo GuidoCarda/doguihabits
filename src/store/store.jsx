@@ -1,28 +1,25 @@
 import { create } from "zustand";
+import { randomId } from "../utils";
+
+const daysInMonth = () => {
+  const date = new Date();
+  //getMonth is 0 based
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  return new Date(year, month, 0).getDate();
+};
 
 const day = {
   id: 1,
   state: "pending" | "completed" | "failed",
 };
 
-const randomId = (length = 6) =>
-  Math.random()
-    .toString(16)
-    .substring(2, length + 2);
-
-const daysInMonth = () => {
-  const date = new Date();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-  return new Date(year, month, 0).getDate();
-};
-
 const habit = {
-  id: "asdasd",
-  title: "nombre",
+  id: "",
+  title: "",
   days: Array(daysInMonth())
     .fill({})
-    .map((day, idx) => ({ id: idx, state: "pending" })),
+    .map((_, idx) => ({ id: idx, state: "pending" })),
 };
 
 const useHabitsStore = create((set, get) => ({
@@ -44,10 +41,13 @@ const useHabitsStore = create((set, get) => ({
         return habit.id === editedHabit.id ? editedHabit : habit;
       }),
     })),
-  deleteHabit: (id) =>
-    set(() => ({
-      habits: get().habits.filter((habit) => habit.id !== id),
-    })),
+  deleteHabit: (id) => {
+    const filteredHabits = get().habits.filter((habit) => habit.id !== id);
+
+    return set(() => ({
+      habits: filteredHabits,
+    }));
+  },
 }));
 
 export default useHabitsStore;
