@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { randomId } from "../utils";
 
 const daysInMonth = () => {
@@ -22,32 +23,37 @@ const habit = {
     .map((_, idx) => ({ id: idx, state: "pending" })),
 };
 
-const useHabitsStore = create((set, get) => ({
-  habits: [],
-  input: "",
-  setInput: (userInput) => set(() => ({ input: userInput })),
-  createHabit: () =>
-    set(() => ({
-      habits: [
-        ...get().habits,
-        { ...habit, id: randomId(), title: get().input },
-      ],
+const useHabitsStore = create(
+  persist(
+    (set, get) => ({
+      habits: [],
       input: "",
-    })),
-  getHabit: (id) => get().habits.find((habit) => habit.id === id),
-  updateHabit: (editedHabit) =>
-    set(() => ({
-      habits: get().habits.map((habit) => {
-        return habit.id === editedHabit.id ? editedHabit : habit;
-      }),
-    })),
-  deleteHabit: (id) => {
-    const filteredHabits = get().habits.filter((habit) => habit.id !== id);
+      setInput: (userInput) => set(() => ({ input: userInput })),
+      createHabit: () =>
+        set(() => ({
+          habits: [
+            ...get().habits,
+            { ...habit, id: randomId(), title: get().input },
+          ],
+          input: "",
+        })),
+      getHabit: (id) => get().habits.find((habit) => habit.id === id),
+      updateHabit: (editedHabit) =>
+        set(() => ({
+          habits: get().habits.map((habit) => {
+            return habit.id === editedHabit.id ? editedHabit : habit;
+          }),
+        })),
+      deleteHabit: (id) => {
+        const filteredHabits = get().habits.filter((habit) => habit.id !== id);
 
-    return set(() => ({
-      habits: filteredHabits,
-    }));
-  },
-}));
+        return set(() => ({
+          habits: filteredHabits,
+        }));
+      },
+    }),
+    { name: "habits", partialize: (state) => ({ habits: state.habits }) }
+  )
+);
 
 export default useHabitsStore;

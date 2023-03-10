@@ -82,8 +82,10 @@ const Habit = (props) => {
                   : day.state === "failed"
                   ? "bg-red-500"
                   : "bg-neutral-300"
-              } rounded-md `}
-            ></button>
+              } rounded-md text-black/40 font-semibold`}
+            >
+              {idx + 1}
+            </button>
           </li>
         ))}
       </ul>
@@ -98,6 +100,11 @@ const HabitForm = () => {
   );
 
   const createHabit = useHabitsStore((state) => state.createHabit);
+
+  const onClick = () => {
+    if (!input.trim()) return alert("empty field");
+    createHabit();
+  };
 
   return (
     <div className="flex gap-2 mb-10">
@@ -115,7 +122,7 @@ const HabitForm = () => {
       </div>
       <button
         className="h-12 w-min px-6 self-end bg-green-600 text-white font-bold rounded-md"
-        onClick={createHabit}
+        onClick={onClick}
       >
         add
       </button>
