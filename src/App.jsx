@@ -1,5 +1,5 @@
 import "./App.css";
-import useHabitsStore from "./store/store";
+import useHabitsStore, { useHabitsActions } from "./store/store";
 
 import { shallow } from "zustand/shallow";
 
@@ -32,16 +32,9 @@ function App() {
 const Habit = (props) => {
   const { habit } = props;
 
-  const { getHabit, updateHabit, deleteHabit } = useHabitsStore(
-    (state) => ({
-      getHabit: state.getHabit,
-      deleteHabit: state.deleteHabit,
-      updateHabit: state.updateHabit,
-    }),
-    shallow
-  );
+  const { getHabit, updateHabit, deleteHabit } = useHabitsActions();
 
-  const toggleDayState = (state) => {
+  const nextState = (state) => {
     if (state === "pending") return "completed";
     if (state === "completed") return "failed";
     if (state === "failed") return "pending";
@@ -53,7 +46,7 @@ const Habit = (props) => {
     const editedHabit = {
       ...habit,
       days: habit.days.map((day) =>
-        day.id === dayId ? { ...day, state: toggleDayState(day.state) } : day
+        day.id === dayId ? { ...day, state: nextState(day.state) } : day
       ),
     };
 
@@ -99,7 +92,7 @@ const HabitForm = () => {
     shallow
   );
 
-  const createHabit = useHabitsStore((state) => state.createHabit);
+  const { createHabit } = useHabitsActions();
 
   const onClick = () => {
     if (!input.trim()) return alert("empty field");

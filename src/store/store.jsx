@@ -29,31 +29,43 @@ const useHabitsStore = create(
       habits: [],
       input: "",
       setInput: (userInput) => set(() => ({ input: userInput })),
-      createHabit: () =>
-        set(() => ({
-          habits: [
-            ...get().habits,
-            { ...habit, id: randomId(), title: get().input },
-          ],
-          input: "",
-        })),
-      getHabit: (id) => get().habits.find((habit) => habit.id === id),
-      updateHabit: (editedHabit) =>
-        set(() => ({
-          habits: get().habits.map((habit) => {
-            return habit.id === editedHabit.id ? editedHabit : habit;
-          }),
-        })),
-      deleteHabit: (id) => {
-        const filteredHabits = get().habits.filter((habit) => habit.id !== id);
+      actions: {
+        createHabit: () => {
+          const newHabit = {
+            ...habit,
+            id: randomId(),
+            title: get().input,
+          };
 
-        return set(() => ({
-          habits: filteredHabits,
-        }));
+          set(() => ({
+            habits: [newHabit, ...get().habits],
+
+            //clear input field
+            input: "",
+          }));
+        },
+        getHabit: (id) => get().habits.find((habit) => habit.id === id),
+        updateHabit: (editedHabit) =>
+          set(() => ({
+            habits: get().habits.map((habit) => {
+              return habit.id === editedHabit.id ? editedHabit : habit;
+            }),
+          })),
+        deleteHabit: (id) => {
+          const filteredHabits = get().habits.filter(
+            (habit) => habit.id !== id
+          );
+
+          return set(() => ({
+            habits: filteredHabits,
+          }));
+        },
       },
     }),
     { name: "habits", partialize: (state) => ({ habits: state.habits }) }
   )
 );
+
+export const useHabitsActions = () => useHabitsStore((state) => state.actions);
 
 export default useHabitsStore;
