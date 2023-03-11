@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { randomId } from "../utils";
+import { nextState, randomId } from "../utils";
 
 const daysInMonth = () => {
   const date = new Date();
@@ -45,12 +45,24 @@ const useHabitsStore = create(
           }));
         },
         getHabit: (id) => get().habits.find((habit) => habit.id === id),
-        updateHabit: (editedHabit) =>
-          set(() => ({
-            habits: get().habits.map((habit) => {
-              return habit.id === editedHabit.id ? editedHabit : habit;
-            }),
-          })),
+        updateHabit: (habitId, dayId) => {
+          const habit = get().actions.getHabit(habitId);
+
+          const editedHabit = {
+            ...habit,
+            days: habit.days.map((day) =>
+              day.id === dayId ? { ...day, state: nextState(day.state) } : day
+            ),
+          };
+
+          const updatedHabits = get().habits.map((habit) => {
+            return habit.id === editedHabit.id ? editedHabit : habit;
+          });
+
+          return set(() => ({
+            habits: updatedHabits,
+          }));
+        },
         deleteHabit: (id) => {
           const filteredHabits = get().habits.filter(
             (habit) => habit.id !== id

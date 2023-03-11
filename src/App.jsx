@@ -32,25 +32,10 @@ function App() {
 const Habit = (props) => {
   const { habit } = props;
 
-  const { getHabit, updateHabit, deleteHabit } = useHabitsActions();
-
-  const nextState = (state) => {
-    if (state === "pending") return "completed";
-    if (state === "completed") return "failed";
-    if (state === "failed") return "pending";
-  };
+  const { updateHabit, deleteHabit } = useHabitsActions();
 
   const toggleHabitDay = (habitId, dayId) => {
-    const habit = getHabit(habitId);
-
-    const editedHabit = {
-      ...habit,
-      days: habit.days.map((day) =>
-        day.id === dayId ? { ...day, state: nextState(day.state) } : day
-      ),
-    };
-
-    updateHabit(editedHabit);
+    updateHabit(habitId, dayId);
   };
 
   return (
