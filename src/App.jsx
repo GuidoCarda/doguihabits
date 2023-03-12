@@ -2,8 +2,11 @@ import "./App.css";
 import useHabitsStore, { useHabitsActions } from "./store/store";
 
 import { shallow } from "zustand/shallow";
+import { useState } from "react";
 
 function App() {
+  const [showHabitForm, setShowHabitForm] = useState(false);
+
   const habits = useHabitsStore((state) => state.habits);
 
   const { sortHabits } = useHabitsActions();
@@ -13,42 +16,26 @@ function App() {
     sortHabits(mode);
   };
 
+  const handleShowToggle = () => setShowHabitForm((prev) => !prev);
+
   return (
     <main className="min-h-screen bg-zinc-800">
       <section className="max-w-lg px-4 mx-auto py-10">
-        <h1 className="text-3xl mb-4 font-semibold text-neutral-100">
-          My Habits
-        </h1>
-        <HabitForm />
+        <div className="flex items-center justify-between mb-10">
+          <h1 className="text-3xl font-semibold text-neutral-100">My Habits</h1>
 
-        <div className="my-4  text-neutral-100">
-          <span className="block mb-2 font-semibold text-zinc-400">
-            sort by{" "}
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              id="older"
-              onClick={handleSort}
-              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-            >
-              mas antiguos
-            </button>
-            <button
-              id="newest"
-              onClick={handleSort}
-              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-            >
-              mas nuevos
-            </button>
-            <button
-              id="most-completed"
-              onClick={handleSort}
-              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-            >
-              más completados
-            </button>
-          </div>
+          <button
+            onClick={handleShowToggle}
+            className="h-12 w-min px-6 bg-green-600 text-white font-bold rounded-md"
+          >
+            {showHabitForm ? "close" : "new"}
+          </button>
         </div>
+
+        {showHabitForm && <HabitForm handleClose={handleShowToggle} />}
+
+        {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
+
         <ul className="text-neutral-100 flex flex-col gap-4">
           {Boolean(habits.length) ? (
             habits.map((habit) => (
@@ -107,7 +94,7 @@ const Habit = (props) => {
   );
 };
 
-const HabitForm = () => {
+const HabitForm = ({ handleClose }) => {
   const [input, setInput] = useHabitsStore(
     (state) => [state.input, state.setInput],
     shallow
@@ -118,10 +105,11 @@ const HabitForm = () => {
   const onClick = () => {
     if (!input.trim()) return alert("empty field");
     createHabit();
+    handleClose();
   };
 
   return (
-    <div className="flex gap-2 mb-10">
+    <div className="flex gap-2 my-6">
       <div className="w-full">
         <label htmlFor="habit" className="text-neutral-400 mb-1 block">
           habit title
@@ -140,6 +128,37 @@ const HabitForm = () => {
       >
         add
       </button>
+    </div>
+  );
+};
+
+const HabitsSorting = ({ handleSort }) => {
+  return (
+    <div className="my-4  text-neutral-100">
+      <span className="block mb-2 font-semibold text-zinc-400">sort by </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          id="older"
+          onClick={handleSort}
+          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+        >
+          mas antiguos
+        </button>
+        <button
+          id="newest"
+          onClick={handleSort}
+          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+        >
+          mas nuevos
+        </button>
+        <button
+          id="most-completed"
+          onClick={handleSort}
+          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+        >
+          más completados
+        </button>
+      </div>
     </div>
   );
 };
