@@ -6,6 +6,8 @@ import { shallow } from "zustand/shallow";
 function App() {
   const habits = useHabitsStore((state) => state.habits);
 
+  const { sortHabits } = useHabitsActions();
+
   return (
     <main className="min-h-screen bg-zinc-800">
       <section className="max-w-lg px-4 mx-auto py-10">
@@ -13,6 +15,22 @@ function App() {
           My Habits
         </h1>
         <HabitForm />
+
+        <div className="my-4 flex items-center justify-between text-neutral-100">
+          <span>sort: </span>
+          {/* <button
+            onClick={sortHabits}
+            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+          >
+            mas antiguos
+          </button> */}
+          <button
+            onClick={sortHabits}
+            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+          >
+            más completados
+          </button>
+        </div>
         <ul className="text-neutral-100 flex flex-col gap-4">
           {Boolean(habits.length) ? (
             habits.map((habit) => (
