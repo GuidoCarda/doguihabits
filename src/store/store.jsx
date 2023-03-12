@@ -34,63 +34,66 @@ const createHabit = (input) => {
 };
 
 const updateHabit = (habits, habitId, dayId) => {
-  const habit = habits.find((habit) => habit.id === habitId);
+  const { days, daysStateCount, ...rest } = habits.find(
+    (habit) => habit.id === habitId
+  );
 
-  console.log(habit);
+  const updatedDays = days.map((day) =>
+    day.id === dayId ? { ...day, state: nextState(day.state) } : day
+  );
 
-  const editedHabit = {
-    ...habit,
-    days: habit.days.map((day) =>
-      day.id === dayId ? { ...day, state: nextState(day.state) } : day
-    ),
-    daysStateCount: {
-      ...habit.daysStateCount,
-      completed: habit.daysStateCount.completed + 1,
-    },
+  const updatedDaysStateCount = {
+    ...daysStateCount,
+    completed: getTotal(updatedDays, "completed"),
+    failed: getTotal(updatedDays, "failed"),
   };
 
-  console.log(editedHabit);
+  const updatedHabit = {
+    ...rest,
+    days: updatedDays,
+    daysStateCount: updatedDaysStateCount,
+  };
 
   return habits.map((habit) =>
-    habit.id === editedHabit.id ? editedHabit : habit
+    habit.id === updatedHabit.id ? updatedHabit : habit
   );
 };
 
 const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
 
-const sortHabits = (habits) => {
-  console.log(habits);
+const getTotal = (array, state) => {
+  return array.reduce((acum, currValue) => {
+    if (currValue.state === state) {
+      acum += 1;
+    }
+    return acum;
+  }, 0);
+};
 
-  console.log(
-    habits[0].days.reduce((acum, currentValue) => {
-      if (currentValue.state === "completed") {
-        acum += 1;
-      }
-      return acum;
-    }, 0)
-  );
+const sortHabits = (habits, mode) => {
+  if (!mode) return habits;
 
-  // habits.map((habit) => {
-  //   console.log(habit);
-  //   console.log(
-  //     habit.reduce((acum, currentValue) => {
-  //       if (currentValue.state === "completed") {
-  //         acum + 1;
-  //       }
-  //     }, 0)
-  //   );
-  //   return habit;
-  // });
+  let sortedHabits;
 
-  // const sortedHabits = habits
-  //   .map((h) => h)
-  //   .sort((a, b) => {
-  //     return new Date(a.createdAt) - new Date(b.createdAt);
-  //   });
+  if (mode === "older") {
+    sortedHabits = [...habits].sort((a, b) => {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+  }
 
-  // console.log(sortedHabits);
+  if (mode === "newest") {
+    sortedHabits = [...habits].sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }
 
-  return habits;
+  if (mode === "most-completed") {
+    sortedHabits = [...habits].sort((a, b) => {
+      return b.daysStateCount.completed - a.daysStateCount.completed;
+    });
+  }
+
+  return sortedHabits;
 };
 
 const useHabitsStore = create(
@@ -117,8 +120,8 @@ const useHabitsStore = create(
             habits: deleteHabit(state.habits, id),
           }));
         },
-        sortHabits: () => {
-          return set((state) => ({ habits: sortHabits(state.habits) }));
+        sortHabits: (mode) => {
+          return set((state) => ({ habits: sortHabits(state.habits, mode) }));
         },
       },
     }),

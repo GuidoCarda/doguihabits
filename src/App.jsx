@@ -8,6 +8,11 @@ function App() {
 
   const { sortHabits } = useHabitsActions();
 
+  const handleSort = (e) => {
+    const mode = e.target.id;
+    sortHabits(mode);
+  };
+
   return (
     <main className="min-h-screen bg-zinc-800">
       <section className="max-w-lg px-4 mx-auto py-10">
@@ -16,20 +21,33 @@ function App() {
         </h1>
         <HabitForm />
 
-        <div className="my-4 flex items-center justify-between text-neutral-100">
-          <span>sort: </span>
-          {/* <button
-            onClick={sortHabits}
-            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-          >
-            mas antiguos
-          </button> */}
-          <button
-            onClick={sortHabits}
-            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-          >
-            más completados
-          </button>
+        <div className="my-4  text-neutral-100">
+          <span className="block mb-2 font-semibold text-zinc-400">
+            sort by{" "}
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              id="older"
+              onClick={handleSort}
+              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+            >
+              mas antiguos
+            </button>
+            <button
+              id="newest"
+              onClick={handleSort}
+              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+            >
+              mas nuevos
+            </button>
+            <button
+              id="most-completed"
+              onClick={handleSort}
+              className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+            >
+              más completados
+            </button>
+          </div>
         </div>
         <ul className="text-neutral-100 flex flex-col gap-4">
           {Boolean(habits.length) ? (
