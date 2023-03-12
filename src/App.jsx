@@ -3,6 +3,7 @@ import useHabitsStore, { useHabitsActions } from "./store/store";
 
 import { shallow } from "zustand/shallow";
 import { useState } from "react";
+import Layout from "./components/Layout";
 
 function App() {
   const [showHabitForm, setShowHabitForm] = useState(false);
@@ -20,7 +21,7 @@ function App() {
 
   return (
     <main className="min-h-screen bg-zinc-800">
-      <section className="max-w-lg px-4 mx-auto py-10">
+      <Layout>
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold text-neutral-100">My Habits</h1>
 
@@ -36,7 +37,7 @@ function App() {
 
         {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
 
-        <ul className="text-neutral-100 flex flex-col gap-4">
+        <ul className="text-neutral-100 flex flex-col gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-3">
           {Boolean(habits.length) ? (
             habits.map((habit) => (
               <li key={habit.id}>
@@ -47,7 +48,7 @@ function App() {
             <h1>No creaste un habito!</h1>
           )}
         </ul>
-      </section>
+      </Layout>
     </main>
   );
 }
@@ -72,6 +73,7 @@ const Habit = (props) => {
           X
         </button>
       </header>
+
       <ul className="grid grid-cols-7 gap-2">
         {habit.days.map((day, idx) => (
           <li key={idx} className="h-10 w-10">
@@ -133,31 +135,27 @@ const HabitForm = ({ handleClose }) => {
 };
 
 const HabitsSorting = ({ handleSort }) => {
+  const sortModes = [
+    { mode: "older", label: "más antiguos" },
+    { mode: "newest", label: "más nuevos" },
+    { mode: "most-completed", label: "más completados" },
+  ];
+
   return (
     <div className="my-4  text-neutral-100">
       <span className="block mb-2 font-semibold text-zinc-400">sort by </span>
+
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          id="older"
-          onClick={handleSort}
-          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-        >
-          mas antiguos
-        </button>
-        <button
-          id="newest"
-          onClick={handleSort}
-          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-        >
-          mas nuevos
-        </button>
-        <button
-          id="most-completed"
-          onClick={handleSort}
-          className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
-        >
-          más completados
-        </button>
+        {sortModes.map(({ mode, label }) => (
+          <button
+            id={mode}
+            key={mode}
+            onClick={handleSort}
+            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+          >
+            {label}
+          </button>
+        ))}
       </div>
     </div>
   );
