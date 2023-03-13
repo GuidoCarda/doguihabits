@@ -2,7 +2,7 @@ import "./App.css";
 import useHabitsStore, { useHabitsActions } from "./store/store";
 
 import { shallow } from "zustand/shallow";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Layout from "./components/Layout";
 
 function App() {
@@ -62,6 +62,8 @@ const Habit = (props) => {
     updateHabit(habitId, dayId);
   };
 
+  const currentDate = new Date().getDate();
+
   return (
     <div className="bg-zinc-600 px-6   py-6 rounded-md">
       <header className="flex justify-between items-center mb-6">
@@ -78,6 +80,7 @@ const Habit = (props) => {
         {habit.days.map((day, idx) => (
           <li key={idx} className="h-10 w-10">
             <button
+              disabled={idx + 1 > currentDate}
               onClick={() => toggleHabitDay(habit.id, idx)}
               className={`w-full h-full ${
                 day.state === "completed"
@@ -85,7 +88,7 @@ const Habit = (props) => {
                   : day.state === "failed"
                   ? "bg-red-500"
                   : "bg-neutral-300"
-              } rounded-md text-black/40 font-semibold`}
+              } rounded-md text-black/40 font-semibold disabled:bg-zinc-500`}
             >
               {idx + 1}
             </button>
@@ -135,11 +138,11 @@ const HabitForm = ({ handleClose }) => {
 };
 
 const HabitsSorting = ({ handleSort }) => {
-  const sortModes = [
+  const sortModes = useMemo(() => [
     { mode: "older", label: "más antiguos" },
     { mode: "newest", label: "más nuevos" },
     { mode: "most-completed", label: "más completados" },
-  ];
+  ]);
 
   return (
     <div className="my-4  text-neutral-100">
