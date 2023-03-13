@@ -1,6 +1,8 @@
 import "./App.css";
 import useHabitsStore, { useHabitsActions } from "./store/store";
 
+import ReactDOM from "react-dom";
+
 import { shallow } from "zustand/shallow";
 import { useMemo, useState } from "react";
 import Layout from "./components/Layout";
@@ -17,11 +19,20 @@ function App() {
     sortHabits(mode);
   };
 
-  const handleShowToggle = () => setShowHabitForm((prev) => !prev);
+  const handleShowToggle = () => {
+    setShowHabitForm((prev) => !prev);
+
+    if (typeof window != "undefined" && window.document && showHabitForm) {
+      document.body.style.overflow = "unset";
+    } else if (typeof window != "undefined" && window.document) {
+      document.body.style.overflow = "hidden";
+    }
+  };
 
   return (
     <main className="min-h-screen bg-zinc-800">
       <Layout>
+        {showHabitForm && <Modal onClose={handleShowToggle} />}
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold text-neutral-100">My Habits</h1>
 
@@ -161,6 +172,67 @@ const HabitsSorting = ({ handleSort }) => {
         ))}
       </div>
     </div>
+  );
+};
+
+const Modal = ({ onClose }) => {
+  return ReactDOM.createPortal(
+    <>
+      <div className="fixed grid place-items-center top-0 left-0 right-0 bottom-0 h-screen w-full bg-black/50 backdrop-blur-[2px] px-4">
+        <div className=" bg-zinc-600 rounded-md p-4 w-full sm:max-w-md overflow-y-scroll h-96">
+          <h2 className="text-2xl text-neutral-300 font-semibold">
+            Crea tu habito:
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Praesentium quasi nostrum fuga modi ducimus architecto, iste,
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+            </p>
+            <button onClick={onClose}>cerrar </button>
+          </h2>
+        </div>
+      </div>
+    </>,
+    document.getElementById("portal")
   );
 };
 
