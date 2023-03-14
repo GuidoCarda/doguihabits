@@ -2,6 +2,40 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { daysInMonth, nextState, randomId } from "../utils";
 
+const getAllDaysInMonth = (year, month) => {
+  const date = new Date(year, month, 1);
+  const dates = [];
+
+  while (date.getMonth() === month) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
+const getPast7Days = (initialDate = new Date()) => {
+  const past7Days = [...Array(7).keys()];
+
+  return past7Days.map((index) => {
+    const date = new Date(initialDate);
+    date.setDate(date.getDate() - index);
+    return date;
+  });
+};
+
+const getDaysInRange = (startDate, endDate) => {
+  const date = new Date(startDate.getTime());
+  const dates = [];
+
+  while (date <= endDate) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
 const day = {
   id: 1,
   state: "pending" | "completed" | "failed",
