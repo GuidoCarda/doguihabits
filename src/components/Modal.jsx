@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import ReactDOM from "react-dom";
-import { HabitForm } from "../App";
 import useClickOutside from "../hooks/useClickOutside";
+import HabitForm from "../pages/components/HabitForm";
 
 const Modal = ({ open, onClose }) => {
   const domNode = useClickOutside(onClose);
