@@ -14,7 +14,7 @@ const getAllDaysInMonth = (year, month) => {
   return dates;
 };
 
-const getPast7Days = (initialDate = new Date()) => {
+export const getPast7Days = (initialDate = new Date()) => {
   const past7Days = [...Array(7).keys()];
 
   return past7Days.map((index) => {
