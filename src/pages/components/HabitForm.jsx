@@ -1,3 +1,6 @@
+import { shallow } from "zustand/shallow";
+import useHabitsStore, { useHabitsActions } from "../../store/store";
+
 const HabitForm = ({ onClose }) => {
   const [input, setInput] = useHabitsStore(
     (state) => [state.input, state.setInput],

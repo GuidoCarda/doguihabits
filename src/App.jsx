@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { Route, Routes } from "react-router";
+import { Route, Routes } from "react-router-dom";
 import Habits from "./pages/habits";
 import Playground from "./pages/Playground";
 
