@@ -1,9 +1,10 @@
 import React from "react";
 import Layout from "../components/Layout";
+import useHabitsStore from "../store/store";
 import HabitsWeekView from "./components/HabitsWeekView";
 
 const Playground = () => {
-  const habits = [...Array(4).keys()];
+  const habits = useHabitsStore((state) => state.habits);
 
   return (
     <div className="bg-zinc-800 min-h-screen">
@@ -13,7 +14,7 @@ const Playground = () => {
         </h1>
         <div className="grid gap-4 md:grid-cols-2  lg:grid-cols-3 ">
           {habits.map((habit) => (
-            <HabitsWeekView />
+            <HabitsWeekView habit={habit} />
           ))}
         </div>
       </Layout>

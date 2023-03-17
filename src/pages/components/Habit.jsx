@@ -29,12 +29,12 @@ const Habit = (props) => {
           <li key={idx} className="h-10 w-10">
             <button
               disabled={idx + 1 > currentDate}
-              onClick={() => toggleHabitDay(habit.id, idx)}
+              onClick={() => toggleHabitDay(habit.id, day.id)}
               className={`w-full h-full ${
                 day.state === "completed"
-                  ? "bg-emerald-500"
+                  ? "bg-success"
                   : day.state === "failed"
-                  ? "bg-red-500"
+                  ? "bg-failed"
                   : "bg-neutral-300"
               } rounded-md text-black/40 font-semibold disabled:bg-zinc-500`}
             >

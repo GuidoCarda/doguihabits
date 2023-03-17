@@ -17,3 +17,13 @@ export const nextState = (state: string): string => {
   if (state === "completed") return "failed";
   return "pending";
 };
+
+export const getDayMonthYear = (date: string) => {
+  const tempDate = new Date(date);
+
+  const day = tempDate.getDate();
+  const month = tempDate.getMonth() + 1;
+  const year = tempDate.getFullYear();
+
+  return [day, month, year];
+};

@@ -37,7 +37,7 @@ const getDaysInRange = (startDate, endDate) => {
 };
 
 const day = {
-  id: 1,
+  id: "2023-03-17",
   state: "pending" | "completed" | "failed",
 };
 
@@ -51,9 +51,10 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
-  days: Array(daysInMonth())
-    .fill({})
-    .map((_, idx) => ({ id: idx, state: "pending" })),
+  days: getAllDaysInMonth(2023, 2).map((date, idx) => ({
+    id: date,
+    state: "pending",
+  })),
 };
 
 const createHabit = (input) => {
@@ -72,9 +73,11 @@ const updateHabit = (habits, habitId, dayId) => {
     (habit) => habit.id === habitId
   );
 
-  const updatedDays = days.map((day) =>
-    day.id === dayId ? { ...day, state: nextState(day.state) } : day
-  );
+  const updatedDays = days.map((day) => {
+    console.log(day.id, dayId);
+
+    return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
+  });
 
   const updatedDaysStateCount = {
     ...daysStateCount,
