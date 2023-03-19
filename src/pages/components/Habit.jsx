@@ -4,7 +4,7 @@ import { useHabitsActions } from "../../store/store";
 const Habit = (props) => {
   const { habit } = props;
 
-  const { updateHabit, deleteHabit } = useHabitsActions();
+  const { updateHabit } = useHabitsActions();
 
   const toggleHabitDay = (habitId, dayId) => {
     updateHabit(habitId, dayId);
@@ -16,12 +16,9 @@ const Habit = (props) => {
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
         <h2 className="text-2xl  font-bold capitalize">{habit.title}</h2>
-        <button
-          className="h-8 w-8 grid place-content-center bg-zinc-400 rounded-md"
-          onClick={() => deleteHabit(habit.id)}
-        >
-          X
-        </button>
+        <span className="block text-sm py-1 px-2 rounded-md bg-green-500/60">
+          March
+        </span>
       </header>
 
       <ul className="grid grid-cols-7 gap-2">

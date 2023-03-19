@@ -49,7 +49,25 @@ const Habits = () => {
             <HabitsWeekView habit={habit} />
           ))}
         </div>
+        {Boolean(!habits.length) && (
+          <EmptyState onClick={() => handleShowToggle()} />
+        )}
       </Layout>
+    </div>
+  );
+};
+
+const EmptyState = ({ onClick }) => {
+  return (
+    <div className="text-neutral-100 h-96 flex flex-col items-center justify-center gap-4">
+      <div className="h-40 w-40 bg-zinc-700 rounded-lg"></div>
+      <h2 className="text-3xl text-bold">Start by creating an habit</h2>
+      <button
+        onClick={onClick}
+        className="bg-green-500 w-max px-4 h-10 rounded-md font-bold"
+      >
+        create an habit
+      </button>
     </div>
   );
 };

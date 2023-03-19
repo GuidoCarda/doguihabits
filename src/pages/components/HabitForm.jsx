@@ -22,7 +22,7 @@ const HabitForm = ({ onClose }) => {
           habit title
         </label>
         <input
-          className="h-12 rounded-md  bg-zinc-700 text-neutral-200 px-4 outline-none w-full"
+          className="h-12 rounded-md  bg-zinc-600 text-neutral-200 px-4 outline-none w-full"
           type="text"
           id="habit"
           value={input}
