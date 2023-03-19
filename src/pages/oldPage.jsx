@@ -1,12 +1,13 @@
 import React, { useState } from "react";
+import useHabitsStore, { useHabitsActions } from "../store/store";
 import Layout from "../components/Layout";
 import Modal from "../components/Modal";
-import useHabitsStore, { useHabitsActions } from "../store/store";
-import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
+import Habit from "./components/Habit";
 
-const Habits = () => {
+const OldPage = () => {
   const [showHabitForm, setShowHabitForm] = useState(false);
+
   const habits = useHabitsStore((state) => state.habits);
 
   const { sortHabits } = useHabitsActions();
@@ -27,7 +28,7 @@ const Habits = () => {
   };
 
   return (
-    <div className="bg-zinc-800 min-h-screen">
+    <main className="min-h-screen bg-zinc-800">
       <Layout>
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold text-neutral-100">My Habits</h1>
@@ -40,18 +41,24 @@ const Habits = () => {
           </button>
         </div>
 
-        {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
-
         <Modal open={showHabitForm} onClose={() => setShowHabitForm(false)} />
 
-        <div className="grid gap-4 md:grid-cols-2  lg:grid-cols-3 ">
-          {habits.map((habit) => (
-            <HabitsWeekView habit={habit} />
-          ))}
-        </div>
+        {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
+
+        <ul className="text-neutral-100 flex flex-col gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-3">
+          {Boolean(habits.length) ? (
+            habits.map((habit) => (
+              <li key={habit.id}>
+                <Habit habit={habit} />
+              </li>
+            ))
+          ) : (
+            <h1>No creaste un habito!</h1>
+          )}
+        </ul>
       </Layout>
-    </div>
+    </main>
   );
 };
 
-export default Habits;
+export default OldPage;

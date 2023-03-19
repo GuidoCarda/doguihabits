@@ -8,7 +8,11 @@ const HabitDetail = () => {
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
 
-  return <div>{habit && <h1>{habit.title}</h1>}</div>;
+  return (
+    <div className="bg-zinc-800 min-h-screen">
+      {habit && <h1>{habit.title}</h1>}
+    </div>
+  );
 };
 
 export default HabitDetail;

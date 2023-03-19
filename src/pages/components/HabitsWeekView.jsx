@@ -18,7 +18,7 @@ const HabitsWeekView = ({ habit }) => {
     <div className="bg-zinc-600 rounded-xl p-4 text-neutral-100 space-y-4 max-w-max mx-auto md:mx-0">
       <Link
         to={`/habits/${habit.id}`}
-        className="font-bold text-lg border-2 w-full block"
+        className="font-bold text-lg w-full block"
       >
         {habit.title}
       </Link>
