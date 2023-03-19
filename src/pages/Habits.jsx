@@ -59,7 +59,7 @@ const Habits = () => {
 
 const EmptyState = ({ onClick }) => {
   return (
-    <div className="text-neutral-100 h-96 flex flex-col items-center justify-center gap-4">
+    <div className="text-neutral-100 mt-20 grid place-content-center justify-items-center gap-4">
       <div className="h-40 w-40 bg-zinc-700 rounded-lg"></div>
       <h2 className="text-3xl text-bold">Start by creating an habit</h2>
       <button
