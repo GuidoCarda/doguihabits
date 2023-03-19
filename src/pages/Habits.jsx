@@ -5,6 +5,8 @@ import useHabitsStore, { useHabitsActions } from "../store/store";
 import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
+import { AnimatePresence, motion } from "framer-motion";
+
 const Habits = () => {
   const [showHabitForm, setShowHabitForm] = useState(false);
   const habits = useHabitsStore((state) => state.habits);
@@ -42,13 +44,24 @@ const Habits = () => {
 
         {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
 
-        <Modal open={showHabitForm} onClose={() => setShowHabitForm(false)} />
+        <AnimatePresence>
+          {showHabitForm && (
+            <Modal
+              key={"new-habit-form"}
+              // open={showHabitForm}
+              onClose={() => setShowHabitForm(false)}
+            />
+          )}
+        </AnimatePresence>
 
-        <div className="grid gap-4 md:grid-cols-2  lg:grid-cols-3 ">
+        <motion.div
+          layout
+          className="grid gap-4 md:grid-cols-2  lg:grid-cols-3 "
+        >
           {habits.map((habit) => (
-            <HabitsWeekView habit={habit} />
+            <HabitsWeekView key={habit.id} habit={habit} />
           ))}
-        </div>
+        </motion.div>
         {Boolean(!habits.length) && (
           <EmptyState onClick={() => handleShowToggle()} />
         )}
@@ -59,8 +72,10 @@ const Habits = () => {
 
 const EmptyState = ({ onClick }) => {
   return (
-    <div className="text-neutral-100 mt-20 grid place-content-center justify-items-center gap-4">
-      <div className="h-40 w-40 bg-zinc-700 rounded-lg"></div>
+    <div className="text-neutral-100 mt-32 grid place-content-center justify-items-center gap-4">
+      <div className="p-5 md:p-0 rounded-lg">
+        <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
+      </div>
       <h2 className="text-3xl text-bold">Start by creating an habit</h2>
       <button
         onClick={onClick}
