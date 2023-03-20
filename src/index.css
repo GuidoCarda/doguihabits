@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  scrollbar-width: thin;
+  @apply bg-zinc-800;
 }

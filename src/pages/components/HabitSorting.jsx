@@ -2,9 +2,9 @@ import { useMemo } from "react";
 
 const HabitsSorting = ({ handleSort }) => {
   const sortModes = useMemo(() => [
-    { mode: "older", label: "más antiguos" },
-    { mode: "newest", label: "más nuevos" },
-    { mode: "most-completed", label: "más completados" },
+    { mode: "older", label: "older" },
+    { mode: "newer", label: "newer" },
+    { mode: "most-completed", label: "most completed" },
   ]);
 
   return (

@@ -1,7 +1,7 @@
 import React from "react";
 import { useHabitsActions } from "../../store/store";
 
-const Habit = (props) => {
+const HabitMonthlyView = (props) => {
   const { habit } = props;
 
   const { updateHabit } = useHabitsActions();
@@ -44,4 +44,4 @@ const Habit = (props) => {
   );
 };
 
-export default Habit;
+export default HabitMonthlyView;

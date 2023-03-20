@@ -8,7 +8,7 @@ import HabitsSorting from "./components/HabitSorting";
 import { AnimatePresence, motion } from "framer-motion";
 
 const Habits = () => {
-  const [showHabitForm, setShowHabitForm] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const habits = useHabitsStore((state) => state.habits);
 
   const { sortHabits } = useHabitsActions();
@@ -19,9 +19,9 @@ const Habits = () => {
   };
 
   const handleShowToggle = () => {
-    setShowHabitForm((prev) => !prev);
+    setIsOpen((prev) => !prev);
 
-    if (typeof window != "undefined" && window.document && showHabitForm) {
+    if (typeof window != "undefined" && window.document && isOpen) {
       document.body.style.overflow = "unset";
     } else if (typeof window != "undefined" && window.document) {
       document.body.style.overflow = "hidden";
@@ -29,28 +29,24 @@ const Habits = () => {
   };
 
   return (
-    <div className="bg-zinc-800 min-h-screen">
+    <div className=" text-neutral-100 min-h-screen">
       <Layout>
         <div className="flex items-center justify-between mb-10">
-          <h1 className="text-3xl font-semibold text-neutral-100">My Habits</h1>
+          <h1 className="text-3xl font-semibold">My Habits</h1>
 
           <button
             onClick={handleShowToggle}
-            className="h-12 w-min px-6 bg-green-600 text-white font-bold rounded-md"
+            className="h-12 w-min px-6 bg-green-600 font-bold rounded-md"
           >
-            {showHabitForm ? "close" : "new"}
+            {isOpen ? "close" : "new"}
           </button>
         </div>
 
         {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
 
         <AnimatePresence>
-          {showHabitForm && (
-            <Modal
-              key={"new-habit-form"}
-              // open={showHabitForm}
-              onClose={() => setShowHabitForm(false)}
-            />
+          {isOpen && (
+            <Modal key={"new_habit_modal"} onClose={() => setIsOpen(false)} />
           )}
         </AnimatePresence>
 
@@ -72,7 +68,7 @@ const Habits = () => {
 
 const EmptyState = ({ onClick }) => {
   return (
-    <div className="text-neutral-100 mt-32 grid place-content-center justify-items-center gap-4">
+    <div className=" mt-32 grid place-content-center justify-items-center gap-4">
       <div className="p-5 md:p-0 rounded-lg">
         <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
       </div>

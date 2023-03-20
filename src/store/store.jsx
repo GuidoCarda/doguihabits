@@ -118,7 +118,7 @@ const sortHabits = (habits, mode) => {
     });
   }
 
-  if (mode === "newest") {
+  if (mode === "newer") {
     sortedHabits = [...habits].sort((a, b) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
