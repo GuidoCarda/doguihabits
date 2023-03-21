@@ -4,6 +4,7 @@ import { useHabitsActions } from "../../store/store";
 import { getDayMonthYear } from "../../utils";
 
 import { motion } from "framer-motion";
+import clsx from "clsx";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit } = useHabitsActions();
@@ -37,13 +38,11 @@ const HabitsWeekView = ({ habit }) => {
             <button
               onClick={() => updateHabit(habit.id, id)}
               key={`day-${id}`}
-              className={`rounded-md h-10 w-10 font-semibold ${
-                state === "completed"
-                  ? "bg-success"
-                  : state === "failed"
-                  ? "bg-failed"
-                  : "bg-zinc-700"
-              } `}
+              className={clsx("rounded-md h-10 w-10 font-semibold", {
+                "bg-success": state === "completed",
+                "bg-failed": state === "failed",
+                "bg-zinc-700": state !== "failed" && state !== "completed",
+              })}
             >
               {day}
             </button>
