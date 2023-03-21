@@ -7,7 +7,7 @@ import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
 //Zustand Store
-import useHabitsStore, { useHabitsActions } from "../store/store";
+import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
 import useMediaQuery from "../hooks/useMediaQuery";

@@ -4,7 +4,7 @@ import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 //Global state
-import useHabitsStore, { useHabitsActions } from "../store/store";
+import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 
 //Components
 import Layout from "../components/Layout";

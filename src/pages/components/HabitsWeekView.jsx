@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useHabitsActions } from "../../store/store";
+import { useHabitsActions } from "../../store/useHabitsStore";
 import { getDayMonthYear } from "../../utils";
 import { TrashIcon } from "@heroicons/react/24/outline";
 

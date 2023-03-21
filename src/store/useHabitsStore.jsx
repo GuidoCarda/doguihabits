@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import produce from "immer";
-import { daysInMonth, nextState, randomId } from "../utils";
+import { nextState, randomId } from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
   const date = new Date(year, month, 1);

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { useHabitsActions } from "../../store/store";
+import { useHabitsActions } from "../../store/useHabitsStore";
 
 const HabitMonthlyView = (props) => {
   const { habit } = props;

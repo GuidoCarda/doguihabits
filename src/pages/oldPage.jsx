@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useHabitsStore, { useHabitsActions } from "../store/store";
+import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 import Layout from "../components/Layout";
 import Modal from "../components/Modal";
 import HabitsSorting from "./components/HabitSorting";
