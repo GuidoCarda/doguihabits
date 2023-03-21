@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import produce from "immer";
 import { daysInMonth, nextState, randomId } from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
@@ -74,8 +75,6 @@ const updateHabit = (habits, habitId, dayId) => {
   );
 
   const updatedDays = days.map((day) => {
-    console.log(day.id, dayId);
-
     return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
   });
 

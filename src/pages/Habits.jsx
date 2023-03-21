@@ -1,15 +1,19 @@
 import React, { useState } from "react";
+
+//Components
 import Layout from "../components/Layout";
-import Modal, { Backdrop } from "../components/Modal";
-import useHabitsStore, { useHabitsActions } from "../store/store";
+import Modal from "../components/Modal";
 import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
-import ReactDom from "react-dom";
+//Zustand Store
+import useHabitsStore, { useHabitsActions } from "../store/store";
 
-import { AnimatePresence, motion } from "framer-motion";
+//Hooks
 import useMediaQuery from "../hooks/useMediaQuery";
-import { useConfirm } from "../context/ConfirmDialogContext";
+
+//Animations
+import { AnimatePresence, motion } from "framer-motion";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,8 +64,6 @@ const Habits = () => {
           )}
         </AnimatePresence>
 
-        {true && <ConfirmationDialog></ConfirmationDialog>}
-
         <motion.div
           layout
           className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 "
@@ -96,36 +98,3 @@ const EmptyState = ({ onClick }) => {
 };
 
 export default Habits;
-
-export const ConfirmationDialog = ({
-  isOpen,
-  title,
-  description,
-  confirmBtnLabel,
-}) => {
-  if (!isOpen) return;
-
-  return ReactDom.createPortal(
-    <Backdrop>
-      <div className="absolute bg-zinc-700 rounded-lg w-full max-w-lg p-4">
-        <header>
-          <h2 className="text-2xl text-zinc-200 font-semibold">{title}</h2>
-        </header>
-
-        <div className="py-4">
-          <p className="text-zinc-300"> {description}</p>
-        </div>
-
-        <footer className="flex gap-2">
-          <button className="ml-auto bg-zinc-600 text-neutral-100 rounded-md h-10 px-4">
-            cancel
-          </button>
-          <button className=" bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100 rounded-md h-10 px-4">
-            {confirmBtnLabel}
-          </button>
-        </footer>
-      </div>
-    </Backdrop>,
-    document.getElementById("portal")
-  );
-};

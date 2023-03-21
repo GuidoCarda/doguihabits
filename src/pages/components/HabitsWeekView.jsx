@@ -6,10 +6,10 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { useConfirm } from "../../context/ConfirmDialogContext";
+import { useDialog } from "../../store/useDialogStore";
 
 const HabitsWeekView = ({ habit }) => {
-  const { updateHabit } = useHabitsActions();
+  const { updateHabit, deleteHabit } = useHabitsActions();
 
   const currentDate = new Date();
 
@@ -19,10 +19,16 @@ const HabitsWeekView = ({ habit }) => {
 
   const lastWeek = habit.days.slice(habitIndex - 6, habitIndex + 1);
 
-  const confirm = useConfirm();
+  const dialog = useDialog();
 
   const handleDelete = () => {
-    confirm({ isOpen: true });
+    //Throw a confirmation dialog
+    dialog({
+      title: "Warning!",
+      description: "Are you sure you want to delete this habit",
+      catchOnCancel: false,
+      submitText: "Confirm",
+    }).then(() => deleteHabit(habit.id));
   };
 
   return (
