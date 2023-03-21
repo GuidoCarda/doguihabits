@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React from "react";
 import { useHabitsActions } from "../../store/store";
 
@@ -15,7 +16,7 @@ const HabitMonthlyView = (props) => {
   return (
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl  font-bold capitalize">{habit.title}</h2>
+        <h2 className="text-2xl font-bold capitalize">{habit.title}</h2>
         <span className="block text-sm py-1 px-2 rounded-md bg-green-500/60">
           March
         </span>
@@ -27,13 +28,16 @@ const HabitMonthlyView = (props) => {
             <button
               disabled={idx + 1 > currentDate}
               onClick={() => toggleHabitDay(habit.id, day.id)}
-              className={`w-full h-full ${
-                day.state === "completed"
-                  ? "bg-success"
-                  : day.state === "failed"
-                  ? "bg-failed"
-                  : "bg-neutral-300"
-              } rounded-md text-black/40 font-semibold disabled:bg-zinc-500`}
+              className={clsx(
+                "w-full h-full rounded-md text-black/40 font-semibold ",
+                "disabled:bg-zinc-500",
+                {
+                  "bg-success": day.state === "completed",
+                  "bg-failed": day.state === "failed",
+                  "bg-neutral-300":
+                    day.state !== "failed" && day.state !== "completed",
+                }
+              )}
             >
               {idx + 1}
             </button>

@@ -6,6 +6,7 @@ import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
 import { AnimatePresence, motion } from "framer-motion";
+import useMediaQuery from "../hooks/useMediaQuery";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,8 @@ const Habits = () => {
     }
   };
 
+  const isMobile = useMediaQuery("(max-width: 638px)");
+
   return (
     <div className=" text-neutral-100 min-h-screen">
       <Layout>
@@ -36,9 +39,9 @@ const Habits = () => {
 
           <button
             onClick={handleShowToggle}
-            className="h-12 w-min px-6 bg-green-600 font-bold rounded-md"
+            className="h-10 px-4 bg-green-600 font-bold rounded-md"
           >
-            {isOpen ? "close" : "new"}
+            new habit
           </button>
         </div>
 
@@ -46,13 +49,17 @@ const Habits = () => {
 
         <AnimatePresence>
           {isOpen && (
-            <Modal key={"new_habit_modal"} onClose={() => setIsOpen(false)} />
+            <Modal
+              key={"new_habit_modal"}
+              onClose={() => setIsOpen(false)}
+              isMobile={isMobile}
+            />
           )}
         </AnimatePresence>
 
         <motion.div
           layout
-          className="grid gap-4 md:grid-cols-2  lg:grid-cols-3 "
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 "
         >
           {habits.map((habit) => (
             <HabitsWeekView key={habit.id} habit={habit} />
