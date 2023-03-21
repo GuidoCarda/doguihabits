@@ -8,7 +8,7 @@ const HabitsSorting = ({ handleSort }) => {
   ]);
 
   return (
-    <div className="my-4  text-neutral-100">
+    <div className=" my-4  text-neutral-100">
       <span className="block mb-2 font-semibold text-zinc-400">sort by </span>
 
       <div className="flex flex-wrap items-center gap-2">

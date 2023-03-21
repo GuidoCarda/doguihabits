@@ -1,4 +1,4 @@
-import React, { Children, forwardRef } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import useClickOutside from "../hooks/useClickOutside";
 import HabitForm from "../pages/components/HabitForm";
@@ -55,7 +55,7 @@ const backdrop = {
   },
 };
 
-const Backdrop = ({ children }) => {
+export const Backdrop = ({ children }) => {
   return (
     <motion.div
       variants={backdrop}

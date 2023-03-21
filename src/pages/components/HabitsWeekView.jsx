@@ -2,9 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useHabitsActions } from "../../store/store";
 import { getDayMonthYear } from "../../utils";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { useConfirm } from "../../context/ConfirmDialogContext";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit } = useHabitsActions();
@@ -17,19 +19,37 @@ const HabitsWeekView = ({ habit }) => {
 
   const lastWeek = habit.days.slice(habitIndex - 6, habitIndex + 1);
 
+  const confirm = useConfirm();
+
+  const handleDelete = () => {
+    confirm({ isOpen: true });
+  };
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-zinc-600 rounded-xl p-4 text-neutral-100 space-y-4 max-w-max mx-auto md:mx-0"
+      className={clsx(
+        "bg-zinc-600 rounded-xl p-4 text-neutral-100 space-y-4 w-full  mx-auto",
+        "md:max-w-max md:mx-0"
+      )}
     >
-      <Link
-        to={`/habits/${habit.id}`}
-        className="font-bold text-lg w-full block"
-      >
-        {habit.title}
-      </Link>
+      <div className="flex items-center">
+        <Link
+          to={`/habits/${habit.id}`}
+          className="font-bold text-lg w-full block"
+        >
+          {habit.title}
+        </Link>
+        <button
+          onClick={handleDelete}
+          className="h-10 w-10 bg-zinc-500 rounded-md grid place-content-center"
+        >
+          <TrashIcon className="h-4" />
+        </button>
+      </div>
+
       <div className="grid grid-cols-7 gap-4">
         {lastWeek.map(({ id, state }) => {
           const [day] = getDayMonthYear(id);
