@@ -44,12 +44,14 @@ const Habits = () => {
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold">My Habits</h1>
 
-          <button
-            onClick={handleShowToggle}
-            className="h-10 px-4 bg-green-600 font-bold rounded-md"
-          >
-            new habit
-          </button>
+          {Boolean(habits.length) && (
+            <button
+              onClick={handleShowToggle}
+              className="h-10 px-4 bg-green-600 font-bold rounded-md"
+            >
+              new habit
+            </button>
+          )}
         </div>
 
         {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}

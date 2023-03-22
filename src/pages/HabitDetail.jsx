@@ -12,6 +12,7 @@ import HabitMonthlyView from "./components/HabitMonthlyView";
 
 //Icons
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/outline";
+import { useDialog } from "../store/useDialogStore";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -19,11 +20,19 @@ const HabitDetail = () => {
 
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
+  const dialog = useDialog();
   const { deleteHabit } = useHabitsActions();
 
   const handleDelete = (habitId) => {
-    deleteHabit(habitId);
-    navigate("/");
+    dialog({
+      title: "Warning!",
+      description: "Are you sure you want to delete this habit",
+      catchOnCancel: false,
+      submitText: "Confirm",
+    }).then(() => {
+      deleteHabit(habitId);
+      navigate("/");
+    });
   };
 
   return (
