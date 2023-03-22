@@ -16,8 +16,7 @@ const HabitMonthlyView = (props) => {
   return (
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold capitalize">{habit.title}</h2>
-        <span className="block text-sm py-1 px-2 rounded-md bg-green-500/60">
+        <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
           March
         </span>
       </header>
