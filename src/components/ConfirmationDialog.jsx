@@ -25,6 +25,7 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }) => {
             cancel
           </button>
           <button
+            tabIndex="0"
             onClick={onSubmit}
             className=" bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100 rounded-md h-10 px-4"
           >

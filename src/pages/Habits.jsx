@@ -39,7 +39,7 @@ const Habits = () => {
   const isMobile = useMediaQuery("(max-width: 638px)");
 
   return (
-    <div className=" text-neutral-100 min-h-screen">
+    <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">
       <Layout>
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold">My Habits</h1>

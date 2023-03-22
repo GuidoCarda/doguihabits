@@ -27,7 +27,7 @@ const HabitDetail = () => {
   };
 
   return (
-    <div className=" text-neutral-100 min-h-screen">
+    <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">
       <Layout>
         <div className="mb-10 flex items-center">
           <Link to={"/"}>
@@ -43,7 +43,7 @@ const HabitDetail = () => {
           </button>
         </div>
 
-        <ul className="text-neutral-100 flex flex-col gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-3 ">
+        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-3 ">
           {[...Array(10).keys()].map((elem, idx) => (
             <li key={`${habit.id}-${idx}`}>
               <HabitMonthlyView habit={habit} />

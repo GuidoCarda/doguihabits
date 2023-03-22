@@ -10,7 +10,7 @@ const Layout = ({ children }) => {
   const { open, state, handleClose, handleSubmit } = useDialogStore();
 
   return (
-    <section className="max-w-screen-xl px-4 mx-auto py-10">
+    <section className="max-w-screen-xl min-h-screen px-4 mx-auto py-10">
       {children}
       <ConfirmationDialog
         open={open}
