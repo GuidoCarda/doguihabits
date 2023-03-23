@@ -41,11 +41,7 @@ const HabitDetail = () => {
   const currentDate = new Date();
 
   const getHabitStreak = (habit) => {
-    const createdAt = new Date(habit.createdAt);
-    const DAY_IN_MILISECONDS = 1000 * 60 * 60 * 24;
     let streak = 0;
-
-    // if (Math.abs(currentDate - createdAt) < DAY_IN_MILISECONDS) return streak;
 
     const lastDays = habit.days.slice(0, currentDate.getDate()).reverse();
 
@@ -60,12 +56,10 @@ const HabitDetail = () => {
   };
 
   const habitInfo = [
-    { title: "monthly streak", data: getHabitStreak(habit) },
+    { title: "streak", data: getHabitStreak(habit) },
     { title: "completed", data: habit.daysStateCount.completed },
     { title: "failed", data: habit.daysStateCount.failed },
   ];
-
-  console.log(getHabitStreak(habit));
 
   return (
     <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">

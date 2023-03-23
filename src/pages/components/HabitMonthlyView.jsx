@@ -35,11 +35,6 @@ const HabitMonthlyView = (props) => {
                   "bg-failed": day.state === "failed",
                   "bg-neutral-300":
                     day.state !== "failed" && day.state !== "completed",
-                  "bg-zinc-500":
-                    new Date(day.id).getDate() <
-                      new Date(habit.createdAt).getDate() &&
-                    day.state !== "failed" &&
-                    day.state !== "completed",
                 }
               )}
             >
