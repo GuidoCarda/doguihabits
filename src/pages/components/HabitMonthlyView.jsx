@@ -29,12 +29,17 @@ const HabitMonthlyView = (props) => {
               onClick={() => toggleHabitDay(habit.id, day.id)}
               className={clsx(
                 "w-full h-full rounded-md text-black/40 font-semibold ",
-                "disabled:bg-zinc-500",
+                "disabled:bg-zinc-500 disabled:cursor-not-allowed",
                 {
                   "bg-success": day.state === "completed",
                   "bg-failed": day.state === "failed",
                   "bg-neutral-300":
                     day.state !== "failed" && day.state !== "completed",
+                  "bg-zinc-500":
+                    new Date(day.id).getDate() <
+                      new Date(habit.createdAt).getDate() &&
+                    day.state !== "failed" &&
+                    day.state !== "completed",
                 }
               )}
             >

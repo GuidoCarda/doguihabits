@@ -10,6 +10,9 @@ import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 import Layout from "../components/Layout";
 import HabitMonthlyView from "./components/HabitMonthlyView";
 
+//Utils
+import { getDayMonthYear } from "../utils";
+
 //Icons
 import { ArrowLeftCircleIcon, FireIcon } from "@heroicons/react/24/outline";
 import { useDialog } from "../store/useDialogStore";
@@ -35,11 +38,34 @@ const HabitDetail = () => {
     });
   };
 
+  const currentDate = new Date();
+
+  const getHabitStreak = (habit) => {
+    const createdAt = new Date(habit.createdAt);
+    const DAY_IN_MILISECONDS = 1000 * 60 * 60 * 24;
+    let streak = 0;
+
+    // if (Math.abs(currentDate - createdAt) < DAY_IN_MILISECONDS) return streak;
+
+    const lastDays = habit.days.slice(0, currentDate.getDate()).reverse();
+
+    for (let day of lastDays) {
+      if (day.state !== "completed") {
+        break;
+      }
+      streak += 1;
+    }
+
+    return streak;
+  };
+
   const habitInfo = [
-    { title: "streak", data: "12d" },
-    { title: "completed", data: "32d" },
-    { title: "failed", data: "5d" },
+    { title: "monthly streak", data: getHabitStreak(habit) },
+    { title: "completed", data: habit.daysStateCount.completed },
+    { title: "failed", data: habit.daysStateCount.failed },
   ];
+
+  console.log(getHabitStreak(habit));
 
   return (
     <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">
@@ -58,21 +84,9 @@ const HabitDetail = () => {
           </button>
         </div>
 
-        {/* <div className=" p-4 mb-6 flex gap-4 rounded-lg bg-zinc-600">
-          <div className="text-center space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-300">Created on</h2>
-            <span className="block font-bold text-2xl">01-03-23</span>
-          </div>
-
-          <div className="text-center space-y-1">
-            <h2 className="text-lg font-semibold text-zinc-300">Streak</h2>
-            <span className="block font-bold text-2xl">12 Days</span>
-          </div>
-        </div> */}
-
         <div className="mb-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
-            <DashboardDetail {...info} />
+            <DashboardDetail key={info.title} {...info} />
           ))}
         </div>
 
