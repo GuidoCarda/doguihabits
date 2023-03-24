@@ -14,7 +14,12 @@ import HabitMonthlyView from "./components/HabitMonthlyView";
 import { getDayMonthYear } from "../utils";
 
 //Icons
-import { ArrowLeftCircleIcon, FireIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftCircleIcon,
+  CheckIcon,
+  FireIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { useDialog } from "../store/useDialogStore";
 
 const HabitDetail = () => {
@@ -56,9 +61,13 @@ const HabitDetail = () => {
   };
 
   const habitInfo = [
-    { title: "streak", data: getHabitStreak(habit) },
-    { title: "completed", data: habit.daysStateCount.completed },
-    { title: "failed", data: habit.daysStateCount.failed },
+    { title: "streak", data: getHabitStreak(habit), icon: "FireIcon" },
+    {
+      title: "completed",
+      data: habit.daysStateCount.completed,
+      icon: "CheckIcon",
+    },
+    { title: "failed", data: habit.daysStateCount.failed, icon: "XMarkIcon" },
   ];
 
   return (
@@ -96,7 +105,9 @@ const HabitDetail = () => {
   );
 };
 
-const DashboardDetail = ({ title, data }) => {
+const DashboardDetail = ({ title, data, icon }) => {
+  console.log(icon);
+
   return (
     <div className="p-4 w-full bg-zinc-600  rounded-2xl flex items-center justify-around gap-6 ">
       <div className="text-center -space-y-1">
@@ -104,7 +115,9 @@ const DashboardDetail = ({ title, data }) => {
         <h2 className="text-3xl font-bold">{data}</h2>
       </div>
       <span className=" grid place-content-center h-20 w-20 rounded-full bg-zinc-700">
-        <FireIcon className="h-12 text-rose-500 " />
+        {icon == "FireIcon" && <FireIcon className="h-12 text-red-500" />}
+        {icon == "XMarkIcon" && <XMarkIcon className="h-12 text-rose-500" />}
+        {icon == "CheckIcon" && <CheckIcon className="h-12 text-green-500" />}
       </span>
     </div>
   );

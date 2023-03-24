@@ -26,6 +26,7 @@ const HabitForm = ({ onClose }) => {
           type="text"
           id="habit"
           value={input}
+          autoFocus
           onChange={(e) => setInput(e.target.value)}
         />
       </div>

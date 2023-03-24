@@ -18,8 +18,14 @@ import { AnimatePresence, motion } from "framer-motion";
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const habits = useHabitsStore((state) => state.habits);
+  const setInput = useHabitsStore((state) => state.setInput);
 
   const { sortHabits } = useHabitsActions();
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setInput("");
+  };
 
   const handleSort = (e) => {
     const mode = e.target.id;
@@ -60,7 +66,7 @@ const Habits = () => {
           {isOpen && (
             <Modal
               key={"new_habit_modal"}
-              onClose={() => setIsOpen(false)}
+              onClose={handleClose}
               isMobile={isMobile}
             />
           )}
