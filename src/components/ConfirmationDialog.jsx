@@ -1,14 +1,18 @@
+import { forwardRef } from "react";
 import ReactDom from "react-dom";
 import { Backdrop } from "./Modal";
 
-const ConfirmationDialog = ({ open, options, onClose, onSubmit }) => {
+const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
   if (!open) return;
 
   const { title, description, submitText } = options;
 
   return ReactDom.createPortal(
     <Backdrop>
-      <div className="absolute bg-zinc-700 rounded-lg w-full max-w-lg p-4">
+      <div
+        aria-modal="true"
+        className="absolute bg-zinc-700 rounded-lg w-full max-w-lg p-4"
+      >
         <header>
           <h2 className="text-2xl text-zinc-200 font-semibold">{title}</h2>
         </header>
@@ -19,8 +23,9 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }) => {
 
         <footer className="flex gap-2">
           <button
+            ref={ref}
             onClick={onClose}
-            className="ml-auto bg-zinc-600 text-neutral-100 rounded-md h-10 px-4"
+            className="ml-auto bg-zinc-600  text-neutral-100 rounded-md h-10 px-4"
           >
             cancel
           </button>
@@ -38,4 +43,4 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }) => {
   );
 };
 
-export default ConfirmationDialog;
+export default forwardRef(ConfirmationDialog);

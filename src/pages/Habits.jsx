@@ -17,6 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
+
   const habits = useHabitsStore((state) => state.habits);
   const setInput = useHabitsStore((state) => state.setInput);
 

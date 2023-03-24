@@ -49,6 +49,7 @@ const HabitsWeekView = ({ habit }) => {
           {habit.title}
         </Link>
         <button
+          aria-label="delete habit"
           onClick={handleDelete}
           className="h-10 w-10 bg-zinc-500 rounded-md grid place-content-center"
         >
@@ -62,6 +63,7 @@ const HabitsWeekView = ({ habit }) => {
 
           return (
             <button
+              aria-label="toggle habit state"
               onClick={() => updateHabit(habit.id, id)}
               key={`day-${id}`}
               className={clsx("rounded-md h-10 w-10 font-semibold", {

@@ -6,7 +6,7 @@ import HabitForm from "../pages/components/HabitForm";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
-const Modal = ({ onClose, isMobile }) => {
+const Modal = ({ onClose, isMobile }, ref) => {
   const domNode = useClickOutside(onClose);
 
   //Show diferent animation based on viewport
@@ -25,6 +25,7 @@ const Modal = ({ onClose, isMobile }) => {
         animate="visible"
         exit="hidden"
         ref={domNode}
+        aria-modal="true"
         className={clsx(
           "bg-zinc-700 px-6 py-10 w-full h-2/4 self-end rounded-t-2xl",
           "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
@@ -34,6 +35,7 @@ const Modal = ({ onClose, isMobile }) => {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl text-neutral-300 font-semibold">New Habit</h2>
           <button
+            aria-label="close modal"
             className="h-8 w-8 rounded-md bg-zinc-400 font-bold text-black/50"
             onClick={onClose}
           >

@@ -26,6 +26,7 @@ const HabitMonthlyView = (props) => {
           <li key={idx} className="h-10 w-10">
             <button
               disabled={idx + 1 > currentDate}
+              aria-label="toggle habit state"
               onClick={() => toggleHabitDay(habit.id, day.id)}
               className={clsx(
                 "w-full h-full rounded-md text-black/40 font-semibold ",
