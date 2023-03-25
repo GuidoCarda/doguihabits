@@ -26,10 +26,10 @@ const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
-  const habits = useHabitsStore((state) => state.habits);
-  const habit = habits.find((habit) => habit.id === id);
   const dialog = useDialog();
-  const { deleteHabit } = useHabitsActions();
+
+  const { deleteHabit, getHabit } = useHabitsActions();
+  const habit = getHabit(id);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -106,8 +106,6 @@ const HabitDetail = () => {
 };
 
 const DashboardDetail = ({ title, data, icon }) => {
-  console.log(icon);
-
   return (
     <div className="p-4 w-full bg-zinc-600  rounded-2xl flex items-center justify-around gap-6 ">
       <div className="text-center -space-y-1">
