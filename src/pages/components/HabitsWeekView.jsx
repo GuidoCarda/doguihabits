@@ -28,7 +28,7 @@ const HabitsWeekView = ({ habit }) => {
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    }).then(() => deleteHabit(habit.id));
+    }).then(() => setTimeout(() => deleteHabit(habit.id), 100));
   };
 
   return (
