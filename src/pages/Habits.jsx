@@ -46,7 +46,12 @@ const Habits = () => {
   const isMobile = useMediaQuery("(max-width: 638px)");
 
   return (
-    <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+    >
       <Layout>
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-semibold">My Habits</h1>
@@ -85,24 +90,28 @@ const Habits = () => {
           <EmptyState onClick={() => handleShowToggle()} />
         )}
       </Layout>
-    </div>
+    </motion.div>
   );
 };
 
 const EmptyState = ({ onClick }) => {
   return (
-    <div className=" mt-32 grid place-content-center justify-items-center gap-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.5 } }}
+      className=" mt-32 grid place-content-center justify-items-center gap-4"
+    >
       <div className="p-5 md:p-0 rounded-lg">
         <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
       </div>
       <h2 className="text-3xl text-bold">Start by creating an habit</h2>
       <button
         onClick={onClick}
-        className="bg-green-500 w-max px-4 h-10 rounded-md font-bold"
+        className="bg-green-500 w-max px-4 h-10 rounded-md font-bold cursor-pointer"
       >
         create an habit
       </button>
-    </div>
+    </motion.div>
   );
 };
 

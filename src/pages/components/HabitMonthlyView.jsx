@@ -2,6 +2,15 @@ import clsx from "clsx";
 import React from "react";
 import { useHabitsActions } from "../../store/useHabitsStore";
 
+import { motion } from "framer-motion";
+
+const habitVariant = {
+  completed: { backgroundColor: "rgb(16 185 129)" },
+  failed: { backgroundColor: "rgb(239 68 68)" },
+  pending: { backgroundColor: "rgb(212 212 212)" },
+  disabled: { backgroundColor: "rgb(113 113 122)" },
+};
+
 const HabitMonthlyView = (props) => {
   const { habit } = props;
 
@@ -24,23 +33,20 @@ const HabitMonthlyView = (props) => {
       <ul className="grid grid-cols-7 gap-2">
         {habit.days.map((day, idx) => (
           <li key={idx} className="h-10 w-10">
-            <button
+            <motion.button
+              variants={habitVariant}
+              initial="pending"
+              animate={idx + 1 > currentDate ? "disabled" : day.state}
               disabled={idx + 1 > currentDate}
               aria-label="toggle habit state"
               onClick={() => toggleHabitDay(habit.id, day.id)}
               className={clsx(
                 "w-full h-full rounded-md text-black/40 font-semibold ",
-                "disabled:bg-zinc-500 disabled:cursor-not-allowed",
-                {
-                  "bg-success": day.state === "completed",
-                  "bg-failed": day.state === "failed",
-                  "bg-neutral-300":
-                    day.state !== "failed" && day.state !== "completed",
-                }
+                "disabled:cursor-not-allowed"
               )}
             >
               {idx + 1}
-            </button>
+            </motion.button>
           </li>
         ))}
       </ul>

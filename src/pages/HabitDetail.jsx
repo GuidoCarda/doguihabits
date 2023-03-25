@@ -10,9 +10,6 @@ import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 import Layout from "../components/Layout";
 import HabitMonthlyView from "./components/HabitMonthlyView";
 
-//Utils
-import { getDayMonthYear } from "../utils";
-
 //Icons
 import {
   ArrowLeftCircleIcon,
@@ -22,14 +19,18 @@ import {
 } from "@heroicons/react/24/outline";
 import { useDialog } from "../store/useDialogStore";
 
+import { motion } from "framer-motion";
+
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
   const dialog = useDialog();
 
-  const { deleteHabit, getHabit } = useHabitsActions();
-  const habit = getHabit(id);
+  const { deleteHabit } = useHabitsActions();
+
+  const habits = useHabitsStore((state) => state.habits);
+  const habit = habits.find((habit) => habit.id === id);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -71,7 +72,12 @@ const HabitDetail = () => {
   ];
 
   return (
-    <div className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+    >
       <Layout>
         <div className="mb-10 flex items-center">
           <Link to={"/"}>
@@ -101,7 +107,7 @@ const HabitDetail = () => {
           ))}
         </ul>
       </Layout>
-    </div>
+    </motion.div>
   );
 };
 
