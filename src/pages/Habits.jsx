@@ -24,19 +24,23 @@ const Habits = () => {
 
   const { sortHabits } = useHabitsActions();
 
+  const handleClose = () => {
+    setIsOpen(false);
+    setInput("");
+  };
+
   const onKeyPress = (event) => {
     event.preventDefault();
     if (event.shiftKey && event.key.toLowerCase() === "n") {
       setIsOpen(true);
     }
+
+    if (event.key === "Escape") {
+      handleClose();
+    }
   };
 
-  useKeyPress(["n"], onKeyPress);
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setInput("");
-  };
+  useKeyPress(["n", "Escape"], onKeyPress);
 
   const handleSort = (e) => {
     const mode = e.target.id;
@@ -121,6 +125,16 @@ const EmptyState = ({ onClick }) => {
       >
         create an habit
       </button>
+      <div className="relative flex  items-center gap-1 text-xs text-zinc-500">
+        <span className="">or press</span>
+        <key className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
+          Shift
+        </key>
+        <span>+</span>
+        <key className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
+          n
+        </key>
+      </div>
     </motion.div>
   );
 };
