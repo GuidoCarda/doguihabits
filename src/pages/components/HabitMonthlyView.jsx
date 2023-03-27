@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 const habitVariant = {
   completed: { backgroundColor: "rgb(16 185 129)" },
   failed: { backgroundColor: "rgb(239 68 68)" },
-  pending: { backgroundColor: "rgb(212 212 212)" },
+  pending: { backgroundColor: "rgb(63 63 70)" },
   disabled: { backgroundColor: "rgb(113 113 122)" },
 };
 
@@ -41,8 +41,8 @@ const HabitMonthlyView = (props) => {
               aria-label="toggle habit state"
               onClick={() => toggleHabitDay(habit.id, day.id)}
               className={clsx(
-                "w-full h-full rounded-md text-black/40 font-semibold ",
-                "disabled:cursor-not-allowed"
+                "w-full h-full rounded-md text-white font-semibold ",
+                "disabled:cursor-not-allowed disabled:text-black/40"
               )}
             >
               {idx + 1}

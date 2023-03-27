@@ -11,7 +11,7 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
     <Backdrop>
       <div
         aria-modal="true"
-        className="absolute bg-zinc-700 rounded-lg w-full max-w-lg p-4"
+        className="bg-zinc-700 rounded-lg w-full max-w-lg p-4"
       >
         <header>
           <h2 className="text-2xl text-zinc-200 font-semibold">{title}</h2>

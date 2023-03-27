@@ -104,10 +104,10 @@ const EmptyState = ({ onClick }) => {
       <div className="p-5 md:p-0 rounded-lg">
         <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
       </div>
-      <h2 className="text-3xl text-bold">Start by creating an habit</h2>
+      <h2 className="text-3xl text-bold">Start by creating a habit</h2>
       <button
         onClick={onClick}
-        className="bg-green-500 w-max px-4 h-10 rounded-md font-bold cursor-pointer"
+        className="bg-green-600 w-max px-4 h-10 rounded-md font-bold cursor-pointer"
       >
         create an habit
       </button>

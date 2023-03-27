@@ -93,13 +93,13 @@ const HabitDetail = () => {
           </button>
         </div>
 
-        <div className="mb-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
             <DashboardDetail key={info.title} {...info} />
           ))}
         </div>
 
-        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-3 ">
+        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3">
           {[...Array(1).keys()].map((elem, idx) => (
             <li key={`${habit.id}-${idx}`}>
               <HabitMonthlyView habit={habit} />

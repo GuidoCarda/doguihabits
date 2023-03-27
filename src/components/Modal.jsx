@@ -65,7 +65,7 @@ export const Backdrop = ({ children }) => {
       animate="visible"
       exit="hidden"
       className={clsx(
-        "fixed inset-0 h-screen w-full",
+        "fixed inset-0 h-screen w-full px-4",
         "bg-black/50 backdrop-blur-[2px] md:px-4",
         "grid place-items-center"
       )}
