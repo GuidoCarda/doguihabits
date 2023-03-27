@@ -14,6 +14,7 @@ import useMediaQuery from "../hooks/useMediaQuery";
 
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
+import useKeyPress from "../hooks/useKeyPress";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +23,15 @@ const Habits = () => {
   const setInput = useHabitsStore((state) => state.setInput);
 
   const { sortHabits } = useHabitsActions();
+
+  const onKeyPress = (event) => {
+    event.preventDefault();
+    if (event.shiftKey && event.key.toLowerCase() === "n") {
+      setIsOpen(true);
+    }
+  };
+
+  useKeyPress(["n"], onKeyPress);
 
   const handleClose = () => {
     setIsOpen(false);

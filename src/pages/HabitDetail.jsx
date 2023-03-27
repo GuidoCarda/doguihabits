@@ -80,7 +80,7 @@ const HabitDetail = () => {
     >
       <Layout>
         <div className="mb-10 flex items-center">
-          <Link to={"/"}>
+          <Link to={"/"} aria-label="back to home">
             {" "}
             <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
           </Link>
