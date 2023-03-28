@@ -125,16 +125,17 @@ const EmptyState = ({ onClick }) => {
       >
         create an habit
       </button>
-      <div className="relative flex  items-center gap-1 text-xs text-zinc-500">
-        <span className="">or press</span>
-        <key className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
+
+      <span className="relative flex  items-center gap-1 text-xs text-zinc-500">
+        or press{" "}
+        <kbd className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
           Shift
-        </key>
-        <span>+</span>
-        <key className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
+        </kbd>
+        +
+        <kbd className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
           n
-        </key>
-      </div>
+        </kbd>
+      </span>
     </motion.div>
   );
 };

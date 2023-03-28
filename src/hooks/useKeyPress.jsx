@@ -10,7 +10,7 @@ const useKeyPress = (keys, callback, node = null) => {
   const handleKeyPress = useCallback(
     (event) => {
       if (
-        event.shiftKey ||
+        event.shiftKey &&
         keys.some((key) => event.key.toLowerCase() === key.toLowerCase())
       ) {
         callbackRef.current(event);
