@@ -30,8 +30,8 @@ const Habits = () => {
   };
 
   const onKeyPress = (event) => {
-    event.preventDefault();
     if (event.shiftKey && event.key.toLowerCase() === "n") {
+      event.preventDefault();
       setIsOpen(true);
     }
 
