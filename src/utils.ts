@@ -1,3 +1,18 @@
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export const randomId = (length: number = 6): string => {
   return Math.random()
     .toString(16)
@@ -26,4 +41,8 @@ export const getDayMonthYear = (date: string) => {
   const year = tempDate.getFullYear();
 
   return [day, month, year];
+};
+
+export const getMonthString = (month: number): string => {
+  return MONTHS[month];
 };

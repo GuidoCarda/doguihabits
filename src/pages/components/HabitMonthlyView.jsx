@@ -3,6 +3,7 @@ import React from "react";
 import { useHabitsActions } from "../../store/useHabitsStore";
 
 import { motion } from "framer-motion";
+import { getMonthString } from "../../utils";
 
 const habitVariant = {
   completed: { backgroundColor: "rgb(16 185 129)" },
@@ -20,13 +21,13 @@ const HabitMonthlyView = (props) => {
     updateHabit(habitId, dayId);
   };
 
-  const currentDate = new Date().getDate();
+  const today = new Date();
 
   return (
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
-          March
+          {getMonthString(today.getMonth())}
         </span>
       </header>
 
@@ -36,8 +37,8 @@ const HabitMonthlyView = (props) => {
             <motion.button
               variants={habitVariant}
               initial="pending"
-              animate={idx + 1 > currentDate ? "disabled" : day.state}
-              disabled={idx + 1 > currentDate}
+              animate={idx + 1 > today.getDate() ? "disabled" : day.state}
+              disabled={idx + 1 > today.getDate()}
               aria-label="toggle habit state"
               onClick={() => toggleHabitDay(habit.id, day.id)}
               className={clsx(
