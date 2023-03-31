@@ -46,3 +46,12 @@ export const getDayMonthYear = (date: string) => {
 export const getMonthString = (month: number): string => {
   return MONTHS[month];
 };
+
+export const getTotal = (array, state) => {
+  return array.reduce((acum, currValue) => {
+    if (currValue.state === state) {
+      acum += 1;
+    }
+    return acum;
+  }, 0);
+};

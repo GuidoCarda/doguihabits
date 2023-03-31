@@ -31,8 +31,10 @@ const HabitMonthlyView = (props) => {
         </span>
       </header>
 
+      <button>add month</button>
+
       <ul className="grid grid-cols-7 gap-2">
-        {habit.days.map((day, idx) => (
+        {habit.months[0].map((day, idx) => (
           <li key={idx} className="h-10 w-10">
             <motion.button
               variants={habitVariant}

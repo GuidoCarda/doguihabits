@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { nextState, randomId } from "../utils";
+import { getTotal, nextState, randomId } from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
   const date = new Date(year, month, 1);
@@ -48,19 +48,21 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
-  days: getAllDaysInMonth(today.getFullYear(), today.getMonth()).map(
-    (date, idx) => ({
-      id: date,
-      state: "pending",
-    })
-  ),
+  months: [
+    getAllDaysInMonth(today.getFullYear(), today.getMonth()).map(
+      (date, idx) => ({
+        id: date,
+        state: "pending",
+      })
+    ),
+  ],
 };
 
 const createHabit = (input) => {
   const newHabit = {
     ...habit,
     id: randomId(),
-    createdAt: today,
+    createdAt: new Date(),
     title: input,
   };
 
@@ -68,23 +70,32 @@ const createHabit = (input) => {
 };
 
 const updateHabit = (habits, habitId, dayId) => {
-  const { days, daysStateCount, ...rest } = habits.find(
+  const { months, daysStateCount, ...rest } = habits.find(
     (habit) => habit.id === habitId
   );
 
-  const updatedDays = days.map((day) => {
-    return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
+  const monthToUpdate = months.findIndex(
+    (month) => new Date(month[0].id).getMonth() === new Date(dayId).getMonth()
+  );
+
+  const updatedMonths = months.map((month, idx) => {
+    if (idx === monthToUpdate) {
+      return month.map((day) => {
+        return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
+      });
+    }
+    return month;
   });
 
   const updatedDaysStateCount = {
     ...daysStateCount,
-    completed: getTotal(updatedDays, "completed"),
-    failed: getTotal(updatedDays, "failed"),
+    completed: getTotal(updatedMonths, "completed"),
+    failed: getTotal(updatedMonths, "failed"),
   };
 
   const updatedHabit = {
     ...rest,
-    days: updatedDays,
+    months: updatedMonths,
     daysStateCount: updatedDaysStateCount,
   };
 
@@ -94,15 +105,6 @@ const updateHabit = (habits, habitId, dayId) => {
 };
 
 const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
-
-const getTotal = (array, state) => {
-  return array.reduce((acum, currValue) => {
-    if (currValue.state === state) {
-      acum += 1;
-    }
-    return acum;
-  }, 0);
-};
 
 const sortHabits = (habits, mode) => {
   if (!mode) return habits;

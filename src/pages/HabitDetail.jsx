@@ -49,7 +49,7 @@ const HabitDetail = () => {
   const getHabitStreak = (habit) => {
     let streak = 0;
 
-    const lastDays = habit.days.slice(0, currentDate.getDate()).reverse();
+    const lastDays = habit.months[0].slice(0, currentDate.getDate()).reverse();
 
     for (let day of lastDays) {
       if (day.state !== "completed") {
@@ -100,7 +100,7 @@ const HabitDetail = () => {
         </div>
 
         <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3">
-          {[...Array(1).keys()].map((elem, idx) => (
+          {[...Array(5).keys()].map((elem, idx) => (
             <li key={`${habit.id}-${idx}`}>
               <HabitMonthlyView habit={habit} />
             </li>

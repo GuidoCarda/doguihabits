@@ -13,11 +13,11 @@ const HabitsWeekView = ({ habit }) => {
 
   const currentDate = new Date();
 
-  const habitIndex = habit.days.findIndex((day) => {
+  const habitIndex = habit.months[0].findIndex((day) => {
     return new Date(day.id).getDate() === currentDate.getDate();
   });
 
-  const lastWeek = habit.days.slice(habitIndex - 6, habitIndex + 1);
+  const lastWeek = habit.months[0].slice(habitIndex - 6, habitIndex + 1);
 
   const dialog = useDialog();
 
