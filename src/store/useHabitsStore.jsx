@@ -132,6 +132,26 @@ const sortHabits = (habits, mode) => {
   return sortedHabits;
 };
 
+const addHabitMonth = (habits, id) => {
+  return habits.map((habit) =>
+    habit.id === id
+      ? {
+          ...habit,
+          months: [
+            ...habit.months,
+            getAllDaysInMonth(
+              new Date().getFullYear(),
+              new Date(habit.months.at(-1)[0].id).getMonth() + 1
+            ).map((date, idx) => ({
+              id: date,
+              state: "pending",
+            })),
+          ],
+        }
+      : habit
+  );
+};
+
 const useHabitsStore = create(
   persist(
     (set, get) => ({
@@ -158,6 +178,9 @@ const useHabitsStore = create(
         },
         sortHabits: (mode) => {
           return set((state) => ({ habits: sortHabits(state.habits, mode) }));
+        },
+        addHabitMonth: (id) => {
+          return set((state) => ({ habits: addHabitMonth(state.habits, id) }));
         },
       },
     }),

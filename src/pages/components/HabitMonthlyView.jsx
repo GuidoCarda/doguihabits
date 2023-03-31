@@ -13,13 +13,9 @@ const habitVariant = {
 };
 
 const HabitMonthlyView = (props) => {
-  const { habit } = props;
+  const { month, toggleHabitDay } = props;
 
-  const { updateHabit } = useHabitsActions();
-
-  const toggleHabitDay = (habitId, dayId) => {
-    updateHabit(habitId, dayId);
-  };
+  console.log(month);
 
   const today = new Date();
 
@@ -27,14 +23,12 @@ const HabitMonthlyView = (props) => {
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
-          {getMonthString(today.getMonth())}
+          {getMonthString(new Date(month[0].id).getMonth())}
         </span>
       </header>
 
-      <button>add month</button>
-
       <ul className="grid grid-cols-7 gap-2">
-        {habit.months[0].map((day, idx) => (
+        {month.map((day, idx) => (
           <li key={idx} className="h-10 w-10">
             <motion.button
               variants={habitVariant}
@@ -42,7 +36,7 @@ const HabitMonthlyView = (props) => {
               animate={idx + 1 > today.getDate() ? "disabled" : day.state}
               disabled={idx + 1 > today.getDate()}
               aria-label="toggle habit state"
-              onClick={() => toggleHabitDay(habit.id, day.id)}
+              onClick={() => toggleHabitDay(day.id)}
               className={clsx(
                 "w-full h-full rounded-md text-white font-semibold ",
                 "disabled:cursor-not-allowed disabled:text-black/40"

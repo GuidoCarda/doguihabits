@@ -27,10 +27,12 @@ const HabitDetail = () => {
 
   const dialog = useDialog();
 
-  const { deleteHabit } = useHabitsActions();
+  const { deleteHabit, addHabitMonth, updateHabit } = useHabitsActions();
 
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
+
+  console.log(habits);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -71,6 +73,10 @@ const HabitDetail = () => {
     { title: "failed", data: habit.daysStateCount.failed, icon: "XMarkIcon" },
   ];
 
+  const toggleHabitDay = (dayId) => {
+    updateHabit(habit.id, dayId);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -93,6 +99,8 @@ const HabitDetail = () => {
           </button>
         </div>
 
+        <button onClick={() => addHabitMonth(habit.id)}>add month</button>
+
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
             <DashboardDetail key={info.title} {...info} />
@@ -100,9 +108,9 @@ const HabitDetail = () => {
         </div>
 
         <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3">
-          {[...Array(5).keys()].map((elem, idx) => (
+          {habit.months.map((month, idx) => (
             <li key={`${habit.id}-${idx}`}>
-              <HabitMonthlyView habit={habit} />
+              <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
             </li>
           ))}
         </ul>
