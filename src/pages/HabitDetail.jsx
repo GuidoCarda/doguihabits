@@ -32,7 +32,7 @@ const HabitDetail = () => {
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
 
-  console.log(habits);
+  // console.log(habits);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -51,7 +51,10 @@ const HabitDetail = () => {
   const getHabitStreak = (habit) => {
     let streak = 0;
 
-    const lastDays = habit.months[0].slice(0, currentDate.getDate()).reverse();
+    const lastDays = habit.months
+      .at(-1)
+      .slice(0, currentDate.getDate())
+      .reverse();
 
     for (let day of lastDays) {
       if (day.state !== "completed") {
