@@ -2,13 +2,7 @@ import clsx from "clsx";
 import React from "react";
 
 import { motion } from "framer-motion";
-import {
-  getMonthString,
-  isFuture,
-  isPast,
-  isSameMonth,
-  startOfDay,
-} from "../../utils";
+import { getMonthString, isPast, isSameMonth } from "../../utils";
 
 const habitVariant = {
   completed: { backgroundColor: "rgb(16 185 129)" },
