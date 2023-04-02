@@ -38,6 +38,13 @@ const getDaysInRange = (startDate, endDate) => {
 
 const today = new Date();
 
+const generatePendingHabitEntries = (datesArray) => {
+  return datesArray.map((date) => ({
+    id: date,
+    state: "pending",
+  }));
+};
+
 const daysStateCount = {
   completed: 0,
   failed: 0,
@@ -48,14 +55,7 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
-  months: [
-    getAllDaysInMonth(today.getFullYear(), today.getMonth()).map(
-      (date, idx) => ({
-        id: date,
-        state: "pending",
-      })
-    ),
-  ],
+  months: [],
 };
 
 const createHabit = (input) => {
@@ -64,6 +64,11 @@ const createHabit = (input) => {
     id: randomId(),
     createdAt: new Date(),
     title: input,
+    months: [
+      generatePendingHabitEntries(
+        getAllDaysInMonth(today.getFullYear(), today.getMonth())
+      ),
+    ],
   };
 
   return newHabit;
@@ -89,8 +94,12 @@ const updateHabit = (habits, habitId, dayId) => {
 
   const updatedDaysStateCount = {
     ...daysStateCount,
-    completed: getTotal(updatedMonths, "completed"),
-    failed: getTotal(updatedMonths, "failed"),
+    completed: updatedMonths
+      .map((month) => getTotal(month, "completed"))
+      .reduce((sum, monthTotal) => sum + monthTotal, 0),
+    failed: updatedMonths
+      .map((month) => getTotal(month, "failed"))
+      .reduce((sum, monthTotal) => sum + monthTotal, 0),
   };
 
   const updatedHabit = {
@@ -132,24 +141,26 @@ const sortHabits = (habits, mode) => {
   return sortedHabits;
 };
 
+const getNextMonth = (prevDate) => {
+  const date = new Date(prevDate);
+  date.setMonth(date.getMonth() + 1);
+  const monthDates = getAllDaysInMonth(date.getFullYear(), date.getMonth());
+
+  return generatePendingHabitEntries(monthDates);
+};
+
 const addHabitMonth = (habits, id) => {
-  return habits.map((habit) =>
-    habit.id === id
-      ? {
-          ...habit,
-          months: [
-            ...habit.months,
-            getAllDaysInMonth(
-              new Date().getFullYear(),
-              new Date(habit.months.at(-1)[0].id).getMonth() + 1
-            ).map((date, idx) => ({
-              id: date,
-              state: "pending",
-            })),
-          ],
-        }
-      : habit
-  );
+  return habits.map((habit) => {
+    if (habit.id === id) {
+      const prevMonthDate = habit.months.at(-1)[0].id;
+
+      return {
+        ...habit,
+        months: [...habit.months, getNextMonth(prevMonthDate)],
+      };
+    }
+    return habit;
+  });
 };
 
 const useHabitsStore = create(

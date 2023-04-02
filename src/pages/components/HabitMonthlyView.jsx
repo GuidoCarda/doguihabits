@@ -1,9 +1,14 @@
 import clsx from "clsx";
 import React from "react";
-import { useHabitsActions } from "../../store/useHabitsStore";
 
 import { motion } from "framer-motion";
-import { getMonthString } from "../../utils";
+import {
+  getMonthString,
+  isFuture,
+  isPast,
+  isSameMonth,
+  startOfDay,
+} from "../../utils";
 
 const habitVariant = {
   completed: { backgroundColor: "rgb(16 185 129)" },
@@ -15,9 +20,8 @@ const habitVariant = {
 const HabitMonthlyView = (props) => {
   const { month, toggleHabitDay } = props;
 
-  console.log(month);
-
   const today = new Date();
+  const isCurrentMonth = isSameMonth(month[0].id);
 
   return (
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
@@ -29,12 +33,12 @@ const HabitMonthlyView = (props) => {
 
       <ul className="grid grid-cols-7 gap-2">
         {month.map((day, idx) => (
-          <li key={idx} className="h-10 w-10">
+          <li key={day.id} className="h-10 w-10">
             <motion.button
               variants={habitVariant}
               initial="pending"
-              animate={idx + 1 > today.getDate() ? "disabled" : day.state}
-              disabled={idx + 1 > today.getDate()}
+              animate={isPast(day.id) ? day.state : "disabled"}
+              disabled={isCurrentMonth && idx + 1 > today.getDate()}
               aria-label="toggle habit state"
               onClick={() => toggleHabitDay(day.id)}
               className={clsx(
