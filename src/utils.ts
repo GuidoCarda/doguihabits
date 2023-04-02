@@ -47,11 +47,34 @@ export const getMonthString = (month: number): string => {
   return MONTHS[month];
 };
 
-export const getTotal = (array, state) => {
+export const getTotal = (array: any[], state: string): number => {
   return array.reduce((acum, currValue) => {
     if (currValue.state === state) {
       acum += 1;
     }
     return acum;
   }, 0);
+};
+
+export const startOfDay = (dirtyDate: Date | string): Date => {
+  const date = new Date(dirtyDate);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+export const isSameMonth = (dirtyDate: Date | string): boolean => {
+  const date = new Date(dirtyDate);
+  const today = new Date();
+
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+};
+
+export const isPast = (dirtyDateToCompare: Date | string): boolean => {
+  const date = startOfDay(new Date());
+  const dateToCompare = startOfDay(dirtyDateToCompare);
+
+  return date.getTime() >= dateToCompare.getTime();
 };
