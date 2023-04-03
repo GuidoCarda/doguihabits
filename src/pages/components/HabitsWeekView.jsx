@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useHabitsActions } from "../../store/useHabitsStore";
-import { getDayMonthYear } from "../../utils";
+import { getDayMonthYear, startOfDay } from "../../utils";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { motion } from "framer-motion";
@@ -13,11 +13,13 @@ const HabitsWeekView = ({ habit }) => {
 
   const currentDate = new Date();
 
-  const habitIndex = habit.months[0].findIndex((day) => {
-    return new Date(day.id).getDate() === currentDate.getDate();
-  });
+  const currentMonthIndex = habit.months.findIndex(
+    (month) => startOfDay(month[0].id).getMonth() === currentDate.getMonth()
+  );
 
-  const lastWeek = habit.months[0].slice(habitIndex - 6, habitIndex + 1);
+  const lastWeek = habit.months
+    .at(-1)
+    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
 
   const dialog = useDialog();
 
