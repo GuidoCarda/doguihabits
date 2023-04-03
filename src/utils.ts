@@ -72,6 +72,14 @@ export const isSameMonth = (dirtyDate: Date | string): boolean => {
   return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
 };
 
+export const getDaysInMonth = (dirtyDate: Date | string): number => {
+  const date = new Date(dirtyDate);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  return new Date(year, month, 0).getDate();
+};
+
 export const isPast = (dirtyDateToCompare: Date | string): boolean => {
   const date = startOfDay(new Date());
   const dateToCompare = startOfDay(dirtyDateToCompare);

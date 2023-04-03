@@ -20,6 +20,7 @@ import {
 import { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
+import { daysInMonth } from "../utils";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -27,12 +28,10 @@ const HabitDetail = () => {
 
   const dialog = useDialog();
 
-  const { deleteHabit, addHabitMonth, updateHabit } = useHabitsActions();
+  const { deleteHabit, updateHabit } = useHabitsActions();
 
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
-
-  // console.log(habits);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -51,12 +50,14 @@ const HabitDetail = () => {
   const getHabitStreak = (habit) => {
     let streak = 0;
 
-    const lastDays = habit.months
-      .at(-1)
-      .slice(0, currentDate.getDate())
-      .reverse();
+    const lastMonth = habit.months.at(-1)[0].id;
 
-    for (let day of lastDays) {
+    const days = habit.months
+      .flat()
+      .reverse()
+      .slice(daysInMonth(lastMonth) - currentDate.getDate());
+
+    for (let day of days) {
       if (day.state !== "completed") {
         break;
       }
@@ -102,15 +103,13 @@ const HabitDetail = () => {
           </button>
         </div>
 
-        <button onClick={() => addHabitMonth(habit.id)}>add month</button>
-
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
             <DashboardDetail key={info.title} {...info} />
           ))}
         </div>
 
-        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3">
+        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
           {habit.months.map((month, idx) => (
             <li key={`${habit.id}-${idx}`}>
               <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
