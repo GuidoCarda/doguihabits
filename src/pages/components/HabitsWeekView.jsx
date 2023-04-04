@@ -34,11 +34,11 @@ const HabitsWeekView = ({ habit }) => {
     .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
 
   if (lastWeek.length < 7) {
-    // if we are on the first days of the month and if the habit has prev data then
+    // if we are on the first days of the month and if the habit has prev data
     if (currentMonthIndex > 0) {
       const prevMonth = [...habit.months.at(-2)];
       lastWeek = [
-        ...prevMonth.slice(prevMonth.length - lastWeek.length - 1),
+        ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
         ...lastWeek,
       ];
     }
