@@ -86,3 +86,13 @@ export const isPast = (dirtyDateToCompare: Date | string): boolean => {
 
   return date.getTime() >= dateToCompare.getTime();
 };
+
+export const getPast7Days = (initialDate = new Date()) => {
+  const past7Days = [...Array(7).keys()];
+
+  return past7Days.map((index) => {
+    const date = new Date(initialDate);
+    date.setDate(date.getDate() - index);
+    return date;
+  });
+};

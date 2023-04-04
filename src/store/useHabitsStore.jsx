@@ -14,16 +14,6 @@ const getAllDaysInMonth = (year, month) => {
   return dates;
 };
 
-export const getPast7Days = (initialDate = new Date()) => {
-  const past7Days = [...Array(7).keys()];
-
-  return past7Days.map((index) => {
-    const date = new Date(initialDate);
-    date.setDate(date.getDate() - index);
-    return date;
-  });
-};
-
 const getDaysInRange = (startDate, endDate) => {
   const date = new Date(startDate.getTime());
   const dates = [];

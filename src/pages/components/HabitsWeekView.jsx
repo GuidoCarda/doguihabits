@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { getPast7Days, useHabitsActions } from "../../store/useHabitsStore";
+import { useHabitsActions } from "../../store/useHabitsStore";
 import { getDayMonthYear, startOfDay } from "../../utils";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
