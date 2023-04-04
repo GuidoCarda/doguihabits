@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useHabitsActions } from "../../store/useHabitsStore";
+import { getPast7Days, useHabitsActions } from "../../store/useHabitsStore";
 import { getDayMonthYear, startOfDay } from "../../utils";
 import { TrashIcon } from "@heroicons/react/24/outline";
 
@@ -10,16 +10,6 @@ import { useDialog } from "../../store/useDialogStore";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit, deleteHabit } = useHabitsActions();
-
-  const currentDate = new Date();
-
-  const currentMonthIndex = habit.months.findIndex(
-    (month) => startOfDay(month[0].id).getMonth() === currentDate.getMonth()
-  );
-
-  const lastWeek = habit.months
-    .at(-1)
-    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
 
   const dialog = useDialog();
 
@@ -32,6 +22,27 @@ const HabitsWeekView = ({ habit }) => {
       submitText: "Confirm",
     }).then(() => setTimeout(() => deleteHabit(habit.id), 100));
   };
+
+  const currentDate = new Date();
+
+  const currentMonthIndex = habit.months.findIndex(
+    (month) => startOfDay(month[0].id).getMonth() === currentDate.getMonth()
+  );
+
+  let lastWeek = habit.months
+    .at(-1)
+    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
+
+  if (lastWeek.length < 7) {
+    // if we are on the first days of the month and if the habit has prev data then
+    if (currentMonthIndex > 0) {
+      const prevMonth = [...habit.months.at(-2)];
+      lastWeek = [
+        ...prevMonth.slice(prevMonth.length - lastWeek.length - 1),
+        ...lastWeek,
+      ];
+    }
+  }
 
   return (
     <motion.div
