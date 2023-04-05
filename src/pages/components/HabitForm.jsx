@@ -11,6 +11,7 @@ const HabitForm = ({ onClose }) => {
 
   const onClick = () => {
     if (!input.trim()) return alert("empty field");
+    if (input.trim().length > 30) return alert("The title is too long");
     createHabit();
     onClose();
   };

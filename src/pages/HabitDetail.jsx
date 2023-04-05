@@ -15,6 +15,7 @@ import {
   ArrowLeftCircleIcon,
   CheckIcon,
   FireIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useDialog } from "../store/useDialogStore";
@@ -94,12 +95,13 @@ const HabitDetail = () => {
             {" "}
             <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
           </Link>
-          <h2 className="text-3xl font-bold ml-4">{habit.title}</h2>
+          <h2 className="text-3xl font-bold ml-4 truncate">{habit.title}</h2>
           <button
             onClick={() => handleDelete(habit.id)}
-            className="h-10 px-4 ml-auto bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
+            className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
           >
-            Delete Habit
+            <span className="hidden md:block">Delete Habit</span>
+            <TrashIcon className="block h-4 w-4 md:hidden" />
           </button>
         </div>
 

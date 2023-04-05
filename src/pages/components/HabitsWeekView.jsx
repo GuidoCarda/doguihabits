@@ -54,17 +54,17 @@ const HabitsWeekView = ({ habit }) => {
         "md:max-w-max md:mx-0"
       )}
     >
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <Link
           to={`/habits/${habit.id}`}
-          className="font-bold text-lg w-full block"
+          className="font-bold text-lg w-full block truncate"
         >
           {habit.title}
         </Link>
         <button
           aria-label="delete habit"
           onClick={handleDelete}
-          className="h-10 w-10 bg-zinc-500 rounded-md grid place-content-center"
+          className="h-10 w-10 bg-zinc-500  rounded-md grid place-content-center"
         >
           <TrashIcon className="h-4" />
         </button>

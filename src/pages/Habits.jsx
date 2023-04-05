@@ -15,6 +15,7 @@ import useMediaQuery from "../hooks/useMediaQuery";
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
 import useKeyPress from "../hooks/useKeyPress";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,7 +76,12 @@ const Habits = () => {
               onClick={handleShowToggle}
               className="h-10 px-4 bg-green-600 font-bold rounded-md"
             >
-              new habit
+              <span className="hidden md:block">new habit</span>
+
+              <PlusIcon
+                className="h-6 w-6 font-bold md:hidden"
+                strokeWidth="3"
+              />
             </button>
           )}
         </div>
