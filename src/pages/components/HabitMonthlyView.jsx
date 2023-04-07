@@ -2,7 +2,12 @@ import clsx from "clsx";
 import React from "react";
 
 import { motion } from "framer-motion";
-import { getMonthString, isPast, isSameMonth } from "../../utils";
+import {
+  getDayMonthYear,
+  getMonthString,
+  isPast,
+  isSameMonth,
+} from "../../utils";
 
 const habitVariant = {
   completed: { backgroundColor: "rgb(16 185 129)" },
@@ -16,12 +21,14 @@ const HabitMonthlyView = (props) => {
 
   const today = new Date();
   const isCurrentMonth = isSameMonth(month[0].id);
+  const [, , year] = getDayMonthYear(month[0].id);
 
   return (
     <div className="bg-zinc-600 px-6 py-6 rounded-md ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
           {getMonthString(new Date(month[0].id).getMonth())}
+          <span className="ml-2">{year}</span>
         </span>
       </header>
 
