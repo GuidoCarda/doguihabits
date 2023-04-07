@@ -1,23 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { getDayMonthYear, startOfDay } from "../../utils";
 import { useHabitsActions } from "../../store/useHabitsStore";
-import { getDayMonthYear } from "../../utils";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { useDialog } from "../../store/useDialogStore";
 
+//Animations, styling
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { useDialog } from "../../store/useDialogStore";
+
+//Routing
+import { Link } from "react-router-dom";
+
+//Icons
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit, deleteHabit } = useHabitsActions();
-
-  const currentDate = new Date();
-
-  const habitIndex = habit.days.findIndex((day) => {
-    return new Date(day.id).getDate() === currentDate.getDate();
-  });
-
-  const lastWeek = habit.days.slice(habitIndex - 6, habitIndex + 1);
 
   const dialog = useDialog();
 
@@ -31,6 +28,27 @@ const HabitsWeekView = ({ habit }) => {
     }).then(() => setTimeout(() => deleteHabit(habit.id), 100));
   };
 
+  const currentDate = new Date();
+
+  const currentMonthIndex = habit.months.findIndex(
+    (month) => startOfDay(month[0].id).getMonth() === currentDate.getMonth()
+  );
+
+  let lastWeek = habit.months
+    .at(-1)
+    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
+
+  if (lastWeek.length < 7) {
+    // if we are on the first days of the month and if the habit has prev data
+    if (currentMonthIndex > 0) {
+      const prevMonth = [...habit.months.at(-2)];
+      lastWeek = [
+        ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
+        ...lastWeek,
+      ];
+    }
+  }
+
   return (
     <motion.div
       layout
@@ -41,17 +59,17 @@ const HabitsWeekView = ({ habit }) => {
         "md:max-w-max md:mx-0"
       )}
     >
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <Link
           to={`/habits/${habit.id}`}
-          className="font-bold text-lg w-full block"
+          className="font-bold text-lg w-full block truncate"
         >
           {habit.title}
         </Link>
         <button
           aria-label="delete habit"
           onClick={handleDelete}
-          className="h-10 w-10 bg-zinc-500 rounded-md grid place-content-center"
+          className="h-10 w-10 bg-zinc-500  rounded-md grid place-content-center"
         >
           <TrashIcon className="h-4" />
         </button>

@@ -15,22 +15,43 @@ import {
   ArrowLeftCircleIcon,
   CheckIcon,
   FireIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { useDialog } from "../store/useDialogStore";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
+import { daysInMonth } from "../utils";
+import useKeyPress from "../hooks/useKeyPress";
 
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
   const dialog = useDialog();
+  const isDialogOpen = useDialogStore((state) => state.open);
+  const handleDialogClose = useDialogStore((state) => state.handleClose);
 
-  const { deleteHabit } = useHabitsActions();
+  const { deleteHabit, updateHabit } = useHabitsActions();
 
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
+
+  const onKeyPress = (event) => {
+    if (event.shiftKey && event.key.toLowerCase() === "d") {
+      handleDelete(id);
+    }
+
+    if (isDialogOpen && event.key === "Escape") {
+      return handleDialogClose();
+    }
+
+    if (event.key === "Escape") {
+      navigate("/");
+    }
+  };
+
+  useKeyPress(["d", "Escape"], onKeyPress);
 
   const handleDelete = (habitId) => {
     dialog({
@@ -49,9 +70,14 @@ const HabitDetail = () => {
   const getHabitStreak = (habit) => {
     let streak = 0;
 
-    const lastDays = habit.days.slice(0, currentDate.getDate()).reverse();
+    const lastMonth = habit.months.at(-1)[0].id;
 
-    for (let day of lastDays) {
+    const days = habit.months
+      .flat()
+      .reverse()
+      .slice(daysInMonth(lastMonth) - currentDate.getDate());
+
+    for (let day of days) {
       if (day.state !== "completed") {
         break;
       }
@@ -71,6 +97,10 @@ const HabitDetail = () => {
     { title: "failed", data: habit.daysStateCount.failed, icon: "XMarkIcon" },
   ];
 
+  const toggleHabitDay = (dayId) => {
+    updateHabit(habit.id, dayId);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -84,12 +114,13 @@ const HabitDetail = () => {
             {" "}
             <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
           </Link>
-          <h2 className="text-3xl font-bold ml-4">{habit.title}</h2>
+          <h2 className="text-3xl font-bold ml-4 truncate">{habit.title}</h2>
           <button
             onClick={() => handleDelete(habit.id)}
-            className="h-10 px-4 ml-auto bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
+            className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
           >
-            Delete Habit
+            <span className="hidden md:block">Delete Habit</span>
+            <TrashIcon className="block h-4 w-4 md:hidden" />
           </button>
         </div>
 
@@ -99,10 +130,10 @@ const HabitDetail = () => {
           ))}
         </div>
 
-        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3">
-          {[...Array(1).keys()].map((elem, idx) => (
+        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
+          {habit.months.map((month, idx) => (
             <li key={`${habit.id}-${idx}`}>
-              <HabitMonthlyView habit={habit} />
+              <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
             </li>
           ))}
         </ul>

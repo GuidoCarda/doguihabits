@@ -11,10 +11,12 @@ import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
 import useMediaQuery from "../hooks/useMediaQuery";
+import useKeyPress from "../hooks/useKeyPress";
 
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
-import useKeyPress from "../hooks/useKeyPress";
+
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +66,7 @@ const Habits = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100 min-h-full overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
     >
       <Layout>
         <div className="flex items-center justify-between mb-10">
@@ -75,7 +77,12 @@ const Habits = () => {
               onClick={handleShowToggle}
               className="h-10 px-4 bg-green-600 font-bold rounded-md"
             >
-              new habit
+              <span className="hidden md:block">new habit</span>
+
+              <PlusIcon
+                className="h-6 w-6 font-bold md:hidden"
+                strokeWidth="3"
+              />
             </button>
           )}
         </div>
@@ -126,7 +133,7 @@ const EmptyState = ({ onClick }) => {
         create an habit
       </button>
 
-      <span className="relative flex  items-center gap-1 text-xs text-zinc-500">
+      <span className="hidden relative md:flex  items-center gap-1 text-xs text-zinc-500">
         or press{" "}
         <kbd className="grid place-content-center px-2 h-6  rounded-sm bg-zinc-700 text-zinc-400">
           Shift
