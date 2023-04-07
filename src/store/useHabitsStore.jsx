@@ -1,10 +1,38 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { daysInMonth, nextState, randomId } from "../utils";
+import { getTotal, nextState, randomId } from "../utils";
 
-const day = {
-  id: 1,
-  state: "pending" | "completed" | "failed",
+const getAllDaysInMonth = (year, month) => {
+  const date = new Date(year, month, 1);
+  const dates = [];
+
+  while (date.getMonth() === month) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
+const getDaysInRange = (startDate, endDate) => {
+  const date = new Date(startDate.getTime());
+  const dates = [];
+
+  while (date <= endDate) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
+const today = new Date();
+
+const generatePendingHabitEntries = (datesArray) => {
+  return datesArray.map((date) => ({
+    id: date,
+    state: "pending",
+  }));
 };
 
 const daysStateCount = {
@@ -17,9 +45,7 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
-  days: Array(daysInMonth())
-    .fill({})
-    .map((_, idx) => ({ id: idx, state: "pending" })),
+  months: [],
 };
 
 const createHabit = (input) => {
@@ -28,29 +54,47 @@ const createHabit = (input) => {
     id: randomId(),
     createdAt: new Date(),
     title: input,
+    months: [
+      generatePendingHabitEntries(
+        getAllDaysInMonth(today.getFullYear(), today.getMonth())
+      ),
+    ],
   };
 
   return newHabit;
 };
 
 const updateHabit = (habits, habitId, dayId) => {
-  const { days, daysStateCount, ...rest } = habits.find(
+  const { months, daysStateCount, ...rest } = habits.find(
     (habit) => habit.id === habitId
   );
 
-  const updatedDays = days.map((day) =>
-    day.id === dayId ? { ...day, state: nextState(day.state) } : day
+  const monthToUpdate = months.findIndex(
+    (month) => new Date(month[0].id).getMonth() === new Date(dayId).getMonth()
   );
+
+  const updatedMonths = months.map((month, idx) => {
+    if (idx === monthToUpdate) {
+      return month.map((day) => {
+        return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
+      });
+    }
+    return month;
+  });
 
   const updatedDaysStateCount = {
     ...daysStateCount,
-    completed: getTotal(updatedDays, "completed"),
-    failed: getTotal(updatedDays, "failed"),
+    completed: updatedMonths
+      .map((month) => getTotal(month, "completed"))
+      .reduce((sum, monthTotal) => sum + monthTotal, 0),
+    failed: updatedMonths
+      .map((month) => getTotal(month, "failed"))
+      .reduce((sum, monthTotal) => sum + monthTotal, 0),
   };
 
   const updatedHabit = {
     ...rest,
-    days: updatedDays,
+    months: updatedMonths,
     daysStateCount: updatedDaysStateCount,
   };
 
@@ -60,15 +104,6 @@ const updateHabit = (habits, habitId, dayId) => {
 };
 
 const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
-
-const getTotal = (array, state) => {
-  return array.reduce((acum, currValue) => {
-    if (currValue.state === state) {
-      acum += 1;
-    }
-    return acum;
-  }, 0);
-};
 
 const sortHabits = (habits, mode) => {
   if (!mode) return habits;
@@ -81,7 +116,7 @@ const sortHabits = (habits, mode) => {
     });
   }
 
-  if (mode === "newest") {
+  if (mode === "newer") {
     sortedHabits = [...habits].sort((a, b) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
@@ -94,6 +129,28 @@ const sortHabits = (habits, mode) => {
   }
 
   return sortedHabits;
+};
+
+const getNextMonth = (prevDate) => {
+  const date = new Date(prevDate);
+  date.setMonth(date.getMonth() + 1);
+  const monthDates = getAllDaysInMonth(date.getFullYear(), date.getMonth());
+
+  return generatePendingHabitEntries(monthDates);
+};
+
+const addHabitMonth = (habits, id) => {
+  return habits.map((habit) => {
+    if (habit.id === id) {
+      const prevMonthDate = habit.months.at(-1)[0].id;
+
+      return {
+        ...habit,
+        months: [...habit.months, getNextMonth(prevMonthDate)],
+      };
+    }
+    return habit;
+  });
 };
 
 const useHabitsStore = create(
@@ -122,6 +179,9 @@ const useHabitsStore = create(
         },
         sortHabits: (mode) => {
           return set((state) => ({ habits: sortHabits(state.habits, mode) }));
+        },
+        addHabitMonth: (id) => {
+          return set((state) => ({ habits: addHabitMonth(state.habits, id) }));
         },
       },
     }),
