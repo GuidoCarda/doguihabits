@@ -23,6 +23,7 @@ import useDialogStore, { useDialog } from "../store/useDialogStore";
 import { motion } from "framer-motion";
 import { daysInMonth } from "../utils";
 import useKeyPress from "../hooks/useKeyPress";
+import { toast } from "react-hot-toast";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -59,10 +60,12 @@ const HabitDetail = () => {
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    }).then(() => {
-      deleteHabit(habitId);
-      navigate("/");
-    });
+    })
+      .then(() => {
+        deleteHabit(habitId);
+        navigate("/");
+      })
+      .finally(() => toast.success(`${habit.title} was successfully deleted`));
   };
 
   const currentDate = new Date();
@@ -83,7 +86,6 @@ const HabitDetail = () => {
       }
       streak += 1;
     }
-
     return streak;
   };
 
@@ -106,7 +108,7 @@ const HabitDetail = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100 h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
     >
       <Layout>
         <div className="mb-10 flex items-center">
