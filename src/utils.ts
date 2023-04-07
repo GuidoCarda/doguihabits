@@ -33,12 +33,12 @@ export const nextState = (state: string): string => {
   return "pending";
 };
 
-export const getDayMonthYear = (date: string) => {
-  const tempDate = new Date(date);
+export const getDayMonthYear = (dirtyDate: string) => {
+  const date = new Date(dirtyDate);
 
-  const day = tempDate.getDate();
-  const month = tempDate.getMonth() + 1;
-  const year = tempDate.getFullYear();
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
 
   return [day, month, year];
 };
