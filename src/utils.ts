@@ -96,3 +96,12 @@ export const getPast7Days = (initialDate = new Date()) => {
     return date;
   });
 };
+
+export const isSameDay = (
+  dirtyDateLeft: Date | string,
+  dirtyDateRight: Date | string
+): boolean => {
+  const leftDate = startOfDay(dirtyDateLeft);
+  const rightDate = startOfDay(dirtyDateRight);
+  return leftDate.getTime() === rightDate.getTime();
+};
