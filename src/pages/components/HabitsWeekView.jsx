@@ -1,12 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useHabitsActions } from "../../store/useHabitsStore";
 import { getDayMonthYear, startOfDay } from "../../utils";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { useHabitsActions } from "../../store/useHabitsStore";
+import { useDialog } from "../../store/useDialogStore";
 
+//Animations, styling
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { useDialog } from "../../store/useDialogStore";
+
+//Routing
+import { Link } from "react-router-dom";
+
+//Icons
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit, deleteHabit } = useHabitsActions();

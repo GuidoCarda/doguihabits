@@ -56,7 +56,7 @@ export const getTotal = (array: any[], state: string): number => {
   }, 0);
 };
 
-export const startOfDay = (dirtyDate: Date | string): Date => {
+export const startOfDay = (dirtyDate: Date | string | number): Date => {
   const date = new Date(dirtyDate);
   date.setHours(0, 0, 0, 0);
   return date;
@@ -98,10 +98,14 @@ export const getPast7Days = (initialDate = new Date()) => {
 };
 
 export const isSameDay = (
-  dirtyDateLeft: Date | string,
-  dirtyDateRight: Date | string
+  dirtyDateLeft: Date | string | number,
+  dirtyDateRight: Date | string | number
 ): boolean => {
   const leftDate = startOfDay(dirtyDateLeft);
   const rightDate = startOfDay(dirtyDateRight);
   return leftDate.getTime() === rightDate.getTime();
+};
+
+export const isToday = (dirtyDate: Date | string): boolean => {
+  return isSameDay(dirtyDate, Date.now());
 };
