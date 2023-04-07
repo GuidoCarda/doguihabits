@@ -18,21 +18,40 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { useDialog } from "../store/useDialogStore";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
 import { daysInMonth } from "../utils";
+import useKeyPress from "../hooks/useKeyPress";
 
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
   const dialog = useDialog();
+  const isDialogOpen = useDialogStore((state) => state.open);
+  const handleDialogClose = useDialogStore((state) => state.handleClose);
 
   const { deleteHabit, updateHabit } = useHabitsActions();
 
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
+
+  const onKeyPress = (event) => {
+    if (event.shiftKey && event.key.toLowerCase() === "d") {
+      handleDelete(id);
+    }
+
+    if (isDialogOpen && event.key === "Escape") {
+      return handleDialogClose();
+    }
+
+    if (event.key === "Escape") {
+      navigate("/");
+    }
+  };
+
+  useKeyPress(["d", "Escape"], onKeyPress);
 
   const handleDelete = (habitId) => {
     dialog({
