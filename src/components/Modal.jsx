@@ -15,7 +15,7 @@ const Modal = ({ onClose, isMobile }, ref) => {
         hidden: { y: 300 },
         visible: { y: 0, transition: { damping: 2 } },
       }
-    : { hidden: { y: 0 }, visible: { y: 0 } };
+    : { hidden: { scale: 0.8 }, visible: { scale: 1 } };
 
   return ReactDOM.createPortal(
     <Backdrop>
@@ -53,7 +53,7 @@ const backdrop = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.125 },
+    transition: { when: "afterChildren", duration: 0.125 },
   },
 };
 

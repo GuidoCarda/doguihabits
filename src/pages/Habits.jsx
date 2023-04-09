@@ -66,7 +66,7 @@ const Habits = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100 min-h-full overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
     >
       <Layout>
         <div className="flex items-center justify-between mb-10">

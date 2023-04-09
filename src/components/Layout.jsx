@@ -28,7 +28,7 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <section className="max-w-screen-xl min-h-screen px-4 mx-auto py-10">
+    <section className="max-w-screen-xl px-4 mx-auto py-12">
       {children}
       <Toaster toastOptions={toastOptions} />
       <ConfirmationDialog
