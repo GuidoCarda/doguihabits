@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import ReactDom from "react-dom";
 import { Backdrop } from "./Modal";
+import clsx from "clsx";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
   if (!open) return;
@@ -25,14 +26,20 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
           <button
             ref={ref}
             onClick={onClose}
-            className="capitalize ml-auto bg-zinc-600  text-neutral-100 rounded-md h-10 px-4"
+            className={clsx(
+              "h-10 px-4 capitalize ml-auto bg-zinc-600  text-neutral-100 rounded-md",
+              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
+            )}
           >
             cancel
           </button>
           <button
             tabIndex="0"
             onClick={onSubmit}
-            className="capitalize bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100 rounded-md h-10 px-4"
+            className={clsx(
+              "capitalize bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100 rounded-md h-10 px-4",
+              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
+            )}
           >
             {submitText}
           </button>
