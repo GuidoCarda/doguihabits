@@ -62,14 +62,21 @@ export const startOfDay = (dirtyDate: Date | string | number): Date => {
   return date;
 };
 
-export const isSameMonth = (dirtyDate: Date | string): boolean => {
-  const date = new Date(dirtyDate);
-  const today = new Date();
+export const isSameMonth = (
+  dirtyDateLeft: Date | string | number,
+  dirtyDateRight: Date | string | number
+): boolean => {
+  const dateLeft = startOfDay(dirtyDateLeft);
+  const dateRight = startOfDay(dirtyDateRight);
 
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth();
+  return (
+    dateLeft.getFullYear() === dateRight.getFullYear() &&
+    dateLeft.getMonth() === dateRight.getMonth()
+  );
+};
 
-  return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+export const isThisMonth = (dirtyDate: Date | string): boolean => {
+  return isSameMonth(Date.now(), dirtyDate);
 };
 
 export const getDaysInMonth = (dirtyDate: Date | string): number => {
