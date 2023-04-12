@@ -17,6 +17,7 @@ import useKeyPress from "../hooks/useKeyPress";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { isThisMonth } from "../utils";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,17 @@ const Habits = () => {
   const habits = useHabitsStore((state) => state.habits);
   const setInput = useHabitsStore((state) => state.setInput);
 
-  const { sortHabits } = useHabitsActions();
+  const { sortHabits, addHabitMonth } = useHabitsActions();
+
+  const hasCurrentMonth = (habit) => isThisMonth(habit.months.at(-1)[0].id);
+
+  if (habits.length) {
+    if (!hasCurrentMonth(habits[0])) {
+      for (let habit of habits) {
+        addHabitMonth(habit.id);
+      }
+    }
+  }
 
   const handleClose = () => {
     setIsOpen(false);
@@ -66,7 +77,7 @@ const Habits = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100 min-h-full overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
     >
       <Layout>
         <div className="flex items-center justify-between mb-10">

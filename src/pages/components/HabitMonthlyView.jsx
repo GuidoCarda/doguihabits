@@ -7,6 +7,7 @@ import {
   getMonthString,
   isPast,
   isSameMonth,
+  isThisMonth,
 } from "../../utils";
 
 const habitVariant = {
@@ -20,7 +21,7 @@ const HabitMonthlyView = (props) => {
   const { month, toggleHabitDay } = props;
 
   const today = new Date();
-  const isCurrentMonth = isSameMonth(month[0].id);
+  const isCurrentMonth = isThisMonth(month[0].id);
   const [, , year] = getDayMonthYear(month[0].id);
 
   return (

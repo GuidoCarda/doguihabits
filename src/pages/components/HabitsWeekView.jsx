@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 //Icons
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-hot-toast";
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit, deleteHabit } = useHabitsActions();
@@ -25,7 +26,9 @@ const HabitsWeekView = ({ habit }) => {
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    }).then(() => setTimeout(() => deleteHabit(habit.id), 100));
+    })
+      .then(() => setTimeout(() => deleteHabit(habit.id), 100))
+      .finally(() => toast.success(`${habit.title} was successfully deleted`));
   };
 
   const currentDate = new Date();
@@ -36,7 +39,8 @@ const HabitsWeekView = ({ habit }) => {
 
   let lastWeek = habit.months
     .at(-1)
-    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate());
+    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate())
+    .slice(-7);
 
   if (lastWeek.length < 7) {
     // if we are on the first days of the month and if the habit has prev data
