@@ -38,21 +38,25 @@ const HabitDetail = () => {
   const habits = useHabitsStore((state) => state.habits);
   const habit = habits.find((habit) => habit.id === id);
 
-  const onKeyPress = (event) => {
-    if (event.shiftKey && event.key.toLowerCase() === "d") {
-      handleDelete(id);
-    }
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "d"],
+      conditionals: [],
+      callback: () => handleDelete(id),
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isDialogOpen],
+      callback: handleDialogClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [!isDialogOpen],
+      callback: () => navigate("/"),
+    },
+  ];
 
-    if (isDialogOpen && event.key === "Escape") {
-      return handleDialogClose();
-    }
-
-    if (event.key === "Escape") {
-      navigate("/");
-    }
-  };
-
-  useKeyPress(["d", "Escape"], onKeyPress);
+  useKeyPress(keysToAction);
 
   const handleDelete = (habitId) => {
     dialog({

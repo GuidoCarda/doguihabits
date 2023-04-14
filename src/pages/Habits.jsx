@@ -45,7 +45,7 @@ const Habits = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "n"],
-      conditionals: [],
+      conditionals: [!isOpen],
       callback: (e) => {
         e.preventDefault();
         setIsOpen(true);
@@ -57,7 +57,7 @@ const Habits = () => {
       callback: handleClose,
     },
     {
-      keys: ["ctrlKey", "k"],
+      keys: ["shiftKey", "b"],
       conditionals: [],
       callback: (e) => {
         console.log("wombo combo");
@@ -65,18 +65,6 @@ const Habits = () => {
     },
   ];
 
-  // const onKeyPress = (event) => {
-  //   if (event.shiftKey && event.key.toLowerCase() === "n") {
-  //     event.preventDefault();
-  //     setIsOpen(true);
-  //   }
-
-  //   if (event.key === "Escape") {
-  //     handleClose();
-  //   }
-  // };
-
-  // useKeyPress(["n", "Escape"], onKeyPress);
   useKeyPress(keysToAction);
 
   const handleSort = (e) => {
@@ -110,7 +98,7 @@ const Habits = () => {
           {Boolean(habits.length) && (
             <button
               onClick={handleShowToggle}
-              className="h-10 px-4 bg-geen-600 font-bold rounded-md"
+              className="h-10 px-4 bg-green-600 font-bold rounded-md"
             >
               <span className="hidden md:block">new habit</span>
 
