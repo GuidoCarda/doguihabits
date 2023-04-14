@@ -42,18 +42,42 @@ const Habits = () => {
     setInput("");
   };
 
-  const onKeyPress = (event) => {
-    if (event.shiftKey && event.key.toLowerCase() === "n") {
-      event.preventDefault();
-      setIsOpen(true);
-    }
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "n"],
+      conditionals: [],
+      callback: (e) => {
+        e.preventDefault();
+        setIsOpen(true);
+      },
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isOpen],
+      callback: handleClose,
+    },
+    {
+      keys: ["ctrlKey", "k"],
+      conditionals: [],
+      callback: (e) => {
+        console.log("wombo combo");
+      },
+    },
+  ];
 
-    if (event.key === "Escape") {
-      handleClose();
-    }
-  };
+  // const onKeyPress = (event) => {
+  //   if (event.shiftKey && event.key.toLowerCase() === "n") {
+  //     event.preventDefault();
+  //     setIsOpen(true);
+  //   }
 
-  useKeyPress(["n", "Escape"], onKeyPress);
+  //   if (event.key === "Escape") {
+  //     handleClose();
+  //   }
+  // };
+
+  // useKeyPress(["n", "Escape"], onKeyPress);
+  useKeyPress(keysToAction);
 
   const handleSort = (e) => {
     const mode = e.target.id;
@@ -86,7 +110,7 @@ const Habits = () => {
           {Boolean(habits.length) && (
             <button
               onClick={handleShowToggle}
-              className="h-10 px-4 bg-green-600 font-bold rounded-md"
+              className="h-10 px-4 bg-geen-600 font-bold rounded-md"
             >
               <span className="hidden md:block">new habit</span>
 
