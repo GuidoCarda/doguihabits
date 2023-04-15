@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getTotal, nextState, randomId } from "../utils";
+import { daysInMonth, getTotal, nextState, randomId } from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
   const date = new Date(year, month, 1);
@@ -45,6 +45,7 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
+  currentStreak: 0,
   months: [],
 };
 
@@ -62,6 +63,25 @@ const createHabit = (input) => {
   };
 
   return newHabit;
+};
+
+const getHabitStreak = (months) => {
+  let streak = 0;
+
+  const lastMonth = months.at(-1)[0].id;
+
+  const days = months
+    .flat()
+    .reverse()
+    .slice(daysInMonth(lastMonth) - today.getDate());
+
+  for (let day of days) {
+    if (day.state !== "completed") {
+      break;
+    }
+    streak += 1;
+  }
+  return streak;
 };
 
 const updateHabit = (habits, habitId, dayId) => {
@@ -92,10 +112,13 @@ const updateHabit = (habits, habitId, dayId) => {
       .reduce((sum, monthTotal) => sum + monthTotal, 0),
   };
 
+  const currentStreak = getHabitStreak(updatedMonths);
+
   const updatedHabit = {
     ...rest,
     months: updatedMonths,
     daysStateCount: updatedDaysStateCount,
+    currentStreak,
   };
 
   return habits.map((habit) =>

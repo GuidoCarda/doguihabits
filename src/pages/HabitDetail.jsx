@@ -74,27 +74,8 @@ const HabitDetail = () => {
 
   const currentDate = new Date();
 
-  const getHabitStreak = (habit) => {
-    let streak = 0;
-
-    const lastMonth = habit.months.at(-1)[0].id;
-
-    const days = habit.months
-      .flat()
-      .reverse()
-      .slice(daysInMonth(lastMonth) - currentDate.getDate());
-
-    for (let day of days) {
-      if (day.state !== "completed") {
-        break;
-      }
-      streak += 1;
-    }
-    return streak;
-  };
-
   const habitInfo = [
-    { title: "streak", data: getHabitStreak(habit), icon: "FireIcon" },
+    { title: "streak", data: habit.currentStreak, icon: "FireIcon" },
     {
       title: "completed",
       data: habit.daysStateCount.completed,
