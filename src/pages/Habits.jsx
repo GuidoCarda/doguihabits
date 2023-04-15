@@ -27,9 +27,11 @@ const Habits = () => {
 
   const { sortHabits, addHabitMonth } = useHabitsActions();
 
+  const hasHabits = habits.length > 0;
+
   const hasCurrentMonth = (habit) => isThisMonth(habit.months.at(-1)[0].id);
 
-  if (habits.length) {
+  if (hasHabits) {
     if (!hasCurrentMonth(habits[0])) {
       for (let habit of habits) {
         addHabitMonth(habit.id);
@@ -92,23 +94,7 @@ const Habits = () => {
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <div className="flex items-center justify-between mb-10">
-          <h1 className="text-3xl font-semibold">My Habits</h1>
-
-          {Boolean(habits.length) && (
-            <button
-              onClick={handleShowToggle}
-              className="h-10 px-4 bg-green-600 font-bold rounded-md"
-            >
-              <span className="hidden md:block">new habit</span>
-
-              <PlusIcon
-                className="h-6 w-6 font-bold md:hidden"
-                strokeWidth="3"
-              />
-            </button>
-          )}
-        </div>
+        <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
 
         {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
 
@@ -122,18 +108,38 @@ const Habits = () => {
           )}
         </AnimatePresence>
 
-        <motion.div
-          layout
-          className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 "
-        >
-          {habits.map((habit) => (
-            <HabitsWeekView key={habit.id} habit={habit} />
-          ))}
-        </motion.div>
-        {Boolean(!habits.length) && (
-          <EmptyState onClick={() => handleShowToggle()} />
-        )}
+        {hasHabits && <HabitsGrid habits={habits} />}
+        {!hasHabits && <EmptyState onClick={handleShowToggle} />}
       </Layout>
+    </motion.div>
+  );
+};
+
+const PageHeader = ({ hasHabits, handleShowToggle }) => {
+  return (
+    <div className="flex items-center justify-between mb-10">
+      <h1 className="text-3xl font-semibold">My Habits</h1>
+
+      {hasHabits && (
+        <button
+          onClick={handleShowToggle}
+          className="h-10 px-4 bg-green-600 font-bold rounded-md"
+        >
+          <span className="hidden md:block">new habit</span>
+
+          <PlusIcon className="h-6 w-6 font-bold md:hidden" strokeWidth="3" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+const HabitsGrid = ({ habits }) => {
+  return (
+    <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
+      {habits.map((habit) => (
+        <HabitsWeekView key={habit.id} habit={habit} />
+      ))}
     </motion.div>
   );
 };
