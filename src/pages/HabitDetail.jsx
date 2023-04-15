@@ -72,8 +72,6 @@ const HabitDetail = () => {
       .finally(() => toast.success(`${habit.title} was successfully deleted`));
   };
 
-  const currentDate = new Date();
-
   const habitInfo = [
     { title: "streak", data: habit.currentStreak, icon: "FireIcon" },
     {
@@ -93,23 +91,10 @@ const HabitDetail = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100  max-h-screen overflow-auto   scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <div className="mb-10 flex items-center">
-          <Link to={"/"} aria-label="back to home">
-            {" "}
-            <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
-          </Link>
-          <h2 className="text-3xl font-bold ml-4 truncate">{habit.title}</h2>
-          <button
-            onClick={() => handleDelete(habit.id)}
-            className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
-          >
-            <span className="hidden md:block">Delete Habit</span>
-            <TrashIcon className="block h-4 w-4 md:hidden" />
-          </button>
-        </div>
+        <HabitDetailHeader habit={habit} handleDelete={handleDelete} />
 
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
@@ -117,15 +102,41 @@ const HabitDetail = () => {
           ))}
         </div>
 
-        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-          {habit.months.map((month, idx) => (
-            <li key={`${habit.id}-${idx}`}>
-              <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
-            </li>
-          ))}
-        </ul>
+        <HabitMontlyViewGrid habit={habit} toggleHabitDay={toggleHabitDay} />
       </Layout>
     </motion.div>
+  );
+};
+
+const HabitDetailHeader = ({ habit, handleDelete }) => {
+  const { id, title } = habit;
+  return (
+    <div className="mb-10 flex items-center">
+      <Link to={"/"} aria-label="back to home">
+        {" "}
+        <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
+      </Link>
+      <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>
+      <button
+        onClick={() => handleDelete(id)}
+        className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
+      >
+        <span className="hidden md:block">Delete Habit</span>
+        <TrashIcon className="block h-4 w-4 md:hidden" />
+      </button>
+    </div>
+  );
+};
+
+const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
+  return (
+    <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
+      {habit.months.map((month, idx) => (
+        <li key={`${habit.id}-${idx}`}>
+          <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
+        </li>
+      ))}
+    </ul>
   );
 };
 
