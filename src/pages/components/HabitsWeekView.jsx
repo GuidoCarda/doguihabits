@@ -125,13 +125,13 @@ const HabitsWeekView = ({ habit }) => {
       <div className="border-t-2 px-4 pb-2 pt-2 border-zinc-500/50 flex gap-2">
         <div className="flex items-center gap-1">
           <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
-          <span className="text-smtext-zinc-300 font-semibold">
+          <span className="text-sm text-zinc-300 font-semibold">
             {habit.currentStreak}
           </span>
         </div>
         <div className="flex items-center gap-1 ">
           <CheckBadgeIcon className="h-5 w-5 text-green-500" strokeWidth="2" />
-          <span className="text-smtext-zinc-300 font-semibold">
+          <span className="text-sm text-zinc-300 font-semibold">
             {completionPercentage}%
           </span>
         </div>
