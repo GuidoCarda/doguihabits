@@ -13,6 +13,16 @@ const MONTHS = [
   "December",
 ];
 
+const WEEK_DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 export const randomId = (length: number = 6): string => {
   return Math.random()
     .toString(16)
@@ -45,6 +55,10 @@ export const getDayMonthYear = (dirtyDate: string) => {
 
 export const getMonthString = (month: number): string => {
   return MONTHS[month];
+};
+
+export const getWeekDayString = (dayIdx: number): string => {
+  return WEEK_DAYS[dayIdx];
 };
 
 export const getTotal = (array: any[], state: string): number => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { getDayMonthYear, startOfDay } from "../../utils";
+import { getDayMonthYear, getWeekDayString, startOfDay } from "../../utils";
 import { useHabitsActions } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
@@ -60,6 +60,14 @@ const HabitsWeekView = ({ habit }) => {
     }
   }
 
+  const getCompletionPercentage = (habit) => {
+    const { daysStateCount } = habit;
+    const totalCount = daysStateCount.completed + daysStateCount.failed;
+    return totalCount ? (daysStateCount.completed * 100) / totalCount : 0;
+  };
+
+  const completionPercentage = getCompletionPercentage(habit).toFixed(0);
+
   return (
     <motion.div
       layout
@@ -76,7 +84,7 @@ const HabitsWeekView = ({ habit }) => {
           className="font-bold text-lg w-full block truncate"
         >
           {habit.title}
-          <span className="text-xs bg-zinc-400/40 text-zinc-300 font-normal w-max h-5 grid place-items-center px-1 rounded-sm">
+          <span className="text-xs bg-zinc-400/40 text-zinc-300 font-normal w-max h-5 leading-2 grid place-items-center px-1 rounded-sm">
             created at {getDayMonthYear(habit.createdAt).join("/")}
           </span>
         </Link>
@@ -94,14 +102,13 @@ const HabitsWeekView = ({ habit }) => {
           const [day] = getDayMonthYear(id);
 
           return (
-            <div>
-              <span className="block text-xs w-full text-center font-semibold text-zinc-400 pb-1">
-                {weekDays[idx]}
+            <div key={`day-${id}`}>
+              <span className="block text-xs w-10 text-center font-semibold text-zinc-400 pb-1">
+                {getWeekDayString(startOfDay(id).getDay()).slice(0, 3)}
               </span>
               <button
                 aria-label="toggle habit state"
                 onClick={() => updateHabit(habit.id, id)}
-                key={`day-${id}`}
                 className={clsx("rounded-md h-10 w-10 font-semibold", {
                   "bg-success": state === "completed",
                   "bg-failed": state === "failed",
@@ -118,11 +125,15 @@ const HabitsWeekView = ({ habit }) => {
       <div className="border-t-2 px-4 pb-2 pt-2 border-zinc-500/50 flex gap-2">
         <div className="flex items-center gap-1">
           <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
-          <span className="text-smtext-zinc-300 font-semibold">3</span>
+          <span className="text-smtext-zinc-300 font-semibold">
+            {habit.currentStreak}
+          </span>
         </div>
         <div className="flex items-center gap-1 ">
           <CheckBadgeIcon className="h-5 w-5 text-green-500" strokeWidth="2" />
-          <span className="text-smtext-zinc-300 font-semibold">46%</span>
+          <span className="text-smtext-zinc-300 font-semibold">
+            {completionPercentage}%
+          </span>
         </div>
       </div>
     </motion.div>
