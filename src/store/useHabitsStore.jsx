@@ -172,16 +172,12 @@ const useHabitsStore = create(
   persist(
     (set, get) => ({
       habits: [],
-      input: "",
-      setInput: (userInput) => set(() => ({ input: userInput })),
       actions: {
-        createHabit: () => {
+        createHabit: (input) => {
           set((state) => ({
-            habits: [createHabit(state.input), ...state.habits],
-            input: "",
+            habits: [createHabit(input), ...state.habits],
           }));
         },
-        getHabit: (id) => get().habits.find((habit) => habit.id === id),
         updateHabit: (habitId, dayId) => {
           return set((state) => ({
             habits: updateHabit(state.habits, habitId, dayId),
@@ -198,6 +194,7 @@ const useHabitsStore = create(
         addHabitMonth: (id) => {
           return set((state) => ({ habits: addHabitMonth(state.habits, id) }));
         },
+        deleteAllHabits: () => set({ habits: [] }),
       },
     }),
     { name: "habits", partialize: (state) => ({ habits: state.habits }) }
@@ -205,5 +202,25 @@ const useHabitsStore = create(
 );
 
 export const useHabitsActions = () => useHabitsStore((state) => state.actions);
+
+const sortFunctions = {
+  oldest: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+  completed: (a, b) => b.daysStateCount.completed - a.daysStateCount.completed,
+};
+
+// Get all habits based on sortCriteria, if any
+export const useHabits = (sortCriteria) =>
+  useHabitsStore((state) => {
+    // the in checks if a property exists in an object
+    // if the sortCriteria exists then the received criteria will be applied
+    if (sortCriteria in sortFunctions) {
+      return [...state.habits].sort(sortFunctions[sortCriteria]);
+    }
+    return state.habits;
+  });
+
+// Get a single habit by Id
+export const useHabit = (id) =>
+  useHabitsStore((state) => state.habits.find((habit) => habit.id === id));
 
 export default useHabitsStore;

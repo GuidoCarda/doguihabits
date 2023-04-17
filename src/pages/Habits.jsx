@@ -7,7 +7,7 @@ import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
 //Zustand Store
-import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
+import { useHabits, useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
 import useMediaQuery from "../hooks/useMediaQuery";
@@ -16,23 +16,25 @@ import useKeyPress from "../hooks/useKeyPress";
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
 
-import { PlusIcon } from "@heroicons/react/24/outline";
+//Date Utils
 import { isThisMonth } from "../utils";
+
+//Icons
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState("");
 
-  const habits = useHabitsStore((state) => state.habits);
-  const setInput = useHabitsStore((state) => state.setInput);
-
-  console.log(habits);
-
-  const { sortHabits, addHabitMonth } = useHabitsActions();
-
+  //Get habits sorted by criteria if any, else get them in default order of creation
+  const habits = useHabits(sortCriteria);
   const hasHabits = habits.length > 0;
+
+  const { addHabitMonth } = useHabitsActions();
 
   const hasCurrentMonth = (habit) => isThisMonth(habit.months.at(-1)[0].id);
 
+  //Add dinamicaly the corresponding months to each habit on load if any
   if (hasHabits) {
     if (!hasCurrentMonth(habits[0])) {
       for (let habit of habits) {
@@ -41,24 +43,33 @@ const Habits = () => {
     }
   }
 
-  const handleClose = () => {
-    setIsOpen(false);
-    setInput("");
+  const handleClose = () => setIsOpen(false);
+
+  const handleShowToggle = () => {
+    setIsOpen((prev) => !prev);
+
+    // block page scroll when modal isOpen
+    if (typeof window != "undefined" && window.document && isOpen) {
+      document.body.style.overflow = "unset";
+    } else if (typeof window != "undefined" && window.document) {
+      document.body.style.overflow = "hidden";
+    }
   };
 
+  // KeysActions maps to provide the user keyboard shortcuts
   const keysToAction = [
     {
       keys: ["shiftKey", "n"],
       conditionals: [!isOpen],
       callback: (e) => {
         e.preventDefault();
-        setIsOpen(true);
+        handleShowToggle();
       },
     },
     {
       keys: ["Escape"],
       conditionals: [isOpen],
-      callback: handleClose,
+      callback: handleShowToggle,
     },
     {
       keys: ["shiftKey", "b"],
@@ -71,16 +82,14 @@ const Habits = () => {
 
   useKeyPress(keysToAction);
 
-  const handleShowToggle = () => {
-    setIsOpen((prev) => !prev);
-
-    if (typeof window != "undefined" && window.document && isOpen) {
-      document.body.style.overflow = "unset";
-    } else if (typeof window != "undefined" && window.document) {
-      document.body.style.overflow = "hidden";
-    }
+  // update sorting criteria when user selects new option
+  const handleSortChange = (event) => {
+    const id = event.target.id;
+    const newSortCriteria = id !== sortCriteria ? id : "";
+    setSortCriteria(newSortCriteria);
   };
 
+  //Conditionally style components and animations based on device
   const isMobile = useMediaQuery("(max-width: 638px)");
 
   return (
@@ -93,7 +102,12 @@ const Habits = () => {
       <Layout>
         <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
 
-        {habits.length > 1 && <HabitsSorting />}
+        {habits.length > 1 && (
+          <HabitsSorting
+            onClick={handleSortChange}
+            sortCriteria={sortCriteria}
+          />
+        )}
 
         <AnimatePresence>
           {isOpen && (

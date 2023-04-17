@@ -3,8 +3,9 @@ import React from "react";
 //Routing
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-//Global state
-import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
+//Global state hooks
+import { useHabit, useHabitsActions } from "../store/useHabitsStore";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 //Components
 import Layout from "../components/Layout";
@@ -18,7 +19,6 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
 import useKeyPress from "../hooks/useKeyPress";
@@ -34,18 +34,17 @@ const HabitDetail = () => {
 
   const { deleteHabit, updateHabit } = useHabitsActions();
 
-  const habits = useHabitsStore((state) => state.habits);
-  const habit = habits.find((habit) => habit.id === id);
+  const habit = useHabit(id);
 
   const keysToAction = [
     {
       keys: ["shiftKey", "d"],
-      conditionals: [],
+      conditionals: [habit],
       callback: () => handleDelete(id),
     },
     {
       keys: ["Escape"],
-      conditionals: [isDialogOpen],
+      conditionals: [isDialogOpen, habit],
       callback: handleDialogClose,
     },
     {
@@ -56,6 +55,28 @@ const HabitDetail = () => {
   ];
 
   useKeyPress(keysToAction);
+
+  if (!habit) {
+    return (
+      <div className="grid place-items-center min-h-screen">
+        <div className="max-w-sm flex flex-col text-center items-center gap-4 ">
+          <h2 className="text-3xl font-bold text-zinc-300">
+            Something went wrong
+          </h2>
+          <p className="text-zinc-500">
+            It looks like the searched habit habit doesn't exists or something
+            went wrong on the loading process
+          </p>
+          <Link
+            to="/"
+            className="h-10 text-zinc-800 bg-zinc-200 rounded-md flex items-center px-4 mt-10"
+          >
+            Return to the home page
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleDelete = (habitId) => {
     dialog({
