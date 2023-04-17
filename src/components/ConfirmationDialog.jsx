@@ -2,7 +2,6 @@ import { forwardRef } from "react";
 import ReactDom from "react-dom";
 import { Backdrop } from "./Modal";
 import clsx from "clsx";
-import Button from "./Button";
 import useClickOutside from "../hooks/useClickOutside";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
