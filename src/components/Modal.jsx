@@ -53,7 +53,7 @@ const backdrop = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { when: "afterChildren", duration: 0.125 },
+    transition: { when: "beforeChildren", duration: 0.125 },
   },
 };
 
