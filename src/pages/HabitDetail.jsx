@@ -3,8 +3,9 @@ import React from "react";
 //Routing
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-//Global state
-import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
+//Global state hooks
+import { useHabit, useHabitsActions } from "../store/useHabitsStore";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 //Components
 import Layout from "../components/Layout";
@@ -18,10 +19,8 @@ import {
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
-import { daysInMonth } from "../utils";
 import useKeyPress from "../hooks/useKeyPress";
 import { toast } from "react-hot-toast";
 
@@ -35,24 +34,49 @@ const HabitDetail = () => {
 
   const { deleteHabit, updateHabit } = useHabitsActions();
 
-  const habits = useHabitsStore((state) => state.habits);
-  const habit = habits.find((habit) => habit.id === id);
+  const habit = useHabit(id);
 
-  const onKeyPress = (event) => {
-    if (event.shiftKey && event.key.toLowerCase() === "d") {
-      handleDelete(id);
-    }
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "d"],
+      conditionals: [habit],
+      callback: () => handleDelete(id),
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isDialogOpen, habit],
+      callback: handleDialogClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [!isDialogOpen],
+      callback: () => navigate("/"),
+    },
+  ];
 
-    if (isDialogOpen && event.key === "Escape") {
-      return handleDialogClose();
-    }
+  useKeyPress(keysToAction);
 
-    if (event.key === "Escape") {
-      navigate("/");
-    }
-  };
-
-  useKeyPress(["d", "Escape"], onKeyPress);
+  if (!habit) {
+    return (
+      <div className="grid place-items-center min-h-screen">
+        <div className="max-w-sm flex flex-col text-center items-center gap-4 ">
+          <h2 className="text-3xl font-bold text-zinc-300">
+            Something went wrong
+          </h2>
+          <p className="text-zinc-500">
+            It looks like the searched habit habit doesn't exists or something
+            went wrong on the loading process
+          </p>
+          <Link
+            to="/"
+            className="h-10 text-zinc-800 bg-zinc-200 rounded-md flex items-center px-4 mt-10"
+          >
+            Return to the home page
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleDelete = (habitId) => {
     dialog({
@@ -68,29 +92,8 @@ const HabitDetail = () => {
       .finally(() => toast.success(`${habit.title} was successfully deleted`));
   };
 
-  const currentDate = new Date();
-
-  const getHabitStreak = (habit) => {
-    let streak = 0;
-
-    const lastMonth = habit.months.at(-1)[0].id;
-
-    const days = habit.months
-      .flat()
-      .reverse()
-      .slice(daysInMonth(lastMonth) - currentDate.getDate());
-
-    for (let day of days) {
-      if (day.state !== "completed") {
-        break;
-      }
-      streak += 1;
-    }
-    return streak;
-  };
-
   const habitInfo = [
-    { title: "streak", data: getHabitStreak(habit), icon: "FireIcon" },
+    { title: "streak", data: habit.currentStreak, icon: "FireIcon" },
     {
       title: "completed",
       data: habit.daysStateCount.completed,
@@ -108,23 +111,10 @@ const HabitDetail = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100  max-h-screen overflow-auto   scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <div className="mb-10 flex items-center">
-          <Link to={"/"} aria-label="back to home">
-            {" "}
-            <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
-          </Link>
-          <h2 className="text-3xl font-bold ml-4 truncate">{habit.title}</h2>
-          <button
-            onClick={() => handleDelete(habit.id)}
-            className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
-          >
-            <span className="hidden md:block">Delete Habit</span>
-            <TrashIcon className="block h-4 w-4 md:hidden" />
-          </button>
-        </div>
+        <HabitDetailHeader habit={habit} handleDelete={handleDelete} />
 
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
@@ -132,15 +122,41 @@ const HabitDetail = () => {
           ))}
         </div>
 
-        <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-          {habit.months.map((month, idx) => (
-            <li key={`${habit.id}-${idx}`}>
-              <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
-            </li>
-          ))}
-        </ul>
+        <HabitMontlyViewGrid habit={habit} toggleHabitDay={toggleHabitDay} />
       </Layout>
     </motion.div>
+  );
+};
+
+const HabitDetailHeader = ({ habit, handleDelete }) => {
+  const { id, title } = habit;
+  return (
+    <div className="mb-10 flex items-center">
+      <Link to={"/"} aria-label="back to home">
+        {" "}
+        <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
+      </Link>
+      <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>
+      <button
+        onClick={() => handleDelete(id)}
+        className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-white font-bold rounded-md"
+      >
+        <span className="hidden md:block">Delete Habit</span>
+        <TrashIcon className="block h-4 w-4 md:hidden" />
+      </button>
+    </div>
+  );
+};
+
+const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
+  return (
+    <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
+      {habit.months.map((month, idx) => (
+        <li key={`${habit.id}-${idx}`}>
+          <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
+        </li>
+      ))}
+    </ul>
   );
 };
 

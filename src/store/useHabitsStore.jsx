@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { getTotal, nextState, randomId } from "../utils";
+import { daysInMonth, getTotal, nextState, randomId } from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
   const date = new Date(year, month, 1);
@@ -45,6 +45,7 @@ const habit = {
   title: "",
   createdAt: "",
   daysStateCount,
+  currentStreak: 0,
   months: [],
 };
 
@@ -62,6 +63,25 @@ const createHabit = (input) => {
   };
 
   return newHabit;
+};
+
+const getHabitStreak = (months) => {
+  let streak = 0;
+
+  const lastMonth = months.at(-1)[0].id;
+
+  const days = months
+    .flat()
+    .reverse()
+    .slice(daysInMonth(lastMonth) - today.getDate());
+
+  for (let day of days) {
+    if (day.state !== "completed") {
+      break;
+    }
+    streak += 1;
+  }
+  return streak;
 };
 
 const updateHabit = (habits, habitId, dayId) => {
@@ -92,10 +112,13 @@ const updateHabit = (habits, habitId, dayId) => {
       .reduce((sum, monthTotal) => sum + monthTotal, 0),
   };
 
+  const currentStreak = getHabitStreak(updatedMonths);
+
   const updatedHabit = {
     ...rest,
     months: updatedMonths,
     daysStateCount: updatedDaysStateCount,
+    currentStreak,
   };
 
   return habits.map((habit) =>
@@ -106,29 +129,21 @@ const updateHabit = (habits, habitId, dayId) => {
 const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
 
 const sortHabits = (habits, mode) => {
-  if (!mode) return habits;
-
-  let sortedHabits;
-
   if (mode === "older") {
-    sortedHabits = [...habits].sort((a, b) => {
+    return [...habits].sort((a, b) => {
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
   }
 
-  if (mode === "newer") {
-    sortedHabits = [...habits].sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-  }
-
   if (mode === "most-completed") {
-    sortedHabits = [...habits].sort((a, b) => {
+    return [...habits].sort((a, b) => {
       return b.daysStateCount.completed - a.daysStateCount.completed;
     });
   }
 
-  return sortedHabits;
+  return [...habits].sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 };
 
 const getNextMonth = (prevDate) => {
@@ -157,16 +172,12 @@ const useHabitsStore = create(
   persist(
     (set, get) => ({
       habits: [],
-      input: "",
-      setInput: (userInput) => set(() => ({ input: userInput })),
       actions: {
-        createHabit: () => {
+        createHabit: (input) => {
           set((state) => ({
-            habits: [createHabit(state.input), ...state.habits],
-            input: "",
+            habits: [createHabit(input), ...state.habits],
           }));
         },
-        getHabit: (id) => get().habits.find((habit) => habit.id === id),
         updateHabit: (habitId, dayId) => {
           return set((state) => ({
             habits: updateHabit(state.habits, habitId, dayId),
@@ -183,6 +194,7 @@ const useHabitsStore = create(
         addHabitMonth: (id) => {
           return set((state) => ({ habits: addHabitMonth(state.habits, id) }));
         },
+        deleteAllHabits: () => set({ habits: [] }),
       },
     }),
     { name: "habits", partialize: (state) => ({ habits: state.habits }) }
@@ -190,5 +202,25 @@ const useHabitsStore = create(
 );
 
 export const useHabitsActions = () => useHabitsStore((state) => state.actions);
+
+const sortFunctions = {
+  oldest: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+  completed: (a, b) => b.daysStateCount.completed - a.daysStateCount.completed,
+};
+
+// Get all habits based on sortCriteria, if any
+export const useHabits = (sortCriteria) =>
+  useHabitsStore((state) => {
+    // the in checks if a property exists in an object
+    // if the sortCriteria exists then the received criteria will be applied
+    if (sortCriteria in sortFunctions) {
+      return [...state.habits].sort(sortFunctions[sortCriteria]);
+    }
+    return state.habits;
+  });
+
+// Get a single habit by Id
+export const useHabit = (id) =>
+  useHabitsStore((state) => state.habits.find((habit) => habit.id === id));
 
 export default useHabitsStore;

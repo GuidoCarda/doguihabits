@@ -7,7 +7,7 @@ import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
 //Zustand Store
-import useHabitsStore, { useHabitsActions } from "../store/useHabitsStore";
+import { useHabits, useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
 import useMediaQuery from "../hooks/useMediaQuery";
@@ -16,20 +16,26 @@ import useKeyPress from "../hooks/useKeyPress";
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
 
-import { PlusIcon } from "@heroicons/react/24/outline";
+//Date Utils
 import { isThisMonth } from "../utils";
+
+//Icons
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState("");
 
-  const habits = useHabitsStore((state) => state.habits);
-  const setInput = useHabitsStore((state) => state.setInput);
+  //Get habits sorted by criteria if any, else get them in default order of creation
+  const habits = useHabits(sortCriteria);
+  const hasHabits = habits.length > 0;
 
-  const { sortHabits, addHabitMonth } = useHabitsActions();
+  const { addHabitMonth } = useHabitsActions();
 
   const hasCurrentMonth = (habit) => isThisMonth(habit.months.at(-1)[0].id);
 
-  if (habits.length) {
+  //Add dinamicaly the corresponding months to each habit on load if any
+  if (hasHabits) {
     if (!hasCurrentMonth(habits[0])) {
       for (let habit of habits) {
         addHabitMonth(habit.id);
@@ -37,32 +43,12 @@ const Habits = () => {
     }
   }
 
-  const handleClose = () => {
-    setIsOpen(false);
-    setInput("");
-  };
-
-  const onKeyPress = (event) => {
-    if (event.shiftKey && event.key.toLowerCase() === "n") {
-      event.preventDefault();
-      setIsOpen(true);
-    }
-
-    if (event.key === "Escape") {
-      handleClose();
-    }
-  };
-
-  useKeyPress(["n", "Escape"], onKeyPress);
-
-  const handleSort = (e) => {
-    const mode = e.target.id;
-    sortHabits(mode);
-  };
+  const handleClose = () => setIsOpen(false);
 
   const handleShowToggle = () => {
     setIsOpen((prev) => !prev);
 
+    // block page scroll when modal isOpen
     if (typeof window != "undefined" && window.document && isOpen) {
       document.body.style.overflow = "unset";
     } else if (typeof window != "undefined" && window.document) {
@@ -70,6 +56,40 @@ const Habits = () => {
     }
   };
 
+  // KeysActions maps to provide the user keyboard shortcuts
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "n"],
+      conditionals: [!isOpen],
+      callback: (e) => {
+        e.preventDefault();
+        handleShowToggle();
+      },
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isOpen],
+      callback: handleShowToggle,
+    },
+    {
+      keys: ["shiftKey", "b"],
+      conditionals: [],
+      callback: (e) => {
+        console.log("wombo combo");
+      },
+    },
+  ];
+
+  useKeyPress(keysToAction);
+
+  // update sorting criteria when user selects new option
+  const handleSortChange = (event) => {
+    const id = event.target.id;
+    const newSortCriteria = id !== sortCriteria ? id : "";
+    setSortCriteria(newSortCriteria);
+  };
+
+  //Conditionally style components and animations based on device
   const isMobile = useMediaQuery("(max-width: 638px)");
 
   return (
@@ -77,28 +97,17 @@ const Habits = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <div className="flex items-center justify-between mb-10">
-          <h1 className="text-3xl font-semibold">My Habits</h1>
+        <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
 
-          {Boolean(habits.length) && (
-            <button
-              onClick={handleShowToggle}
-              className="h-10 px-4 bg-green-600 font-bold rounded-md"
-            >
-              <span className="hidden md:block">new habit</span>
-
-              <PlusIcon
-                className="h-6 w-6 font-bold md:hidden"
-                strokeWidth="3"
-              />
-            </button>
-          )}
-        </div>
-
-        {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
+        {habits.length > 1 && (
+          <HabitsSorting
+            onClick={handleSortChange}
+            sortCriteria={sortCriteria}
+          />
+        )}
 
         <AnimatePresence>
           {isOpen && (
@@ -110,18 +119,38 @@ const Habits = () => {
           )}
         </AnimatePresence>
 
-        <motion.div
-          layout
-          className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 "
-        >
-          {habits.map((habit) => (
-            <HabitsWeekView key={habit.id} habit={habit} />
-          ))}
-        </motion.div>
-        {Boolean(!habits.length) && (
-          <EmptyState onClick={() => handleShowToggle()} />
-        )}
+        {hasHabits && <HabitsGrid habits={habits} />}
+        {!hasHabits && <EmptyState onClick={handleShowToggle} />}
       </Layout>
+    </motion.div>
+  );
+};
+
+const PageHeader = ({ hasHabits, handleShowToggle }) => {
+  return (
+    <div className="flex items-center justify-between mb-10">
+      <h1 className="text-3xl font-semibold">My Habits</h1>
+
+      {hasHabits && (
+        <button
+          onClick={handleShowToggle}
+          className="h-10 px-4 bg-green-600 font-bold rounded-md"
+        >
+          <span className="hidden md:block">new habit</span>
+
+          <PlusIcon className="h-6 w-6 font-bold md:hidden" strokeWidth="3" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+const HabitsGrid = ({ habits }) => {
+  return (
+    <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
+      {habits.map((habit) => (
+        <HabitsWeekView key={habit.id} habit={habit} />
+      ))}
     </motion.div>
   );
 };
