@@ -1,9 +1,20 @@
-import { useMemo } from "react";
+import clsx from "clsx";
+import { useMemo, useState } from "react";
+import { useHabitsActions } from "../../store/useHabitsStore";
 
-const HabitsSorting = ({ handleSort }) => {
+const HabitsSorting = () => {
+  const [sortMode, setSortMode] = useState("");
+
+  const { sortHabits } = useHabitsActions();
+
+  const handleSort = (e) => {
+    const mode = e.target.id;
+    setSortMode(mode === sortMode ? "" : mode);
+    sortHabits(mode === sortMode ? "" : mode);
+  };
+
   const sortModes = useMemo(() => [
     { mode: "older", label: "older" },
-    { mode: "newer", label: "newer" },
     { mode: "most-completed", label: "most completed" },
   ]);
 
@@ -17,7 +28,10 @@ const HabitsSorting = ({ handleSort }) => {
             id={mode}
             key={mode}
             onClick={handleSort}
-            className="bg-zinc-500 h-10 px-6 font-semibold rounded-md"
+            className={clsx(
+              `h-10 px-6 font-semibold rounded-md border-2 border-zinc-500`,
+              mode === sortMode ? "bg-zinc-500" : "bg-zinc-500/40 text-zinc-200"
+            )}
           >
             {label}
           </button>

@@ -129,29 +129,21 @@ const updateHabit = (habits, habitId, dayId) => {
 const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
 
 const sortHabits = (habits, mode) => {
-  if (!mode) return habits;
-
-  let sortedHabits;
-
   if (mode === "older") {
-    sortedHabits = [...habits].sort((a, b) => {
+    return [...habits].sort((a, b) => {
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
   }
 
-  if (mode === "newer") {
-    sortedHabits = [...habits].sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-  }
-
   if (mode === "most-completed") {
-    sortedHabits = [...habits].sort((a, b) => {
+    return [...habits].sort((a, b) => {
       return b.daysStateCount.completed - a.daysStateCount.completed;
     });
   }
 
-  return sortedHabits;
+  return [...habits].sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 };
 
 const getNextMonth = (prevDate) => {

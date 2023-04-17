@@ -21,7 +21,6 @@ import {
 import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { motion } from "framer-motion";
-import { daysInMonth } from "../utils";
 import useKeyPress from "../hooks/useKeyPress";
 import { toast } from "react-hot-toast";
 
@@ -114,12 +113,12 @@ const HabitDetailHeader = ({ habit, handleDelete }) => {
     <div className="mb-10 flex items-center">
       <Link to={"/"} aria-label="back to home">
         {" "}
-        <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500" />{" "}
+        <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
       </Link>
       <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>
       <button
         onClick={() => handleDelete(id)}
-        className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 text-white font-bold rounded-md"
+        className=" px-4 ml-auto flex-shrink-0 h-10 bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-white font-bold rounded-md"
       >
         <span className="hidden md:block">Delete Habit</span>
         <TrashIcon className="block h-4 w-4 md:hidden" />

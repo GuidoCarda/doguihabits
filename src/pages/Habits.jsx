@@ -25,6 +25,8 @@ const Habits = () => {
   const habits = useHabitsStore((state) => state.habits);
   const setInput = useHabitsStore((state) => state.setInput);
 
+  console.log(habits);
+
   const { sortHabits, addHabitMonth } = useHabitsActions();
 
   const hasHabits = habits.length > 0;
@@ -69,11 +71,6 @@ const Habits = () => {
 
   useKeyPress(keysToAction);
 
-  const handleSort = (e) => {
-    const mode = e.target.id;
-    sortHabits(mode);
-  };
-
   const handleShowToggle = () => {
     setIsOpen((prev) => !prev);
 
@@ -96,7 +93,7 @@ const Habits = () => {
       <Layout>
         <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
 
-        {habits.length > 1 && <HabitsSorting handleSort={handleSort} />}
+        {habits.length > 1 && <HabitsSorting />}
 
         <AnimatePresence>
           {isOpen && (
