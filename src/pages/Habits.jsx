@@ -163,7 +163,7 @@ const EmptyState = ({ onClick }) => {
       className=" mt-32 grid place-content-center justify-items-center gap-4"
     >
       <div className="p-5 md:p-0 rounded-lg">
-        <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
+        <img className="h-full w-full" src="EmptyState.png" alt="" />
       </div>
       <h2 className="text-3xl text-bold">Start by creating a habit</h2>
       <button
