@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { daysInMonth, getTotal, nextState, randomId } from "../utils";
+import {
+  daysInMonth,
+  getTotal,
+  isSameMonth,
+  nextState,
+  randomId,
+  startOfDay,
+} from "../utils";
 
 const getAllDaysInMonth = (year, month) => {
   const date = new Date(year, month, 1);
@@ -49,6 +56,8 @@ const habit = {
   months: [],
 };
 
+const test = new Date(2022, 5, 12);
+
 const createHabit = (input) => {
   const newHabit = {
     ...habit,
@@ -89,8 +98,8 @@ const updateHabit = (habits, habitId, dayId) => {
     (habit) => habit.id === habitId
   );
 
-  const monthToUpdate = months.findIndex(
-    (month) => new Date(month[0].id).getMonth() === new Date(dayId).getMonth()
+  const monthToUpdate = months.findIndex((month) =>
+    isSameMonth(month[0].id, dayId)
   );
 
   const updatedMonths = months.map((month, idx) => {
@@ -154,7 +163,7 @@ const getNextMonth = (prevDate) => {
   return generatePendingHabitEntries(monthDates);
 };
 
-const addHabitMonth = (habits, id) => {
+const addNextMonthToHabit = (habits, id) => {
   return habits.map((habit) => {
     if (habit.id === id) {
       const prevMonthDate = habit.months.at(-1)[0].id;
@@ -166,6 +175,41 @@ const addHabitMonth = (habits, id) => {
     }
     return habit;
   });
+};
+
+const checkAndUpdateHabits = (set, get) => {
+  const state = get();
+  const currentDate = startOfDay(new Date());
+
+  const updatedHabits = state.habits.map((habit) => {
+    const lastMothRecordedDate = startOfDay(habit.months.at(-1)[0].id);
+    const monthsToAdd = [];
+    let prevMonthAdded = lastMothRecordedDate;
+
+    console.log(habit.id);
+    //Early return if the habit contains the current month
+    if (isSameMonth(currentDate, prevMonthAdded)) {
+      // console.log("Had current month");
+      return habit;
+    }
+    console.log("didn\t had current month");
+
+    while (
+      prevMonthAdded.getFullYear() < currentDate.getFullYear() ||
+      (prevMonthAdded.getFullYear() === currentDate.getFullYear() &&
+        prevMonthAdded.getMonth() < currentDate.getMonth())
+    ) {
+      // nextMonthDate = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1)
+      monthsToAdd.push(getNextMonth(prevMonthAdded));
+      prevMonthAdded = new Date(
+        prevMonthAdded.getFullYear(),
+        prevMonthAdded.getMonth() + 1
+      );
+    }
+    return { ...habit, months: [...habit.months, ...monthsToAdd] };
+  });
+
+  set({ habits: updatedHabits });
 };
 
 const useHabitsStore = create(
@@ -191,9 +235,12 @@ const useHabitsStore = create(
         sortHabits: (mode) => {
           return set((state) => ({ habits: sortHabits(state.habits, mode) }));
         },
-        addHabitMonth: (id) => {
-          return set((state) => ({ habits: addHabitMonth(state.habits, id) }));
+        addNextMonthToHabit: (id) => {
+          return set((state) => ({
+            habits: addNextMonthToHabit(state.habits, id),
+          }));
         },
+        checkAndUpdateHabits: () => checkAndUpdateHabits(set, get),
         deleteAllHabits: () => set({ habits: [] }),
       },
     }),

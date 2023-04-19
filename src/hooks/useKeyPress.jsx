@@ -22,7 +22,6 @@ const useKeyPress = (keysToAction, node = null) => {
             event[specialKey] && event.key.toLowerCase() === key.toLowerCase();
 
           if (isKeyCombinationPressed && areAllConditionsMet) {
-            // console.log(`${specialKey}+${key} combo`);
             return keysToActionRef.current[i].callback(event);
           }
         }
@@ -30,11 +29,9 @@ const useKeyPress = (keysToAction, node = null) => {
         const areAllKeysPressed = keys.every((key) => key === event.key);
 
         if (areAllConditionsMet && areAllKeysPressed) {
-          // console.log(`${keys[0]} Pressed`);
           keysToActionRef.current[i].callback(event);
         }
       }
-      // console.log(event);
     },
     [keysToAction]
   );

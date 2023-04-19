@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 //Components
 import Layout from "../components/Layout";
@@ -30,18 +30,27 @@ const Habits = () => {
   const habits = useHabits(sortCriteria);
   const hasHabits = habits.length > 0;
 
-  const { addHabitMonth } = useHabitsActions();
+  // This ref prevents loosing the habitsCount value on re-render to
+  // ensure only executing the checkAndUpdateHabits fn only when
+  // an habit is created
+  const habitsCountRef = useRef(habits.length);
 
-  const hasCurrentMonth = (habit) => isThisMonth(habit.months.at(-1)[0].id);
+  const { checkAndUpdateHabits } = useHabitsActions();
 
-  //Add dinamicaly the corresponding months to each habit on load if any
-  if (hasHabits) {
-    if (!hasCurrentMonth(habits[0])) {
-      for (let habit of habits) {
-        addHabitMonth(habit.id);
-      }
+  //Runs when the component mounts and checks whether the habits have or not the needed data
+  useEffect(() => {
+    console.log("Page mount, checkAndUpdateHabits runs");
+    checkAndUpdateHabits();
+  }, []);
+
+  //Runs each time a habit is added only
+  useEffect(() => {
+    if (habits.length > habitsCountRef.current) {
+      console.log("habit added, so checkAndUpdateHabits runs");
+      checkAndUpdateHabits();
     }
-  }
+    habitsCountRef.current = habits.length;
+  }, [habits.length]);
 
   const handleClose = () => setIsOpen(false);
 
