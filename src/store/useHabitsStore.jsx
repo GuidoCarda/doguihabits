@@ -2,36 +2,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   daysInMonth,
+  getAllDaysInMonth,
   getTotal,
   isSameMonth,
   nextState,
   randomId,
   startOfDay,
 } from "../utils";
-
-const getAllDaysInMonth = (year, month) => {
-  const date = new Date(year, month, 1);
-  const dates = [];
-
-  while (date.getMonth() === month) {
-    dates.push(new Date(date));
-    date.setDate(date.getDate() + 1);
-  }
-
-  return dates;
-};
-
-const getDaysInRange = (startDate, endDate) => {
-  const date = new Date(startDate.getTime());
-  const dates = [];
-
-  while (date <= endDate) {
-    dates.push(new Date(date));
-    date.setDate(date.getDate() + 1);
-  }
-
-  return dates;
-};
 
 const today = new Date();
 
@@ -56,9 +33,16 @@ const habit = {
   months: [],
 };
 
-const test = new Date(2022, 5, 12);
+/**
+ * Creates a new habit with the given input and adds it to the state.
+ *
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {Function} get - The get function from the Zustand store.
+ * @param {string} input - The title of the new habit.
+ */
+const createHabit = (set, get, input) => {
+  const state = get();
 
-const createHabit = (input) => {
   const newHabit = {
     ...habit,
     id: randomId(),
@@ -71,9 +55,14 @@ const createHabit = (input) => {
     ],
   };
 
-  return newHabit;
+  set({ habits: [newHabit, ...state.habits] });
 };
 
+/**
+ * Returns the current streak for a habit, based on the provided months array.
+ * @param months - An array of month objects, each of which contains an array of day objects with state information.
+ * @returns streak - The current streak for the habit.
+ */
 const getHabitStreak = (months) => {
   let streak = 0;
 
@@ -93,15 +82,27 @@ const getHabitStreak = (months) => {
   return streak;
 };
 
-const updateHabit = (habits, habitId, dayId) => {
-  const { months, daysStateCount, ...rest } = habits.find(
+/**
+ * Updates the state of a given day in a habit and updates the store state.
+ *
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {Function} get - The get function from the Zustand store.
+ * @param habitId The ID of the habit to update.
+ * @param dayId The ID of the day to update.
+ */
+const updateHabit = (set, get, habitId, dayId) => {
+  const state = get();
+  // Find the habit to update based on its ID
+  const { months, daysStateCount, ...rest } = state.habits.find(
     (habit) => habit.id === habitId
   );
 
+  // Find the month that the dat belongs to
   const monthToUpdate = months.findIndex((month) =>
     isSameMonth(month[0].id, dayId)
   );
 
+  // Update the state of the day within the apropiate month
   const updatedMonths = months.map((month, idx) => {
     if (idx === monthToUpdate) {
       return month.map((day) => {
@@ -111,6 +112,7 @@ const updateHabit = (habits, habitId, dayId) => {
     return month;
   });
 
+  // Update the count of completed & failed days for the habit
   const updatedDaysStateCount = {
     ...daysStateCount,
     completed: updatedMonths
@@ -121,8 +123,10 @@ const updateHabit = (habits, habitId, dayId) => {
       .reduce((sum, monthTotal) => sum + monthTotal, 0),
   };
 
+  // Calculate current habit streak if any
   const currentStreak = getHabitStreak(updatedMonths);
 
+  // Create a new habit object with the updated state
   const updatedHabit = {
     ...rest,
     months: updatedMonths,
@@ -130,29 +134,23 @@ const updateHabit = (habits, habitId, dayId) => {
     currentStreak,
   };
 
-  return habits.map((habit) =>
-    habit.id === updatedHabit.id ? updatedHabit : habit
-  );
+  // Replace the old habit state with the updated one
+  set({
+    habits: state.habits.map((habit) =>
+      habit.id === updatedHabit.id ? updatedHabit : habit
+    ),
+  });
 };
 
-const deleteHabit = (habits, id) => habits.filter((habit) => habit.id !== id);
-
-const sortHabits = (habits, mode) => {
-  if (mode === "older") {
-    return [...habits].sort((a, b) => {
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    });
-  }
-
-  if (mode === "most-completed") {
-    return [...habits].sort((a, b) => {
-      return b.daysStateCount.completed - a.daysStateCount.completed;
-    });
-  }
-
-  return [...habits].sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
+/**
+ * Check and update the habits with the months that are missing in order to have an up-to-date record.
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {Function} get - The get function from the Zustand store.
+ * @param id - The id of the habit to delete
+ */
+const deleteHabit = (set, get, id) => {
+  const state = get();
+  set({ habits: state.habits.filter((habit) => habit.id !== id) });
 };
 
 const getNextMonth = (prevDate) => {
@@ -163,43 +161,33 @@ const getNextMonth = (prevDate) => {
   return generatePendingHabitEntries(monthDates);
 };
 
-const addNextMonthToHabit = (habits, id) => {
-  return habits.map((habit) => {
-    if (habit.id === id) {
-      const prevMonthDate = habit.months.at(-1)[0].id;
-
-      return {
-        ...habit,
-        months: [...habit.months, getNextMonth(prevMonthDate)],
-      };
-    }
-    return habit;
-  });
-};
-
+/**
+ * Check and update the habits with the months that are missing in order to have an up-to-date record.
+ *
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {Function} get - The get function from the Zustand store.
+ */
 const checkAndUpdateHabits = (set, get) => {
   const state = get();
   const currentDate = startOfDay(new Date());
 
   const updatedHabits = state.habits.map((habit) => {
-    const lastMothRecordedDate = startOfDay(habit.months.at(-1)[0].id);
+    const lastMonthRecordedDate = startOfDay(habit.months.at(-1)[0].id);
     const monthsToAdd = [];
-    let prevMonthAdded = lastMothRecordedDate;
+    let prevMonthAdded = lastMonthRecordedDate;
 
     console.log(habit.id);
-    //Early return if the habit contains the current month
+    // if the habit contains the current month, return the same habit object
     if (isSameMonth(currentDate, prevMonthAdded)) {
-      // console.log("Had current month");
       return habit;
     }
-    console.log("didn\t had current month");
 
+    // Calculate the months that are missing and add them to the habit object.
     while (
       prevMonthAdded.getFullYear() < currentDate.getFullYear() ||
       (prevMonthAdded.getFullYear() === currentDate.getFullYear() &&
         prevMonthAdded.getMonth() < currentDate.getMonth())
     ) {
-      // nextMonthDate = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1)
       monthsToAdd.push(getNextMonth(prevMonthAdded));
       prevMonthAdded = new Date(
         prevMonthAdded.getFullYear(),
@@ -209,6 +197,7 @@ const checkAndUpdateHabits = (set, get) => {
     return { ...habit, months: [...habit.months, ...monthsToAdd] };
   });
 
+  // Update the habits in the Zustand store.
   set({ habits: updatedHabits });
 };
 
@@ -217,29 +206,9 @@ const useHabitsStore = create(
     (set, get) => ({
       habits: [],
       actions: {
-        createHabit: (input) => {
-          set((state) => ({
-            habits: [createHabit(input), ...state.habits],
-          }));
-        },
-        updateHabit: (habitId, dayId) => {
-          return set((state) => ({
-            habits: updateHabit(state.habits, habitId, dayId),
-          }));
-        },
-        deleteHabit: (id) => {
-          return set((state) => ({
-            habits: deleteHabit(state.habits, id),
-          }));
-        },
-        sortHabits: (mode) => {
-          return set((state) => ({ habits: sortHabits(state.habits, mode) }));
-        },
-        addNextMonthToHabit: (id) => {
-          return set((state) => ({
-            habits: addNextMonthToHabit(state.habits, id),
-          }));
-        },
+        createHabit: (input) => createHabit(set, get, input),
+        updateHabit: (habitId, dayId) => updateHabit(set, get, habitId, dayId),
+        deleteHabit: (id) => deleteHabit(set, get, id),
         checkAndUpdateHabits: () => checkAndUpdateHabits(set, get),
         deleteAllHabits: () => set({ habits: [] }),
       },

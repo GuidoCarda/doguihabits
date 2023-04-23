@@ -43,6 +43,7 @@ export const nextState = (state: string): string => {
   return "pending";
 };
 
+// Returns an array containing the day, month year extracted from the given date
 export const getDayMonthYear = (dirtyDate: string) => {
   const date = new Date(dirtyDate);
 
@@ -53,10 +54,24 @@ export const getDayMonthYear = (dirtyDate: string) => {
   return [day, month, year];
 };
 
+export const getAllDaysInMonth = (year: number, month: number): Date[] => {
+  const date = new Date(year, month, 1);
+  const dates: Date[] = [];
+
+  while (date.getMonth() === month) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
+// Get the month string based on dayIdx received from the date.getMonth() method (0-11)
 export const getMonthString = (month: number): string => {
   return MONTHS[month];
 };
 
+// Get the weekday string based on dayIdx received from the date.getDay() method (0-6)
 export const getWeekDayString = (dayIdx: number): string => {
   return WEEK_DAYS[dayIdx];
 };
@@ -70,12 +85,14 @@ export const getTotal = (array: any[], state: string): number => {
   }, 0);
 };
 
+// returns a date with the timestamp set to the start of the day
 export const startOfDay = (dirtyDate: Date | string | number): Date => {
   const date = new Date(dirtyDate);
   date.setHours(0, 0, 0, 0);
   return date;
 };
 
+// Check if the received dates are in the same month & year
 export const isSameMonth = (
   dirtyDateLeft: Date | string | number,
   dirtyDateRight: Date | string | number
@@ -89,10 +106,12 @@ export const isSameMonth = (
   );
 };
 
+//Check if the given date is on the current month
 export const isThisMonth = (dirtyDate: Date | string): boolean => {
   return isSameMonth(Date.now(), dirtyDate);
 };
 
+// get the month total days count
 export const getDaysInMonth = (dirtyDate: Date | string): number => {
   const date = new Date(dirtyDate);
   const year = date.getFullYear();
@@ -101,6 +120,7 @@ export const getDaysInMonth = (dirtyDate: Date | string): number => {
   return new Date(year, month, 0).getDate();
 };
 
+//Check if a given date is before the current date.
 export const isPast = (dirtyDateToCompare: Date | string): boolean => {
   const date = startOfDay(new Date());
   const dateToCompare = startOfDay(dirtyDateToCompare);
@@ -118,6 +138,7 @@ export const getPast7Days = (initialDate = new Date()) => {
   });
 };
 
+//Check based on two dates if they're the same day
 export const isSameDay = (
   dirtyDateLeft: Date | string | number,
   dirtyDateRight: Date | string | number
@@ -127,6 +148,7 @@ export const isSameDay = (
   return leftDate.getTime() === rightDate.getTime();
 };
 
+//Check based on a date if it is the current day
 export const isToday = (dirtyDate: Date | string): boolean => {
   return isSameDay(dirtyDate, Date.now());
 };
