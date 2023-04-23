@@ -161,6 +161,15 @@ const getNextMonth = (prevDate) => {
   return generatePendingHabitEntries(monthDates);
 };
 
+const shouldAddNextMonth = (currentDate, prevMonthAdded) => {
+  const isYearBeforeCurrent =
+    prevMonthAdded.getFullYear() < currentDate.getFullYear();
+  const isMonthBeforeCurrent =
+    prevMonthAdded.getFullYear() === currentDate.getFullYear() &&
+    prevMonthAdded.getMonth() < currentDate.getMonth();
+  return isYearBeforeCurrent || isMonthBeforeCurrent;
+};
+
 /**
  * Check and update the habits with the months that are missing in order to have an up-to-date record.
  *
@@ -183,11 +192,7 @@ const checkAndUpdateHabits = (set, get) => {
     }
 
     // Calculate the months that are missing and add them to the habit object.
-    while (
-      prevMonthAdded.getFullYear() < currentDate.getFullYear() ||
-      (prevMonthAdded.getFullYear() === currentDate.getFullYear() &&
-        prevMonthAdded.getMonth() < currentDate.getMonth())
-    ) {
+    while (shouldAddNextMonth(currentDate, prevMonthAdded)) {
       monthsToAdd.push(getNextMonth(prevMonthAdded));
       prevMonthAdded = new Date(
         prevMonthAdded.getFullYear(),
