@@ -3,6 +3,7 @@ import ReactDom from "react-dom";
 import { Backdrop } from "./Modal";
 import clsx from "clsx";
 import useClickOutside from "../hooks/useClickOutside";
+import { Button } from "./Buttons";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
   const domNode = useClickOutside(onClose);
@@ -28,26 +29,26 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
         </div>
 
         <footer className="flex gap-2">
-          <button
+          <Button
             ref={ref}
             onClick={onClose}
             className={clsx(
-              "h-10 px-4 capitalize ml-auto bg-zinc-600  text-neutral-100 rounded-md",
+              "capitalize ml-auto bg-zinc-600  text-neutral-100",
               "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
             )}
           >
             cancel
-          </button>
-          <button
+          </Button>
+          <Button
             tabIndex="0"
             onClick={onSubmit}
             className={clsx(
-              "capitalize bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100 rounded-md h-10 px-4",
+              "capitalize bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100",
               "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
             )}
           >
             {submitText}
-          </button>
+          </Button>
         </footer>
       </div>
     </Backdrop>,

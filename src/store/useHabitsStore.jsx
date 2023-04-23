@@ -161,6 +161,12 @@ const getNextMonth = (prevDate) => {
   return generatePendingHabitEntries(monthDates);
 };
 
+/**
+ *
+ * @param {Date} currentDate the current date object
+ * @param {Date} prevMonthAdded the last month added date object
+ * @returns {Boolean} whether it should or shouldn't add the next month
+ */
 const shouldAddNextMonth = (currentDate, prevMonthAdded) => {
   const isYearBeforeCurrent =
     prevMonthAdded.getFullYear() < currentDate.getFullYear();
@@ -199,6 +205,7 @@ const checkAndUpdateHabits = (set, get) => {
         prevMonthAdded.getMonth() + 1
       );
     }
+
     return { ...habit, months: [...habit.months, ...monthsToAdd] };
   });
 

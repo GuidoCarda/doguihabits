@@ -5,6 +5,8 @@ import HabitForm from "../pages/components/HabitForm";
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { IconButton } from "./Buttons";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const Modal = ({ onClose, isMobile }, ref) => {
   const domNode = useClickOutside(onClose);
@@ -34,13 +36,16 @@ const Modal = ({ onClose, isMobile }, ref) => {
       >
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl text-neutral-300 font-semibold">New Habit</h2>
-          <button
+          <IconButton
             aria-label="close modal"
-            className="h-8 w-8 rounded-md bg-zinc-400 font-bold text-black/50"
+            className="group rounded-md bg-zinc-500 hover:bg-zinc-400 font-bold text-zinc-400"
             onClick={onClose}
           >
-            X
-          </button>
+            <XMarkIcon
+              className="transition-colors group-hover:text-zinc-100   h-5 w-5"
+              strokeWidth={3}
+            />
+          </IconButton>
         </div>
         <HabitForm onClose={onClose} />
       </motion.div>

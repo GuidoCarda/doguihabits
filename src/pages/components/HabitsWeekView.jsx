@@ -18,6 +18,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { toast } from "react-hot-toast";
+import { IconButton } from "../../components/Buttons";
 
 const weekDays = ["Sab", "Dom", "Lun", "Mar", "Mie", "Jue", "Vie"];
 
@@ -90,13 +91,13 @@ const HabitsWeekView = ({ habit }) => {
             created at {getDayMonthYear(habit.createdAt).join("/")}
           </span>
         </Link>
-        <button
+        <IconButton
           aria-label="delete habit"
           onClick={handleDelete}
-          className="h-10 w-10 group hover:bg-red-700/30 transition-colors bg-zinc-500 flex-shrink-0 hover: first-letter: rounded-md grid place-content-center"
+          className={" group hover:bg-red-700/30 bg-zinc-500 flex-shrink-0"}
         >
           <TrashIcon className="h-4 transition-transform group-hover:text-red-500 group-hover:scale-110" />
-        </button>
+        </IconButton>
       </div>
 
       <div className="grid grid-cols-7 gap-4 px-4">

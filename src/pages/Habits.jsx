@@ -20,7 +20,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { isThisMonth } from "../utils";
 
 //Icons
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Button, IconTextButton } from "../components/Buttons";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -141,14 +142,12 @@ const PageHeader = ({ hasHabits, handleShowToggle }) => {
       <h1 className="text-3xl font-semibold">My Habits</h1>
 
       {hasHabits && (
-        <button
+        <IconTextButton
           onClick={handleShowToggle}
-          className="h-10 px-4 bg-green-600 font-bold rounded-md"
-        >
-          <span className="hidden md:block">new habit</span>
-
-          <PlusIcon className="h-6 w-6 font-bold md:hidden" strokeWidth="3" />
-        </button>
+          text="new habit"
+          className="bg-green-600 font-bold"
+          icon={<PlusIcon className="h-6 w-6" strokeWidth="3" />}
+        />
       )}
     </div>
   );
@@ -175,12 +174,13 @@ const EmptyState = ({ onClick }) => {
         <img className="h-full w-full" src="src/assets/EmptyState.png" alt="" />
       </div>
       <h2 className="text-3xl text-bold">Start by creating a habit</h2>
-      <button
+
+      <Button
         onClick={onClick}
-        className="bg-green-600 w-max px-4 h-10 rounded-md font-bold cursor-pointer"
+        className="bg-green-600 font-bold hover:opacity-95 "
       >
         create an habit
-      </button>
+      </Button>
 
       <span className="hidden relative md:flex  items-center gap-1 text-xs text-zinc-500">
         or press{" "}

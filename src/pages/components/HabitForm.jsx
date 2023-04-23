@@ -4,6 +4,7 @@ import useMediaQuery from "../../hooks/useMediaQuery";
 import clsx from "clsx";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../../components/Buttons";
 
 const HabitForm = ({ onClose }) => {
   const [input, setInput] = useState("");
@@ -68,16 +69,17 @@ const HabitForm = ({ onClose }) => {
           )}
         </AnimatePresence>
       </div>
-      <button
+      <Button
         className={clsx(
-          "h-12 w-min px-6 mt-6 ml-auto transition-colors bg-green-600 text-white font-bold rounded-md",
+          "w-max mt-8 ml-auto bg-green-600 text-white font-bold rounded-md",
+          "enabled:hover:bg-green-600/90",
           "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed"
         )}
         onClick={onClick}
-        disabled={input.length > 30}
+        disabled={isInputLengthInvalid}
       >
-        add
-      </button>
+        create habit
+      </Button>
     </div>
   );
 };
