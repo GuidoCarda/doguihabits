@@ -14,7 +14,7 @@ const Modal = ({ onClose, isMobile }, ref) => {
   //Show diferent animation based on viewport
   const modalVariants = isMobile
     ? {
-        hidden: { y: 300 },
+        hidden: { y: 400, transition: { damping: 2 } },
         visible: { y: 0, transition: { damping: 2 } },
       }
     : { hidden: { scale: 0.8 }, visible: { scale: 1 } };
@@ -65,10 +65,10 @@ const backdrop = {
 export const Backdrop = ({ children }) => {
   return (
     <motion.div
-      variants={backdrop}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
+      // variants={backdrop}
+      // initial="hidden"
+      // animate="visible"
+      // exit="hidden"
       className={clsx(
         "fixed inset-0 h-screen w-full",
         "bg-black/50 backdrop-blur-[2px] md:px-4",

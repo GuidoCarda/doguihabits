@@ -71,7 +71,7 @@ const HabitsWeekView = ({ habit }) => {
 
   return (
     <motion.div
-      layout
+      layout="preserve-aspect"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className={clsx(

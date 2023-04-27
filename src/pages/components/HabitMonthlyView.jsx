@@ -1,21 +1,11 @@
 import clsx from "clsx";
 import React from "react";
-
-import { motion } from "framer-motion";
 import {
   getDayMonthYear,
   getMonthString,
   isPast,
-  isSameMonth,
   isThisMonth,
 } from "../../utils";
-
-const habitVariant = {
-  completed: { backgroundColor: "rgb(16 185 129)" },
-  failed: { backgroundColor: "rgb(239 68 68)" },
-  pending: { backgroundColor: "rgb(63 63 70)" },
-  disabled: { backgroundColor: "rgb(113 113 122)" },
-};
 
 const HabitMonthlyView = (props) => {
   const { month, toggleHabitDay } = props;
@@ -36,20 +26,26 @@ const HabitMonthlyView = (props) => {
       <ul className="grid grid-cols-7 gap-2">
         {month.map((day, idx) => (
           <li key={day.id} className="h-10 w-10">
-            <motion.button
-              variants={habitVariant}
-              initial="pending"
-              animate={isPast(day.id) ? day.state : "disabled"}
+            <button
               disabled={isCurrentMonth && idx + 1 > today.getDate()}
               aria-label="toggle habit state"
               onClick={() => toggleHabitDay(day.id)}
               className={clsx(
-                "w-full h-full rounded-md text-white font-semibold ",
-                "disabled:cursor-not-allowed disabled:text-black/40"
+                "w-full h-full rounded-md border-2 border-transparent text-white font-semibold transition-colors",
+                {
+                  "bg-success": day.state === "completed",
+                  "bg-failed": day.state === "failed",
+                  "bg-zinc-700":
+                    isPast(day.id) &&
+                    day.state !== "failed" &&
+                    day.state !== "completed",
+                },
+                "disabled:cursor-not-allowed disabled:text-black/40 disabled:bg-transparent",
+                "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20"
               )}
             >
               {idx + 1}
-            </motion.button>
+            </button>
           </li>
         ))}
       </ul>

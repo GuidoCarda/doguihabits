@@ -119,7 +119,7 @@ const Habits = () => {
           />
         )}
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait" initial={false}>
           {isOpen && (
             <Modal
               key={"new_habit_modal"}
@@ -146,7 +146,7 @@ const PageHeader = ({ hasHabits, handleShowToggle }) => {
           onClick={handleShowToggle}
           text="new habit"
           className="bg-green-600 font-bold"
-          icon={<PlusIcon className="h-6 w-6" strokeWidth="3" />}
+          icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
         />
       )}
     </div>
