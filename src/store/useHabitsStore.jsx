@@ -9,6 +9,7 @@ import {
   randomId,
   startOfDay,
 } from "../utils";
+import { toast } from "react-hot-toast";
 
 const today = new Date();
 
@@ -30,6 +31,7 @@ const habit = {
   createdAt: "",
   daysStateCount,
   currentStreak: 0,
+  badges: [],
   months: [],
 };
 
@@ -93,7 +95,7 @@ const getHabitStreak = (months) => {
 const updateHabit = (set, get, habitId, dayId) => {
   const state = get();
   // Find the habit to update based on its ID
-  const { months, daysStateCount, ...rest } = state.habits.find(
+  const { months, daysStateCount, badges, ...rest } = state.habits.find(
     (habit) => habit.id === habitId
   );
 
@@ -126,11 +128,31 @@ const updateHabit = (set, get, habitId, dayId) => {
   // Calculate current habit streak if any
   const currentStreak = getHabitStreak(updatedMonths);
 
+  // Check for completion milestones
+
+  const completionMilestones = get().completionMilestones;
+
+  const updatedBadges = [...badges];
+
+  if (completionMilestones.includes(currentStreak)) {
+    if (!badges.includes(currentStreak)) {
+      updatedBadges.push(currentStreak);
+      toast(
+        `Congratulations! You just completed a ${currentStreak} days streak`,
+        {
+          duration: 2000,
+          icon: "🎊",
+        }
+      );
+    }
+  }
+
   // Create a new habit object with the updated state
   const updatedHabit = {
     ...rest,
     months: updatedMonths,
     daysStateCount: updatedDaysStateCount,
+    badges: updatedBadges,
     currentStreak,
   };
 
@@ -217,6 +239,7 @@ const useHabitsStore = create(
   persist(
     (set, get) => ({
       habits: [],
+      completionMilestones: [7, 14, 21, 30, 60, 120, 365],
       actions: {
         createHabit: (input) => createHabit(set, get, input),
         updateHabit: (habitId, dayId) => updateHabit(set, get, habitId, dayId),

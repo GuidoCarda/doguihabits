@@ -4,7 +4,10 @@ import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 //Global state hooks
-import { useHabit, useHabitsActions } from "../store/useHabitsStore";
+import useHabitsStore, {
+  useHabit,
+  useHabitsActions,
+} from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 //Components
@@ -34,6 +37,10 @@ const HabitDetail = () => {
   const handleDialogClose = useDialogStore((state) => state.handleClose);
 
   const { deleteHabit, updateHabit } = useHabitsActions();
+
+  const completionMilestones = useHabitsStore(
+    (state) => state.completionMilestones
+  );
 
   const habit = useHabit(id);
 
@@ -124,6 +131,25 @@ const HabitDetail = () => {
         </div>
 
         <HabitMontlyViewGrid habit={habit} toggleHabitDay={toggleHabitDay} />
+
+        <div className="mt-10  pb-4">
+          <h2 className="text-2xl font-bold mb-6">Milestones</h2>
+          <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
+            {completionMilestones.map((milestone) => (
+              <li
+                key={`${milestone}-days-badge`}
+                className={`${
+                  !habit?.badges.includes(milestone) ? "grayscale" : ""
+                } text-center bg-zinc-700 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
+              >
+                <span className="block text-4xl font-bold text-emerald-500">
+                  {milestone}
+                </span>
+                <span className="block text-zinc-400">days</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </Layout>
     </motion.div>
   );
