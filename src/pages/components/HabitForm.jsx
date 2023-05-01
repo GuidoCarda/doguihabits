@@ -13,7 +13,8 @@ const HabitForm = ({ onClose }) => {
 
   const { createHabit } = useHabitsActions();
 
-  const onClick = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!input.trim()) {
       return toast.error("empty field", {});
     }
@@ -31,7 +32,7 @@ const HabitForm = ({ onClose }) => {
   const isInputLengthInvalid = input.length > 30;
 
   return (
-    <div className="flex flex-col">
+    <form onSubmit={handleSubmit} className="flex flex-col">
       <div className="relative w-full">
         <div className="flex justify-between">
           <label htmlFor="habit" className="text-neutral-400 mb-1 block">
@@ -75,12 +76,11 @@ const HabitForm = ({ onClose }) => {
           "enabled:hover:bg-green-600/90",
           "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed"
         )}
-        onClick={onClick}
         disabled={isInputLengthInvalid}
       >
         create habit
       </Button>
-    </div>
+    </form>
   );
 };
 
