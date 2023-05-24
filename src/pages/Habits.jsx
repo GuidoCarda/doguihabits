@@ -21,7 +21,9 @@ import { isThisMonth } from "../utils";
 
 //Icons
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { Button, IconTextButton } from "../components/Buttons";
+import { Button, IconButton, IconTextButton } from "../components/Buttons";
+import { useDialog } from "../store/useDialogStore";
+import { toast } from "react-hot-toast";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +35,7 @@ const Habits = () => {
 
   // This ref prevents loosing the habitsCount value on re-render to
   // ensure only executing the checkAndUpdateHabits fn only when
-  // an habit is created
+  // a habit is created
   const habitsCountRef = useRef(habits.length);
 
   const { checkAndUpdateHabits } = useHabitsActions();
@@ -137,17 +139,43 @@ const Habits = () => {
 };
 
 const PageHeader = ({ hasHabits, handleShowToggle }) => {
+  const { deleteAllHabits } = useHabitsActions();
+  const dialog = useDialog();
+
+  const handleDelete = () => {
+    dialog({
+      title: "Warning!",
+      description: "Are you sure you want to delete all habits",
+      catchOnCancel: false,
+      submitText: "Confirm",
+    })
+      .then(() => setTimeout(() => deleteAllHabits(), 100))
+      .finally(() => toast.success(`All habits were successfully deleted`));
+  };
+
   return (
     <div className="flex items-center justify-between mb-10">
       <h1 className="text-3xl font-semibold">My Habits</h1>
 
       {hasHabits && (
-        <IconTextButton
-          onClick={handleShowToggle}
-          text="new habit"
-          className="bg-green-600 font-bold"
-          icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
-        />
+        <div className="flex gap-3">
+          <IconTextButton
+            onClick={handleShowToggle}
+            text="new habit"
+            className="bg-green-600 font-bold"
+            icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
+          />
+          <IconButton
+            aria-label="remove all habits"
+            className="group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300"
+            onClick={handleDelete}
+          >
+            <TrashIcon
+              className="transition-colors group-hover:text-zinc-50 h-5 w-5"
+              strokeWidth={2}
+            />
+          </IconButton>
+        </div>
       )}
     </div>
   );
