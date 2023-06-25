@@ -17,20 +17,20 @@ const Layout = ({ children }) => {
     cancelBtnRef.current.focus();
   }, [open]);
 
-  const toastOptions = {
-    style: {
-      backgroundColor: "hsl(240, 3.8297872340425574%, 30%)",
-      color: "hsl(240, 3.8297872340425574%, 85%)",
-    },
-    error: {
-      duration: 1500,
-    },
-  };
+  // const toastOptions = {
+  //   style: {
+  //     backgroundColor: "hsl(240, 3.8297872340425574%, 30%)",
+  //     color: "hsl(240, 3.8297872340425574%, 85%)",
+  //   },
+  //   error: {
+  //     duration: 1500,
+  //   },
+  // };
 
   return (
     <section className="max-w-screen-xl px-3 mx-auto py-12">
       {children}
-      <Toaster toastOptions={toastOptions} />
+      {/* <Toaster toastOptions={toastOptions} /> */}
       <ConfirmationDialog
         ref={cancelBtnRef}
         open={open}
