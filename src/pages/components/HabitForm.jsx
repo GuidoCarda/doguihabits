@@ -5,13 +5,14 @@ import clsx from "clsx";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/Buttons";
+import { useParams } from "react-router-dom";
 
-const HabitForm = ({ onClose }) => {
-  const [input, setInput] = useState("");
-
+const HabitForm = ({ onClose, isEditing = false, initialValue = "" }) => {
+  const [input, setInput] = useState(initialValue);
+  const { id: habitId } = useParams();
   const isMobile = useMediaQuery("(max-width: 638px)");
 
-  const { createHabit } = useHabitsActions();
+  const { createHabit, editHabit } = useHabitsActions();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,12 +22,21 @@ const HabitForm = ({ onClose }) => {
     if (input.trim().length > 30) {
       return toast.error("The title is too long");
     }
-    createHabit(input);
+
+    if (isEditing && habitId) {
+      editHabit(habitId, input);
+    } else {
+      createHabit(input);
+    }
+
     setInput("");
     onClose();
-    toast.success(`${input} habit created successfully`, {
-      position: isMobile ? "bottom-center" : "bottom-right",
-    });
+    toast.success(
+      `${input} habit ${isEditing ? "updated" : "created"} successfully`,
+      {
+        position: isMobile ? "bottom-center" : "bottom-right",
+      }
+    );
   };
 
   const isInputLengthInvalid = input.length > 30;
@@ -78,7 +88,7 @@ const HabitForm = ({ onClose }) => {
         )}
         disabled={isInputLengthInvalid}
       >
-        create habit
+        {isEditing ? "edit habit" : "create habit"}
       </Button>
     </form>
   );

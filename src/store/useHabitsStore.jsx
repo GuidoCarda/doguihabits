@@ -235,6 +235,28 @@ const checkAndUpdateHabits = (set, get) => {
   set({ habits: updatedHabits });
 };
 
+/**
+ * Updates the values of a given habit on the store state.
+ *
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {Function} get - The get function from the Zustand store.
+ * @param habitId The ID of the habit to update.
+ * @param title The new title for the habit to update.
+ */
+const editHabit = (set, get, habitId, input) => {
+  const state = get();
+
+  const habit = state.habits.find((habit) => habit.id === habitId);
+  if (!habit) return console.log("algo salio mal");
+
+  const editedHabit = { ...habit, title: input };
+  const updatedHabits = state.habits.map((habit) =>
+    habit.id === habitId ? editedHabit : habit
+  );
+
+  set({ habits: updatedHabits });
+};
+
 const useHabitsStore = create(
   persist(
     (set, get) => ({
@@ -243,6 +265,7 @@ const useHabitsStore = create(
       actions: {
         createHabit: (input) => createHabit(set, get, input),
         updateHabit: (habitId, dayId) => updateHabit(set, get, habitId, dayId),
+        editHabit: (habitId, input) => editHabit(set, get, habitId, input),
         deleteHabit: (id) => deleteHabit(set, get, id),
         checkAndUpdateHabits: () => checkAndUpdateHabits(set, get),
         deleteAllHabits: () => set({ habits: [] }),
