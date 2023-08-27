@@ -12,6 +12,7 @@ import { AnimatePresence } from "framer-motion";
 
 // Toast notifications
 import { Toaster } from "react-hot-toast";
+import NotFound from "./pages/NotFound";
 
 const toastOptions = {
   style: {
@@ -31,6 +32,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Habits />} />
         <Route path="/habits/:id" element={<HabitDetail />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );
