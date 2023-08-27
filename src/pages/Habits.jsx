@@ -100,7 +100,7 @@ const Habits = () => {
   };
 
   return (
-    <motion.div
+    <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -131,7 +131,7 @@ const Habits = () => {
         {hasHabits && <HabitsGrid habits={habits} />}
         {!hasHabits && <EmptyState onClick={handleShowToggle} />}
       </Layout>
-    </motion.div>
+    </motion.main>
   );
 };
 

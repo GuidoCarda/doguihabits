@@ -142,7 +142,7 @@ const HabitDetail = () => {
   };
 
   return (
-    <motion.div
+    <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -191,7 +191,7 @@ const HabitDetail = () => {
           </ul>
         </div>
       </Layout>
-    </motion.div>
+    </motion.main>
   );
 };
 
