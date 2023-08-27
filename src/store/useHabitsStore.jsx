@@ -129,22 +129,26 @@ const updateHabit = (set, get, habitId, dayId) => {
   const currentStreak = getHabitStreak(updatedMonths);
 
   // Check for completion milestones
-
   const completionMilestones = get().completionMilestones;
 
-  const updatedBadges = [...badges];
+  // Get new milestones badges if reached
+  const newMilestones = completionMilestones.filter(
+    (milestone) => milestone <= currentStreak && !badges.includes(milestone)
+  );
 
-  if (completionMilestones.includes(currentStreak)) {
-    if (!badges.includes(currentStreak)) {
-      updatedBadges.push(currentStreak);
-      toast(
-        `Congratulations! You just completed a ${currentStreak} days streak`,
-        {
-          duration: 2000,
-          icon: "🎊",
-        }
-      );
-    }
+  const updatedBadges = [...badges, ...newMilestones];
+
+  if (newMilestones.length > 0) {
+    // Show toast for last earned badge.
+    toast(
+      `Congratulations! You just completed a ${updatedBadges.at(
+        -1
+      )} days streak`,
+      {
+        duration: 2000,
+        icon: "🎊",
+      }
+    );
   }
 
   // Create a new habit object with the updated state
