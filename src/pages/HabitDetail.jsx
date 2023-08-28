@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 //Routing
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -19,6 +19,7 @@ import {
   ArrowLeftCircleIcon,
   CheckIcon,
   FireIcon,
+  PencilIcon,
   TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -27,42 +28,26 @@ import { motion } from "framer-motion";
 import useKeyPress from "../hooks/useKeyPress";
 import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
+import Modal from "../components/Modal";
+import HabitForm from "./components/HabitForm";
 
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
+  const [isEditing, setIsEditing] = useState(false);
+
   const dialog = useDialog();
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
 
-  const { deleteHabit, updateHabit } = useHabitsActions();
+  const { deleteHabit, updateHabit, editHabit } = useHabitsActions();
 
   const completionMilestones = useHabitsStore(
     (state) => state.completionMilestones
   );
 
   const habit = useHabit(id);
-
-  const keysToAction = [
-    {
-      keys: ["shiftKey", "d"],
-      conditionals: [habit],
-      callback: () => handleDelete(id),
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [isDialogOpen, habit],
-      callback: handleDialogClose,
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [!isDialogOpen],
-      callback: () => navigate("/"),
-    },
-  ];
-
-  useKeyPress(keysToAction);
 
   if (!habit) {
     return (
@@ -86,6 +71,14 @@ const HabitDetail = () => {
     );
   }
 
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditing(false);
+  };
+
   const handleDelete = (habitId) => {
     dialog({
       title: "Warning!",
@@ -99,6 +92,40 @@ const HabitDetail = () => {
       })
       .finally(() => toast.success(`${habit.title} was successfully deleted`));
   };
+
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "d"],
+      conditionals: [habit, !isEditing],
+      callback: () => handleDelete(id),
+    },
+    {
+      keys: ["shiftKey", "e"],
+      conditionals: [habit, !isDialogOpen],
+      callback: (e) => {
+        //prevent the habit form of getting the 'e' shortcut keypress as input
+        e.preventDefault();
+        handleEdit();
+      },
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isDialogOpen, habit],
+      callback: handleDialogClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isEditing, habit],
+      callback: handleEditModalClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [!isDialogOpen, !isEditing],
+      callback: () => navigate("/"),
+    },
+  ];
+
+  useKeyPress(keysToAction);
 
   const habitInfo = [
     { title: "streak", data: habit.currentStreak, icon: "FireIcon" },
@@ -115,14 +142,30 @@ const HabitDetail = () => {
   };
 
   return (
-    <motion.div
+    <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <HabitDetailHeader habit={habit} handleDelete={handleDelete} />
+        <HabitDetailHeader
+          habit={habit}
+          handleDelete={handleDelete}
+          handleEdit={handleEdit}
+        />
+        {isEditing && (
+          <Modal onClose={handleEditModalClose} title={"Edit Habit"}>
+            <HabitForm
+              isEditing={isEditing}
+              onClose={handleEditModalClose}
+              initialValues={{
+                title: habit.title,
+                description: habit.description,
+              }}
+            />
+          </Modal>
+        )}
 
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
@@ -151,11 +194,11 @@ const HabitDetail = () => {
           </ul>
         </div>
       </Layout>
-    </motion.div>
+    </motion.main>
   );
 };
 
-const HabitDetailHeader = ({ habit, handleDelete }) => {
+const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
   const { id, title } = habit;
   return (
     <div className="mb-10 flex items-center">
@@ -169,6 +212,12 @@ const HabitDetailHeader = ({ habit, handleDelete }) => {
         text="Delete Habit"
         icon={<TrashIcon className="block h-4 w-4" />}
         className="ml-auto bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-white font-bold rounded-md"
+      />
+      <IconTextButton
+        onClick={() => handleEdit(id)}
+        text="Edit Habit"
+        icon={<PencilIcon className="block h-4 w-4" />}
+        className="ml-4 bg-emerald-700/10 border-2 border-emerald-900 hover:shadow-lg hover:shadow-emerald-900/30 text-white font-bold rounded-md"
       />
     </div>
   );

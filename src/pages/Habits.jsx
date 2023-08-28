@@ -16,14 +16,12 @@ import useKeyPress from "../hooks/useKeyPress";
 //Animations
 import { AnimatePresence, motion } from "framer-motion";
 
-//Date Utils
-import { isThisMonth } from "../utils";
-
 //Icons
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
+import HabitForm from "./components/HabitForm";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -101,15 +99,12 @@ const Habits = () => {
     setSortCriteria(newSortCriteria);
   };
 
-  //Conditionally style components and animations based on device
-  const isMobile = useMediaQuery("(max-width: 638px)");
-
   return (
-    <motion.div
+    <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
+      className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
         <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
@@ -125,16 +120,18 @@ const Habits = () => {
           {isOpen && (
             <Modal
               key={"new_habit_modal"}
+              title="New Habit"
               onClose={handleClose}
-              isMobile={isMobile}
-            />
+            >
+              <HabitForm onClose={handleClose} />
+            </Modal>
           )}
         </AnimatePresence>
 
         {hasHabits && <HabitsGrid habits={habits} />}
         {!hasHabits && <EmptyState onClick={handleShowToggle} />}
       </Layout>
-    </motion.div>
+    </motion.main>
   );
 };
 

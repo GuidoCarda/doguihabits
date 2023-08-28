@@ -5,28 +5,43 @@ import clsx from "clsx";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/Buttons";
+import { useParams } from "react-router-dom";
 
-const HabitForm = ({ onClose }) => {
-  const [input, setInput] = useState("");
-
+const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
+  const [input, setInput] = useState(initialValues?.title ?? "");
+  const [description, setDescription] =
+    useState(initialValues?.description) ?? "";
+  const { id: habitId } = useParams();
   const isMobile = useMediaQuery("(max-width: 638px)");
 
-  const { createHabit } = useHabitsActions();
+  const { createHabit, editHabit } = useHabitsActions();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) {
-      return toast.error("empty field", {});
+      return toast.error("empty title", {});
     }
     if (input.trim().length > 30) {
       return toast.error("The title is too long");
     }
-    createHabit(input);
+
+    const habitData = { input, description };
+
+    if (isEditing && habitId) {
+      editHabit(habitId, habitData);
+    } else {
+      createHabit(habitData);
+    }
+
     setInput("");
+    setDescription("");
     onClose();
-    toast.success(`${input} habit created successfully`, {
-      position: isMobile ? "bottom-center" : "bottom-right",
-    });
+    toast.success(
+      `${input} habit ${isEditing ? "updated" : "created"} successfully`,
+      {
+        position: isMobile ? "bottom-center" : "bottom-right",
+      }
+    );
   };
 
   const isInputLengthInvalid = input.length > 30;
@@ -70,6 +85,22 @@ const HabitForm = ({ onClose }) => {
           )}
         </AnimatePresence>
       </div>
+
+      <div className="mt-10">
+        <label htmlFor="description" className="text-neutral-400 mb-1 block">
+          description
+        </label>
+
+        <textarea
+          name="description"
+          id="description"
+          placeholder="Give a short description if wanted"
+          className="resize-none h-28 rounded-md  bg-zinc-600 text-neutral-200 px-4 py-2 outline-none w-full"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        ></textarea>
+      </div>
+
       <Button
         className={clsx(
           "w-max mt-8 ml-auto bg-green-600 text-white font-bold rounded-md",
@@ -78,7 +109,7 @@ const HabitForm = ({ onClose }) => {
         )}
         disabled={isInputLengthInvalid}
       >
-        create habit
+        {isEditing ? "edit habit" : "create habit"}
       </Button>
     </form>
   );

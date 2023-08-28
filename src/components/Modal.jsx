@@ -1,15 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import useClickOutside from "../hooks/useClickOutside";
 import HabitForm from "../pages/components/HabitForm";
-
-import { motion } from "framer-motion";
 import clsx from "clsx";
+import { motion } from "framer-motion";
 import { IconButton } from "./Buttons";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import useClickOutside from "../hooks/useClickOutside";
+import useMediaQuery from "../hooks/useMediaQuery";
 
-const Modal = ({ onClose, isMobile }, ref) => {
+const Modal = ({ onClose, title, children }, ref) => {
   const domNode = useClickOutside(onClose);
+
+  //Conditionally style components and animations based on device
+  const isMobile = useMediaQuery("(max-width: 638px)");
 
   //Show diferent animation based on viewport
   const modalVariants = isMobile
@@ -29,13 +32,13 @@ const Modal = ({ onClose, isMobile }, ref) => {
         ref={domNode}
         aria-modal="true"
         className={clsx(
-          "bg-zinc-700 px-6 py-10 w-full h-2/4 self-end rounded-t-2xl",
+          "bg-zinc-700 px-6 py-10 w-full min-h-2/4 self-end rounded-t-2xl",
           "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
           "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md"
         )}
       >
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl text-neutral-300 font-semibold">New Habit</h2>
+          <h2 className="text-2xl text-neutral-300 font-semibold">{title}</h2>
           <IconButton
             aria-label="close modal"
             className="group rounded-md bg-zinc-500 hover:bg-zinc-400 font-bold text-zinc-400"
@@ -47,7 +50,7 @@ const Modal = ({ onClose, isMobile }, ref) => {
             />
           </IconButton>
         </div>
-        <HabitForm onClose={onClose} />
+        {children}
       </motion.div>
     </Backdrop>,
     document.getElementById("portal")
