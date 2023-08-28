@@ -29,6 +29,7 @@ const habit = {
   id: "",
   title: "",
   createdAt: "",
+  description: "",
   daysStateCount,
   currentStreak: 0,
   badges: [],
@@ -40,16 +41,21 @@ const habit = {
  *
  * @param {Function} set - The set function from the Zustand store.
  * @param {Function} get - The get function from the Zustand store.
- * @param {string} input - The title of the new habit.
+ * @param {Object} habitData - The new habit data.
+ * @param {string} habitData.input - The habit title.
+ * @param {string} habitData.description - The habit description.
  */
-const createHabit = (set, get, input) => {
+const createHabit = (set, get, habitData) => {
   const state = get();
+
+  const { input, description } = habitData;
 
   const newHabit = {
     ...habit,
     id: randomId(),
     createdAt: new Date(),
     title: input,
+    description,
     months: [
       generatePendingHabitEntries(
         getAllDaysInMonth(today.getFullYear(), today.getMonth())
@@ -245,15 +251,19 @@ const checkAndUpdateHabits = (set, get) => {
  * @param {Function} set - The set function from the Zustand store.
  * @param {Function} get - The get function from the Zustand store.
  * @param habitId The ID of the habit to update.
- * @param title The new title for the habit to update.
+ * @param {Object} habitData The new data to edit the habit.
+ * @param {string} habitData.input The habit edited title.
+ * @param {string} habitData.description The habit edited description.
  */
-const editHabit = (set, get, habitId, input) => {
+const editHabit = (set, get, habitId, habitData) => {
   const state = get();
 
   const habit = state.habits.find((habit) => habit.id === habitId);
   if (!habit) return console.log("algo salio mal");
 
-  const editedHabit = { ...habit, title: input };
+  const { input, description } = habitData;
+
+  const editedHabit = { ...habit, title: input, description };
   const updatedHabits = state.habits.map((habit) =>
     habit.id === habitId ? editedHabit : habit
   );
@@ -267,9 +277,10 @@ const useHabitsStore = create(
       habits: [],
       completionMilestones: [7, 14, 21, 30, 60, 120, 365],
       actions: {
-        createHabit: (input) => createHabit(set, get, input),
+        createHabit: (habitData) => createHabit(set, get, habitData),
         updateHabit: (habitId, dayId) => updateHabit(set, get, habitId, dayId),
-        editHabit: (habitId, input) => editHabit(set, get, habitId, input),
+        editHabit: (habitId, habitData) =>
+          editHabit(set, get, habitId, habitData),
         deleteHabit: (id) => deleteHabit(set, get, id),
         checkAndUpdateHabits: () => checkAndUpdateHabits(set, get),
         deleteAllHabits: () => set({ habits: [] }),

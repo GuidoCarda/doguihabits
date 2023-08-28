@@ -96,12 +96,12 @@ const HabitDetail = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "d"],
-      conditionals: [habit],
+      conditionals: [habit, !isEditing],
       callback: () => handleDelete(id),
     },
     {
       keys: ["shiftKey", "e"],
-      conditionals: [habit],
+      conditionals: [habit, !isDialogOpen],
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
@@ -159,7 +159,10 @@ const HabitDetail = () => {
             <HabitForm
               isEditing={isEditing}
               onClose={handleEditModalClose}
-              initialValue={habit.title}
+              initialValues={{
+                title: habit.title,
+                description: habit.description,
+              }}
             />
           </Modal>
         )}

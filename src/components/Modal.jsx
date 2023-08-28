@@ -32,7 +32,7 @@ const Modal = ({ onClose, title, children }, ref) => {
         ref={domNode}
         aria-modal="true"
         className={clsx(
-          "bg-zinc-700 px-6 py-10 w-full h-2/4 self-end rounded-t-2xl",
+          "bg-zinc-700 px-6 py-10 w-full min-h-2/4 self-end rounded-t-2xl",
           "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
           "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md"
         )}
