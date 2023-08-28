@@ -141,11 +141,14 @@ const HabitDetail = () => {
     updateHabit(habit.id, dayId);
   };
 
+  console.log(habit);
+
   return (
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      key={"habit_detail_page"}
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Layout>

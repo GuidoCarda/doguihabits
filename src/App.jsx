@@ -27,7 +27,7 @@ const toastOptions = {
 function App() {
   return (
     <AnimatePresence mode="wait">
-      <Toaster toastOptions={toastOptions} />
+      <Toaster toastOptions={toastOptions} key={"toasts"} />
 
       <Routes>
         <Route path="/" element={<Habits />} />

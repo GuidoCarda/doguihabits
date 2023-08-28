@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function NotFound() {
   return (
-    <div className="grid place-items-center min-h-screen">
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      key={"not_found_page"}
+      className="grid place-items-center min-h-screen"
+    >
       <div className="max-w-sm flex flex-col text-center items-center gap-4 ">
         <h2 className="text-3xl font-bold text-zinc-300">
           Something went wrong
@@ -18,7 +25,7 @@ function NotFound() {
           Return to home page
         </Link>
       </div>
-    </div>
+    </motion.main>
   );
 }
 

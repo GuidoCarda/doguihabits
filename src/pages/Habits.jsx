@@ -104,6 +104,7 @@ const Habits = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      key={"habits_page"}
       className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
@@ -179,6 +180,7 @@ const PageHeader = ({ hasHabits, handleShowToggle }) => {
 };
 
 const HabitsGrid = ({ habits }) => {
+  console.log(habits);
   return (
     <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
       {habits.map((habit) => (

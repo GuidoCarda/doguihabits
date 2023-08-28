@@ -31,6 +31,7 @@ const Modal = ({ onClose, title, children }, ref) => {
         exit="hidden"
         ref={domNode}
         aria-modal="true"
+        key={"modal"}
         className={clsx(
           "bg-zinc-700 px-6 py-10 w-full min-h-2/4 self-end rounded-t-2xl",
           "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
@@ -72,6 +73,7 @@ export const Backdrop = ({ children }) => {
       // initial="hidden"
       // animate="visible"
       // exit="hidden"
+      key={"modal_backdrop"}
       className={clsx(
         "fixed inset-0 h-screen w-full",
         "bg-black/50 backdrop-blur-[2px] md:px-4",
