@@ -87,14 +87,14 @@ const HabitsWeekView = ({ habit }) => {
           <span className="block transition-transform  font-bold text-lg">
             {habit.title}
           </span>
-          <span className="text-xs group-focus:bg-emerald-400/20 group-focus:text-zinc-50 group-hover:bg-emerald-400/20 group-hover:text-zinc-50 bg-zinc-400/40 text-zinc-300  font-normal w-max h-5 leading-2 grid place-items-center px-1 rounded-sm">
+          <span className="text-xs group-focus:bg-emerald-400/20 group-focus:text-zinc-50 group-hover:bg-emerald-400/20 group-hover:text-zinc-50 bg-zinc-700 text-zinc-300  font-normal w-max h-5 leading-2 grid place-items-center px-2 rounded-sm">
             created at {getDayMonthYear(habit.createdAt).join("/")}
           </span>
         </Link>
         <IconButton
           aria-label="delete habit"
           onClick={handleDelete}
-          className={" group hover:bg-red-700/30 bg-zinc-500 flex-shrink-0"}
+          className={"group hover:bg-red-700/30 bg-zinc-500 flex-shrink-0"}
         >
           <TrashIcon className="h-4 transition-transform group-hover:text-red-500 group-hover:scale-110" />
         </IconButton>
