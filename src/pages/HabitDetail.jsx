@@ -71,8 +71,9 @@ const HabitDetail = () => {
     );
   }
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
     setIsEditing(true);
+    e.preventDefault();
   };
 
   const handleEditModalClose = () => {
@@ -101,11 +102,11 @@ const HabitDetail = () => {
     },
     {
       keys: ["shiftKey", "e"],
-      conditionals: [habit, !isDialogOpen],
+      conditionals: [habit, !isDialogOpen, !isEditing],
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
-        handleEdit();
+        handleEdit(e);
       },
     },
     {
