@@ -1,5 +1,10 @@
 import React from "react";
-import { getDayMonthYear, getWeekDayString, startOfDay } from "../../utils";
+import {
+  getDayMonthYear,
+  getPast7Days,
+  getWeekDayString,
+  startOfDay,
+} from "../../utils";
 import { useHabitsActions } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
@@ -58,6 +63,17 @@ const HabitsWeekView = ({ habit }) => {
         ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
         ...lastWeek,
       ];
+    } else {
+      //if the current habit does not have data for the previous month,
+      //generate placeholder values.
+
+      //get prev 7 days based on the first available date
+      const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].id))
+        .slice(lastWeek.length)
+        .map((date) => ({ id: date, state: "pending" }))
+        .sort((a, b) => a.id.getDate() - b.id.getDate());
+
+      lastWeek = previousPlaceholderDates.concat(lastWeek);
     }
   }
 
@@ -111,6 +127,10 @@ const HabitsWeekView = ({ habit }) => {
               </span>
               <button
                 aria-label="toggle habit state"
+                disabled={
+                  startOfDay(id).getMonth() <
+                  startOfDay(habit.createdAt).getMonth()
+                }
                 onClick={() => updateHabit(habit.id, id)}
                 className={clsx(
                   "rounded-md h-10 w-10 font-semibold border-2 border-transparent transition-colors duration-300",
@@ -119,7 +139,8 @@ const HabitsWeekView = ({ habit }) => {
                     "bg-failed": state === "failed",
                     "bg-zinc-700": state !== "failed" && state !== "completed",
                   },
-                  "outline-none hover:border-white/30 focus:ring-2 focus:ring-white/20"
+                  "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20",
+                  "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent"
                 )}
               >
                 {day}
