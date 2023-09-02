@@ -65,7 +65,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
         </div>
 
         <input
-          className="h-12 rounded-md  bg-zinc-600 text-neutral-200 px-4 outline-none w-full"
+          className="h-12 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 outline-none w-full focus:border-green-500/40"
           type="text"
           id="habit"
           value={input}
@@ -95,7 +95,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
           name="description"
           id="description"
           placeholder="Give a short description if wanted"
-          className="resize-none h-28 rounded-md  bg-zinc-600 text-neutral-200 px-4 py-2 outline-none w-full"
+          className="resize-none h-28 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 py-2 outline-none w-full focus:border-green-500/40"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         ></textarea>

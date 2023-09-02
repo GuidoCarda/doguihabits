@@ -15,7 +15,7 @@ const HabitMonthlyView = (props) => {
   const [, , year] = getDayMonthYear(month[0].id);
 
   return (
-    <div className="bg-zinc-600 p-4 md:px-6 md:py-6 rounded-md ">
+    <div className="bg-zinc-800 p-4 md:px-6 md:py-6 rounded-xl ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
           {getMonthString(new Date(month[0].id).getMonth())}
@@ -40,7 +40,7 @@ const HabitMonthlyView = (props) => {
                     day.state !== "failed" &&
                     day.state !== "completed",
                 },
-                "disabled:cursor-not-allowed disabled:text-black/40 disabled:bg-transparent",
+                "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent",
                 "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20"
               )}
             >

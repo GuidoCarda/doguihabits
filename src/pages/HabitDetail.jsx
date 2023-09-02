@@ -241,12 +241,12 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
 
 const DashboardDetail = ({ title, data, icon }) => {
   return (
-    <div className="p-4 w-full bg-zinc-600  rounded-2xl flex items-center justify-around gap-6 ">
+    <div className="p-4 w-full bg-zinc-800  rounded-2xl flex items-center justify-around gap-6 ">
       <div className="text-center -space-y-1">
         <h4 className="font-semibold text-zinc-400">{title}</h4>
         <h2 className="text-3xl font-bold">{data}</h2>
       </div>
-      <span className=" grid place-content-center h-20 w-20 rounded-full bg-zinc-700">
+      <span className=" grid place-content-center h-20 w-20 rounded-full bg-zinc-900">
         {icon == "FireIcon" && <FireIcon className="h-12 text-red-500" />}
         {icon == "XMarkIcon" && <XMarkIcon className="h-12 text-rose-500" />}
         {icon == "CheckIcon" && <CheckIcon className="h-12 text-green-500" />}

@@ -75,7 +75,7 @@ const HabitsWeekView = ({ habit }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className={clsx(
-        "bg-zinc-600 rounded-xl text-neutral-100 space-y-4 w-full  mx-auto",
+        "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full  mx-auto",
         "md:max-w-max md:mx-0"
       )}
     >
@@ -94,7 +94,7 @@ const HabitsWeekView = ({ habit }) => {
         <IconButton
           aria-label="delete habit"
           onClick={handleDelete}
-          className={"group hover:bg-red-700/30 bg-zinc-500 flex-shrink-0"}
+          className={"group hover:bg-red-700/30 bg-zinc-700 flex-shrink-0"}
         >
           <TrashIcon className="h-4 transition-transform group-hover:text-red-500 group-hover:scale-110" />
         </IconButton>
@@ -129,7 +129,7 @@ const HabitsWeekView = ({ habit }) => {
         })}
       </div>
 
-      <div className="border-t-2 px-4 pb-2 pt-2 border-zinc-500/50 flex gap-2">
+      <div className="border-t-2 px-4 pb-2 pt-2 border-zinc-700 flex gap-2">
         <div className="flex group items-center gap-1 ">
           <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
           <span className="text-sm  group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">

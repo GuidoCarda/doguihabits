@@ -18,7 +18,7 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
         ref={domNode}
         key={"confirmDialog"}
         aria-modal="true"
-        className="bg-zinc-700 mx-10 p-4 rounded-lg  w-3/4 sm:w-full max-w-lg"
+        className="bg-zinc-900 border-2 border-zinc-800 mx-10 p-4 rounded-lg  w-3/4 sm:w-full max-w-lg"
       >
         <header>
           <h2 className="text-2xl  text-zinc-200 font-semibold">{title}</h2>
@@ -33,7 +33,7 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
             ref={ref}
             onClick={onClose}
             className={clsx(
-              "capitalize ml-auto bg-zinc-600  text-neutral-100",
+              "capitalize ml-auto bg-zinc-800  text-neutral-100",
               "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
             )}
           >

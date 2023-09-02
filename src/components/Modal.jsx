@@ -33,16 +33,16 @@ const Modal = ({ onClose, title, children }, ref) => {
         aria-modal="true"
         key={"modal"}
         className={clsx(
-          "bg-zinc-700 px-6 py-10 w-full min-h-2/4 self-end rounded-t-2xl",
+          "bg-zinc-900 p-6 w-full min-h-2/4 self-end rounded-t-2xl border-2 border-zinc-800",
           "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
           "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md"
         )}
       >
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl text-neutral-300 font-semibold">{title}</h2>
+          <h2 className="text-2xl text-zinc-200 font-semibold">{title}</h2>
           <IconButton
             aria-label="close modal"
-            className="group rounded-md bg-zinc-500 hover:bg-zinc-400 font-bold text-zinc-400"
+            className="group rounded-md bg-zinc-800 hover:bg-zinc-700 font-bold text-zinc-500"
             onClick={onClose}
           >
             <XMarkIcon

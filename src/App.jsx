@@ -16,7 +16,7 @@ import NotFound from "./pages/NotFound";
 
 const toastOptions = {
   style: {
-    backgroundColor: "hsl(240, 3.8297872340425574%, 30%)",
+    backgroundColor: "hsl(240, 4%, 16%)",
     color: "hsl(240, 3.8297872340425574%, 85%)",
   },
   error: {
