@@ -187,7 +187,7 @@ const HabitDetail = () => {
                 key={`${milestone}-days-badge`}
                 className={`${
                   !habit?.badges.includes(milestone) ? "grayscale" : ""
-                } text-center bg-zinc-700 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
+                } text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
               >
                 <span className="block text-4xl font-bold text-emerald-500">
                   {milestone}
