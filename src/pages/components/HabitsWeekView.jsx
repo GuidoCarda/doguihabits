@@ -69,9 +69,9 @@ const HabitsWeekView = ({ habit }) => {
 
       //get prev 7 days based on the first available date
       const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].id))
-        .slice(lastWeek.length)
         .map((date) => ({ id: date, state: "pending" }))
-        .sort((a, b) => a.id.getDate() - b.id.getDate());
+        .sort((a, b) => a.id.getDate() - b.id.getDate())
+        .slice(lastWeek.length);
 
       lastWeek = previousPlaceholderDates.concat(lastWeek);
     }

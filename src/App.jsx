@@ -13,6 +13,7 @@ import { AnimatePresence } from "framer-motion";
 // Toast notifications
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
 
 const toastOptions = {
   style: {
@@ -30,6 +31,7 @@ function App() {
       <Toaster toastOptions={toastOptions} key={"toasts"} />
 
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<Habits />} />
         <Route path="/habits/:id" element={<HabitDetail />} />
         <Route path="*" element={<NotFound />} />
