@@ -75,7 +75,7 @@ export const Backdrop = ({ children }) => {
       // exit="hidden"
       key={"modal_backdrop"}
       className={clsx(
-        "fixed inset-0 h-screen w-full",
+        "fixed inset-0 h-full w-full",
         "bg-black/50 backdrop-blur-[2px] md:px-4",
         "grid place-items-center"
       )}
