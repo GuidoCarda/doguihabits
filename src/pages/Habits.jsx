@@ -22,6 +22,7 @@ import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
+import { addDocTry } from "../firebase";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
