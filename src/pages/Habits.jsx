@@ -22,7 +22,9 @@ import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
-import { addDocTry } from "../firebase";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { redirect, useNavigate } from "react-router-dom";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +41,8 @@ const Habits = () => {
 
   const { checkAndUpdateHabits } = useHabitsActions();
 
+  const navigate = useNavigate();
+
   //Runs when the component mounts and checks whether the habits have or not the needed data
   useEffect(() => {
     console.log("Page mount, checkAndUpdateHabits runs");
@@ -53,6 +57,23 @@ const Habits = () => {
     }
     habitsCountRef.current = habits.length;
   }, [habits.length]);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(user);
+      }
+    });
+  }, []);
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        console.log("sign out");
+        navigate("/login");
+      })
+      .catch((err) => console.error(err));
+  };
 
   const handleClose = () => setIsOpen(false);
 
@@ -109,7 +130,11 @@ const Habits = () => {
       className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <PageHeader hasHabits={hasHabits} handleShowToggle={handleShowToggle} />
+        <PageHeader
+          hasHabits={hasHabits}
+          handleShowToggle={handleShowToggle}
+          handleSignOut={handleSignOut}
+        />
 
         {habits.length > 1 && (
           <HabitsSorting
@@ -137,7 +162,7 @@ const Habits = () => {
   );
 };
 
-const PageHeader = ({ hasHabits, handleShowToggle }) => {
+const PageHeader = ({ hasHabits, handleShowToggle, handleSignOut }) => {
   const { deleteAllHabits } = useHabitsActions();
   const dialog = useDialog();
 
@@ -174,6 +199,9 @@ const PageHeader = ({ hasHabits, handleShowToggle }) => {
               strokeWidth={2}
             />
           </IconButton>
+          <Button onClick={handleSignOut} className={"bg-zinc-800"}>
+            sign out
+          </Button>
         </div>
       )}
     </div>
@@ -181,7 +209,7 @@ const PageHeader = ({ hasHabits, handleShowToggle }) => {
 };
 
 const HabitsGrid = ({ habits }) => {
-  console.log(habits);
+  // console.log(habits);
   return (
     <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
       {habits.map((habit) => (

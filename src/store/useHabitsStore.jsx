@@ -223,7 +223,7 @@ const checkAndUpdateHabits = (set, get) => {
     const monthsToAdd = [];
     let prevMonthAdded = lastMonthRecordedDate;
 
-    console.log(habit.id);
+    // console.log(habit.id);
     // if the habit contains the current month, return the same habit object
     if (isSameMonth(currentDate, prevMonthAdded)) {
       return habit;

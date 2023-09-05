@@ -1,15 +1,42 @@
 import { useState } from "react";
 import { Button } from "../components/Buttons";
 import Layout from "../components/Layout";
+import { signIn, signUp } from "../services/auth";
+import { useNavigate } from "react-router-dom";
+
+const ACTIONS = {
+  SIGN_IN: "signin",
+  SIGN_UP: "signup",
+};
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [action, setAction] = useState(ACTIONS.SIGN_UP);
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("submit");
 
-    alert("test");
+    if (!email || !password) {
+      return alert("algo salio mal");
+    }
+
+    let user;
+    if (action === ACTIONS.SIGN_UP) {
+      user = await signUp(email, password);
+      console.log("sign up");
+    } else {
+      user = await signIn(email, password);
+      console.log("sign in");
+    }
+    console.log(user);
+
+    if (user) {
+      navigate("/");
+    }
     return null;
   };
 
@@ -17,7 +44,9 @@ const Login = () => {
     <section>
       <Layout>
         <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
-          <h1 className="text-zinc-100 font-semibold text-4xl mb-10">LogIn</h1>
+          <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
+            {action}
+          </h1>
           <label htmlFor="email" className="text-zinc-300 block mb-2">
             Email
           </label>
@@ -39,8 +68,18 @@ const Login = () => {
             name="password"
           />
           <Button className="bg-green-600 w-full text-zinc-100 font-bold">
-            Login
+            {action}
           </Button>
+          <div>
+            <p>Ya tienes una cuenta?</p>
+            <button
+              type="button"
+              className="text-green-600 "
+              onClick={() => setAction(ACTIONS.SIGN_IN)}
+            >
+              inicia sesión
+            </button>
+          </div>
           <div className="text-zinc-300  mt-10 text-xl border-2 border-zinc-800 p-4 rounded-md ">
             <h2>Email: {email}</h2>
             <h2>Password: {password}</h2>
