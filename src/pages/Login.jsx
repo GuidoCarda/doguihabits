@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../components/Buttons";
 import Layout from "../components/Layout";
 import { signIn, signUp } from "../services/auth";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ACTIONS = {
   SIGN_IN: "signin",
@@ -15,6 +16,15 @@ const Login = () => {
   const [action, setAction] = useState(ACTIONS.SIGN_UP);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const user = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { state: { from: location }, replace: true });
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

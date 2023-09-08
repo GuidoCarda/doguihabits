@@ -23,8 +23,7 @@ import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { auth } from "../firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { redirect, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +40,6 @@ const Habits = () => {
 
   const { checkAndUpdateHabits } = useHabitsActions();
 
-  const navigate = useNavigate();
-
   //Runs when the component mounts and checks whether the habits have or not the needed data
   useEffect(() => {
     console.log("Page mount, checkAndUpdateHabits runs");
@@ -58,19 +55,10 @@ const Habits = () => {
     habitsCountRef.current = habits.length;
   }, [habits.length]);
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log(user);
-      }
-    });
-  }, []);
-
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
         console.log("sign out");
-        navigate("/login");
       })
       .catch((err) => console.error(err));
   };

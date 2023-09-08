@@ -1,19 +1,22 @@
 import "./App.css";
 
 // Routing
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 
 // Pages
 import HabitDetail from "./pages/HabitDetail";
 import Habits from "./pages/Habits";
+import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
 
 // Animations
 import { AnimatePresence } from "framer-motion";
 
 // Toast notifications
 import { Toaster } from "react-hot-toast";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
+
+// Auth
+import { useAuth } from "./context/AuthContext";
 
 const toastOptions = {
   style: {
@@ -32,11 +35,24 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Habits />} />
-        <Route path="/habits/:id" element={<HabitDetail />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/" element={<Habits />} />
+          <Route path="/habits/:id" element={<HabitDetail />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
+  );
+}
+
+function ProtectedRoutes() {
+  const user = useAuth();
+  const location = useLocation();
+
+  return user ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
   );
 }
 
