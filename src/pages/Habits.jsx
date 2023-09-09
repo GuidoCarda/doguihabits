@@ -17,7 +17,11 @@ import useKeyPress from "../hooks/useKeyPress";
 import { AnimatePresence, motion } from "framer-motion";
 
 //Icons
-import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftOnRectangleIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
@@ -187,9 +191,12 @@ const PageHeader = ({ hasHabits, handleShowToggle, handleSignOut }) => {
               strokeWidth={2}
             />
           </IconButton>
-          <Button onClick={handleSignOut} className={"bg-zinc-800"}>
-            sign out
-          </Button>
+          <IconButton onClick={handleSignOut} className={"group bg-zinc-800"}>
+            <ArrowLeftOnRectangleIcon
+              className=" transition-colors h-5 w-5 text-zinc-300 group-hover:text-zinc-50"
+              strokeWidth={2}
+            />
+          </IconButton>
         </div>
       )}
     </div>
