@@ -10,6 +10,8 @@ import {
   startOfDay,
 } from "../utils";
 import { toast } from "react-hot-toast";
+import { createDocInFirebase } from "../services/habits";
+import { auth } from "../firebase";
 
 const today = new Date();
 
@@ -53,15 +55,18 @@ const createHabit = (set, get, habitData) => {
   const newHabit = {
     ...habit,
     id: randomId(),
+    uid: auth?.currentUser?.uid,
     createdAt: new Date(),
     title: input,
-    description,
+    description: "",
     months: [
       generatePendingHabitEntries(
         getAllDaysInMonth(today.getFullYear(), today.getMonth())
       ),
     ],
   };
+
+  createDocInFirebase(newHabit);
 
   set({ habits: [newHabit, ...state.habits] });
 };
