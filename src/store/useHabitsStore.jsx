@@ -66,7 +66,7 @@ const createHabit = (set, get, habitData) => {
     ],
   };
 
-  createDocInFirebase(newHabit);
+  createDocInFirebase({ id: newHabit.id, title: input });
 
   set({ habits: [newHabit, ...state.habits] });
 };
