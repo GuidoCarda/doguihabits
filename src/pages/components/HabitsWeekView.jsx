@@ -46,36 +46,32 @@ const HabitsWeekView = ({ habit }) => {
 
   const currentDate = new Date();
 
-  const currentMonthIndex = habit.months.findIndex(
-    (month) => startOfDay(month[0].id).getMonth() === currentDate.getMonth()
-  );
-
-  let lastWeek = habit.months
-    .at(-1)
-    .filter((day) => new Date(day.id).getDate() <= currentDate.getDate())
+  let lastWeek = habit.entries
+    .filter((day) => new Date(day.date).getDate() <= currentDate.getDate())
     .slice(-7);
 
-  if (lastWeek.length < 7) {
-    // if we are on the first days of the month and if the habit has prev data
-    if (currentMonthIndex > 0) {
-      const prevMonth = [...habit.months.at(-2)];
-      lastWeek = [
-        ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
-        ...lastWeek,
-      ];
-    } else {
-      //if the current habit does not have data for the previous month,
-      //generate placeholder values.
+  // TODO: Fix this logic with the new data structure
+  // if (lastWeek.length < 7) {
+  //   // if we are on the first days of the month and if the habit has prev data
+  //   if (currentMonthIndex > 0) {
+  //     const prevMonth = [...habit.entries.at(-2)];
+  //     lastWeek = [
+  //       ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
+  //       ...lastWeek,
+  //     ];
+  //   } else {
+  //     //if the current habit does not have data for the previous month,
+  //     //generate placeholder values.
 
-      //get prev 7 days based on the first available date
-      const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].id))
-        .map((date) => ({ id: date, state: "pending" }))
-        .sort((a, b) => a.id.getDate() - b.id.getDate())
-        .slice(lastWeek.length);
+  //     //get prev 7 days based on the first available date
+  //     const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].id))
+  //       .map((date) => ({ id: date, state: "pending" }))
+  //       .sort((a, b) => a.id.getDate() - b.id.getDate())
+  //       .slice(lastWeek.length);
 
-      lastWeek = previousPlaceholderDates.concat(lastWeek);
-    }
-  }
+  //     lastWeek = previousPlaceholderDates.concat(lastWeek);
+  //   }
+  // }
 
   const getCompletionPercentage = (habit) => {
     const { daysStateCount } = habit;
@@ -117,18 +113,18 @@ const HabitsWeekView = ({ habit }) => {
       </div>
 
       <div className="grid grid-cols-7 gap-4 px-4">
-        {lastWeek.map(({ id, state }, idx) => {
-          const [day] = getDayMonthYear(id);
+        {lastWeek.map(({ id, date, state }) => {
+          const [day] = getDayMonthYear(date);
 
           return (
             <div key={`day-${id}`}>
               <span className="block text-xs w-10 text-center font-semibold text-zinc-400 pb-1">
-                {getWeekDayString(startOfDay(id).getDay()).slice(0, 3)}
+                {getWeekDayString(startOfDay(date).getDay()).slice(0, 3)}
               </span>
               <button
                 aria-label="toggle habit state"
                 disabled={
-                  startOfDay(id).getMonth() <
+                  startOfDay(date).getMonth() <
                   startOfDay(habit.createdAt).getMonth()
                 }
                 onClick={() => updateHabit(habit.id, id)}

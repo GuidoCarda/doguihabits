@@ -6,11 +6,14 @@ import {
   getTotal,
   isSameMonth,
   nextState,
-  randomId,
   startOfDay,
 } from "../utils";
 import { toast } from "react-hot-toast";
-import { createDocInFirebase } from "../services/habits";
+import {
+  createDocInFirebase,
+  getHabitEntries,
+  getHabitsWithEntries,
+} from "../services/habits";
 import { auth } from "../firebase";
 
 const today = new Date();
@@ -34,14 +37,12 @@ const daysStateCount = {
 };
 
 const habit = {
-  id: "",
   title: "",
   createdAt: "",
   description: "",
   daysStateCount,
   currentStreak: 0,
   badges: [],
-  months: [],
 };
 
 /**
@@ -60,25 +61,26 @@ const createHabit = async (set, get, habitData) => {
 
   const newHabit = {
     ...habit,
-    id: randomId(),
     uid: auth?.currentUser?.uid,
     createdAt: new Date(),
     title: input,
     description: "",
-    months: [
-      generatePendingHabitEntries(
-        getAllDaysInMonth(today.getFullYear(), today.getMonth())
-      ),
-    ],
   };
 
-  await createDocInFirebase({
-    createdAt: newHabit.createdAt,
-    title: input,
-    uid: newHabit.uid,
-  });
+  const habitId = await createDocInFirebase(newHabit);
+  const entries = await getHabitEntries(habitId);
 
-  set({ habits: [newHabit, ...state.habits] });
+  set({ habits: [{ ...newHabit, id: habitId, entries }, ...state.habits] });
+};
+
+/**
+ * Get all the habits of the current user.
+ * @param {Function} set - The set function from the Zustand store.
+ * @param {string} userid - The ID of the user to get the habits from.
+ */
+const getHabits = async (set, userId) => {
+  const habits = await getHabitsWithEntries();
+  set({ habits: habits });
 };
 
 /**
@@ -175,7 +177,7 @@ const updateHabit = (set, get, habitId, dayId) => {
   // Create a new habit object with the updated state
   const updatedHabit = {
     ...rest,
-    months: updatedMonths,
+    entries: updatedMonths,
     daysStateCount: updatedDaysStateCount,
     badges: updatedBadges,
     currentStreak,
@@ -292,6 +294,7 @@ const useHabitsStore = create(
       habits: [],
       completionMilestones: [7, 14, 21, 30, 60, 120, 365],
       actions: {
+        getHabits: (userId) => getHabits(set, userId),
         createHabit: (habitData) => createHabit(set, get, habitData),
         updateHabit: (habitId, dayId) => updateHabit(set, get, habitId, dayId),
         editHabit: (habitId, habitData) =>

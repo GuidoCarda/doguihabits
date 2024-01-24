@@ -12,8 +12,6 @@ import { getAllDaysInMonth } from "../utils";
 import { generatePendingHabitEntries2 } from "../store/useHabitsStore";
 
 export const createDocInFirebase = async (habit) => {
-  console.log(habit);
-  console.log("creating habit in firebase");
   try {
     const habitsCollection = collection(db, "habits");
     const habitRef = await addDoc(habitsCollection, habit);
@@ -33,6 +31,8 @@ export const createDocInFirebase = async (habit) => {
     console.log(
       `habitID ${habitId} created, Entries added for the whole month`
     );
+
+    return habitId;
   } catch (err) {
     console.error(err);
   }
@@ -42,20 +42,38 @@ export const createDocInFirebase = async (habit) => {
 // otherwise you can use addDoc which will generate a random id for you
 
 export const getHabitsWithEntries = async () => {
-  const habitsCollection = collection(db, "habits");
-  const habitsSnapshot = await getDocs(habitsCollection);
+  try {
+    const habitsCollection = collection(db, "habits");
+    const habitsSnapshot = await getDocs(habitsCollection);
 
-  const habits = [] as any[];
-  habitsSnapshot.forEach((doc) => {
-    habits.push({ id: doc.id, ...doc.data() });
-  });
+    const habits = [] as any[];
+    habitsSnapshot.forEach((doc) => {
+      habits.push({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt.toDate(),
+      });
+    });
 
-  habits.forEach(async (habit) => {
-    const entriesCollection = collection(habitsCollection, habit.id, "entries");
+    for (const habit of habits) {
+      const entries = await getHabitEntries(habit.id);
+      habit.entries = entries;
+    }
+
+    return habits;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getHabitEntries = async (habitId: string) => {
+  try {
+    const entriesCollection = collection(db, "habits", habitId, "entries");
     const entriesQuery = query(entriesCollection, orderBy("date", "asc"));
     const entriesSnapshot = await getDocs(entriesQuery);
 
     const entries = [] as any[];
+
     entriesSnapshot.forEach((doc) => {
       entries.push({
         id: doc.id,
@@ -64,8 +82,9 @@ export const getHabitsWithEntries = async () => {
       });
     });
 
-    habit.entries = entries;
-  });
-
-  return habits;
+    return entries;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };

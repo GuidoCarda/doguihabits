@@ -37,6 +37,8 @@ const Habits = () => {
   const habits = useHabits(sortCriteria);
   const hasHabits = habits.length > 0;
 
+  console.log("habits inside habits page", habits);
+
   // This ref prevents loosing the habitsCount value on re-render to
   // ensure only executing the checkAndUpdateHabits fn only when
   // a habit is created
@@ -45,19 +47,19 @@ const Habits = () => {
   const { checkAndUpdateHabits } = useHabitsActions();
 
   //Runs when the component mounts and checks whether the habits have or not the needed data
-  useEffect(() => {
-    console.log("Page mount, checkAndUpdateHabits runs");
-    checkAndUpdateHabits();
-  }, []);
+  // useEffect(() => {
+  //   console.log("Page mount, checkAndUpdateHabits runs");
+  //   checkAndUpdateHabits();
+  // }, []);
 
   //Runs each time a habit is added only
-  useEffect(() => {
-    if (habits.length > habitsCountRef.current) {
-      console.log("habit added, so checkAndUpdateHabits runs");
-      checkAndUpdateHabits();
-    }
-    habitsCountRef.current = habits.length;
-  }, [habits.length]);
+  // useEffect(() => {
+  //   if (habits.length > habitsCountRef.current) {
+  //     console.log("habit added, so checkAndUpdateHabits runs");
+  //     checkAndUpdateHabits();
+  //   }
+  //   habitsCountRef.current = habits.length;
+  // }, [habits.length]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -204,7 +206,6 @@ const PageHeader = ({ hasHabits, handleShowToggle, handleSignOut }) => {
 };
 
 const HabitsGrid = ({ habits }) => {
-  // console.log(habits);
   return (
     <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
       {habits.map((habit) => (

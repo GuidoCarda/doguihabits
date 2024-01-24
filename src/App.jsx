@@ -18,6 +18,8 @@ import { Toaster } from "react-hot-toast";
 // Auth
 import { useAuth } from "./context/AuthContext";
 import Test from "./pages/Test";
+import { useHabitsActions } from "./store/useHabitsStore";
+import { useEffect, useRef } from "react";
 
 const toastOptions = {
   style: {
@@ -30,6 +32,20 @@ const toastOptions = {
 };
 
 function App() {
+  // I don't think its the best solution, so I'm open to suggestions
+  const { getHabits } = useHabitsActions();
+  const alreadyFetched = useRef(false);
+
+  useEffect(() => {
+    if (alreadyFetched.current) return;
+
+    getHabits();
+    return () => {
+      alreadyFetched.current = true;
+    };
+  }, []);
+  //
+
   return (
     <AnimatePresence mode="wait">
       <Toaster toastOptions={toastOptions} key={"toasts"} />

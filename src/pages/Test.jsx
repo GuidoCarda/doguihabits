@@ -1,23 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { getHabitsWithEntries } from "../services/habits";
+import { useHabits } from "../store/useHabitsStore";
 
 function Test() {
-  const [habits, setHabits] = useState([]);
-  const alreadyFetched = useRef(false);
-
-  useEffect(() => {
-    if (alreadyFetched.current) return;
-
-    getHabitsWithEntries().then((habits) => {
-      setHabits(habits);
-    });
-
-    return () => {
-      alreadyFetched.current = true;
-    };
-  }, []);
-
-  console.log(habits);
+  const habits = useHabits();
 
   return (
     <div className="text-slate-100">
@@ -25,7 +9,10 @@ function Test() {
       {Boolean(habits.length) &&
         habits.map((habit) => {
           return (
-            <div className="border-2 border-slate-100 px-2 py-4">
+            <div
+              key={habit.title}
+              className="border-2 border-slate-100 px-2 py-4"
+            >
               <h2>{habit.title}</h2>
               <p>{habit.id}</p>
             </div>
