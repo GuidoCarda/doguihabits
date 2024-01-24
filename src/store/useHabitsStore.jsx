@@ -21,6 +21,12 @@ const generatePendingHabitEntries = (datesArray) => {
     state: "pending",
   }));
 };
+export const generatePendingHabitEntries2 = (datesArray) => {
+  return datesArray.map((date) => ({
+    date,
+    state: "pending",
+  }));
+};
 
 const daysStateCount = {
   completed: 0,
@@ -47,7 +53,7 @@ const habit = {
  * @param {string} habitData.input - The habit title.
  * @param {string} habitData.description - The habit description.
  */
-const createHabit = (set, get, habitData) => {
+const createHabit = async (set, get, habitData) => {
   const state = get();
 
   const { input, description } = habitData;
@@ -66,7 +72,11 @@ const createHabit = (set, get, habitData) => {
     ],
   };
 
-  createDocInFirebase({ id: newHabit.id, title: input });
+  await createDocInFirebase({
+    createdAt: newHabit.createdAt,
+    title: input,
+    uid: newHabit.uid,
+  });
 
   set({ habits: [newHabit, ...state.habits] });
 };
