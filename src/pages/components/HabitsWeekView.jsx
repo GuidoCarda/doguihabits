@@ -115,7 +115,6 @@ const HabitsWeekView = ({ habit }) => {
       <div className="grid grid-cols-7 gap-4 px-4">
         {lastWeek.map(({ id, date, state }) => {
           const [day] = getDayMonthYear(date);
-
           return (
             <div key={`day-${id}`}>
               <span className="block text-xs w-10 text-center font-semibold text-zinc-400 pb-1">

@@ -36,6 +36,7 @@ const Habits = () => {
   //Get habits sorted by criteria if any, else get them in default order of creation
   const habits = useHabits(sortCriteria);
   const hasHabits = habits.length > 0;
+  const habitsLimitReached = habits.length >= 5;
 
   console.log("habits inside habits page", habits);
 
@@ -86,7 +87,7 @@ const Habits = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "n"],
-      conditionals: [!isOpen],
+      conditionals: [!isOpen && !habitsLimitReached],
       callback: (e) => {
         e.preventDefault();
         handleShowToggle();
@@ -126,6 +127,7 @@ const Habits = () => {
       <Layout>
         <PageHeader
           hasHabits={hasHabits}
+          habitsLimitReached={habitsLimitReached}
           handleShowToggle={handleShowToggle}
           handleSignOut={handleSignOut}
         />
@@ -156,7 +158,12 @@ const Habits = () => {
   );
 };
 
-const PageHeader = ({ hasHabits, handleShowToggle, handleSignOut }) => {
+const PageHeader = ({
+  hasHabits,
+  habitsLimitReached,
+  handleShowToggle,
+  handleSignOut,
+}) => {
   const { deleteAllHabits } = useHabitsActions();
   const dialog = useDialog();
 
@@ -177,12 +184,14 @@ const PageHeader = ({ hasHabits, handleShowToggle, handleSignOut }) => {
 
       {hasHabits && (
         <div className="flex gap-3">
-          <IconTextButton
-            onClick={handleShowToggle}
-            text="new habit"
-            className="bg-green-600 font-bold"
-            icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
-          />
+          {!habitsLimitReached && (
+            <IconTextButton
+              onClick={handleShowToggle}
+              text="new habit"
+              className="bg-green-600 font-bold"
+              icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
+            />
+          )}
           <IconButton
             aria-label="remove all habits"
             className="group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300"

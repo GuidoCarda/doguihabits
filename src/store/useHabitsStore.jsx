@@ -13,6 +13,7 @@ import {
   createDocInFirebase,
   getHabitEntries,
   getHabitsWithEntries,
+  updateHabitEntry,
 } from "../services/habits";
 import { auth } from "../firebase";
 
@@ -85,21 +86,21 @@ const getHabits = async (set, userId) => {
 
 /**
  * Returns the current streak for a habit, based on the provided months array.
- * @param months - An array of month objects, each of which contains an array of day objects with state information.
+ * @param entries - An array of entries containing the id, date and state.
  * @returns streak - The current streak for the habit.
  */
-const getHabitStreak = (months) => {
+const getHabitStreak = (entries) => {
   let streak = 0;
 
-  const lastMonth = months.at(-1)[0].id;
+  const lastMonth = entries.at(-1).date;
 
-  const days = months
+  const reversedEntries = entries
     .flat()
     .reverse()
     .slice(daysInMonth(lastMonth) - today.getDate());
 
-  for (let day of days) {
-    if (day.state !== "completed") {
+  for (let entry of reversedEntries) {
+    if (entry.state !== "completed") {
       break;
     }
     streak += 1;
@@ -115,41 +116,36 @@ const getHabitStreak = (months) => {
  * @param habitId The ID of the habit to update.
  * @param dayId The ID of the day to update.
  */
-const updateHabit = (set, get, habitId, dayId) => {
+const updateHabit = async (set, get, habitId, dayId) => {
   const state = get();
+
   // Find the habit to update based on its ID
-  const { months, daysStateCount, badges, ...rest } = state.habits.find(
+  const { entries, daysStateCount, badges, ...rest } = state.habits.find(
     (habit) => habit.id === habitId
   );
 
-  // Find the month that the dat belongs to
-  const monthToUpdate = months.findIndex((month) =>
-    isSameMonth(month[0].id, dayId)
-  );
+  // find entry to update
+  const entryToUpdate = entries.find((entry) => entry.id === dayId);
+
+  // Update the entry state
+  await updateHabitEntry(habitId, dayId, nextState(entryToUpdate.state));
 
   // Update the state of the day within the apropiate month
-  const updatedMonths = months.map((month, idx) => {
-    if (idx === monthToUpdate) {
-      return month.map((day) => {
-        return day.id === dayId ? { ...day, state: nextState(day.state) } : day;
-      });
-    }
-    return month;
+  const updatedEntries = entries.map((entry) => {
+    return entry.id === dayId
+      ? { ...entry, state: nextState(entry.state) }
+      : entry;
   });
 
   // Update the count of completed & failed days for the habit
   const updatedDaysStateCount = {
     ...daysStateCount,
-    completed: updatedMonths
-      .map((month) => getTotal(month, "completed"))
-      .reduce((sum, monthTotal) => sum + monthTotal, 0),
-    failed: updatedMonths
-      .map((month) => getTotal(month, "failed"))
-      .reduce((sum, monthTotal) => sum + monthTotal, 0),
+    completed: getTotal(updatedEntries, "completed"),
+    failed: getTotal(updatedEntries, "failed"),
   };
 
   // Calculate current habit streak if any
-  const currentStreak = getHabitStreak(updatedMonths);
+  const currentStreak = getHabitStreak(updatedEntries);
 
   // Check for completion milestones
   const completionMilestones = get().completionMilestones;
@@ -159,6 +155,7 @@ const updateHabit = (set, get, habitId, dayId) => {
     (milestone) => milestone <= currentStreak && !badges.includes(milestone)
   );
 
+  // Update badges
   const updatedBadges = [...badges, ...newMilestones];
 
   if (newMilestones.length > 0) {
@@ -177,7 +174,7 @@ const updateHabit = (set, get, habitId, dayId) => {
   // Create a new habit object with the updated state
   const updatedHabit = {
     ...rest,
-    entries: updatedMonths,
+    entries: updatedEntries,
     daysStateCount: updatedDaysStateCount,
     badges: updatedBadges,
     currentStreak,

@@ -5,6 +5,7 @@ import {
   getDocs,
   orderBy,
   query,
+  updateDoc,
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -83,6 +84,23 @@ export const getHabitEntries = async (habitId: string) => {
     });
 
     return entries;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const updateHabitEntry = async (
+  habitId: string,
+  entryId: string,
+  state: string
+) => {
+  console.log(habitId, entryId, state);
+  try {
+    const entriesCollection = collection(db, "habits", habitId, "entries");
+    const entryRef = doc(entriesCollection, entryId);
+    await updateDoc(entryRef, { state });
+    console.log(`entry ${entryId} updated from habit ${habitId} updated `);
   } catch (error) {
     console.log(error);
     throw error;
