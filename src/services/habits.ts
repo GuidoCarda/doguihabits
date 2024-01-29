@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -86,6 +87,22 @@ export const getHabitEntries = async (habitId: string) => {
     });
 
     return entries;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const getHabitById = async (habitId: string) => {
+  try {
+    const habitsCollection = collection(db, "habits");
+    const habitRef = doc(habitsCollection, habitId);
+    const habitSnapshot = await getDoc(habitRef);
+
+    const entries = await getHabitEntries(habitId);
+
+    const habit = { ...habitSnapshot.data(), entries };
+    return habit;
   } catch (error) {
     console.log(error);
     throw error;

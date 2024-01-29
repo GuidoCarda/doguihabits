@@ -57,7 +57,6 @@ const habit = {
  */
 const createHabit = async (set, get, habitData) => {
   const state = get();
-
   const { input, description } = habitData;
 
   const newHabit = {
@@ -89,7 +88,7 @@ const getHabits = async (set, userId) => {
  * @param entries - An array of entries containing the id, date and state.
  * @returns streak - The current streak for the habit.
  */
-const getHabitStreak = (entries) => {
+export const getHabitStreak = (entries) => {
   let streak = 0;
 
   const lastMonth = entries.at(-1).date;

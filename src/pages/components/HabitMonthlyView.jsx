@@ -11,14 +11,14 @@ const HabitMonthlyView = (props) => {
   const { month, toggleHabitDay } = props;
 
   const today = new Date();
-  const isCurrentMonth = isThisMonth(month[0].id);
-  const [, , year] = getDayMonthYear(month[0].id);
+  const isCurrentMonth = isThisMonth(month[0].date);
+  const [, , year] = getDayMonthYear(month[0].date);
 
   return (
     <div className="bg-zinc-800 p-4 md:px-6 md:py-6 rounded-xl ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-green-500/60">
-          {getMonthString(new Date(month[0].id).getMonth())}
+          {getMonthString(new Date(month[0].date).getMonth())}
           <span className="ml-2">{year}</span>
         </span>
       </header>
@@ -36,7 +36,7 @@ const HabitMonthlyView = (props) => {
                   "bg-success": day.state === "completed",
                   "bg-failed": day.state === "failed",
                   "bg-zinc-700":
-                    isPast(day.id) &&
+                    isPast(day.date) &&
                     day.state !== "failed" &&
                     day.state !== "completed",
                 },

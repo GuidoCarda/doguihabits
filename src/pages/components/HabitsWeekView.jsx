@@ -2,11 +2,12 @@ import React from "react";
 import {
   getDayMonthYear,
   getPast7Days,
+  getTotal,
   getWeekDayString,
   nextState,
   startOfDay,
 } from "../../utils";
-import { useHabitsActions } from "../../store/useHabitsStore";
+import { getHabitStreak, useHabitsActions } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
 //Animations, styling
@@ -100,11 +101,15 @@ const HabitsWeekView = ({ habit }) => {
   });
 
   const getCompletionPercentage = (habit) => {
-    const { daysStateCount } = habit;
+    const daysStateCount = {
+      completed: getTotal(habit.entries, "completed"),
+      failed: getTotal(habit.entries, "failed"),
+    };
     const totalCount = daysStateCount.completed + daysStateCount.failed;
     return totalCount ? (daysStateCount.completed * 100) / totalCount : 0;
   };
 
+  const currentStreak = getHabitStreak(habit.entries);
   const completionPercentage = getCompletionPercentage(habit).toFixed(0);
 
   return (
@@ -152,7 +157,6 @@ const HabitsWeekView = ({ habit }) => {
                   startOfDay(date).getMonth() <
                   startOfDay(habit.createdAt).getMonth()
                 }
-                // onClick={() => updateHabit(habit.id, id)}
                 onClick={() =>
                   mutation.mutate({
                     habitId: habit.id,
@@ -182,7 +186,7 @@ const HabitsWeekView = ({ habit }) => {
         <div className="flex group items-center gap-1 ">
           <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
           <span className="text-sm  group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">
-            {habit.currentStreak}
+            {currentStreak}
           </span>
         </div>
         <div className="flex group items-center gap-1 ">

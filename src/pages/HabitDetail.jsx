@@ -5,10 +5,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 //Global state hooks
 import useHabitsStore, {
+  getHabitStreak,
   useHabit,
   useHabitsActions,
 } from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
+
+import { useQuery } from "@tanstack/react-query";
 
 //Components
 import Layout from "../components/Layout";
@@ -30,6 +33,8 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
+import { getHabitById } from "../services/habits";
+import { getTotal } from "../utils";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -47,28 +52,20 @@ const HabitDetail = () => {
     (state) => state.completionMilestones
   );
 
-  const habit = useHabit(id);
+  // const habit = useHabit(id);
+  const habitQuery = useQuery({
+    queryKey: ["habit", id],
+    queryFn: () => getHabitById(id),
+  });
 
-  if (!habit) {
+  if (habitQuery.isPending) {
     return (
-      <div className="grid place-items-center min-h-screen">
-        <div className="max-w-sm flex flex-col text-center items-center gap-4 ">
-          <h2 className="text-3xl font-bold text-zinc-300">
-            Something went wrong
-          </h2>
-          <p className="text-zinc-500">
-            It looks like the searched habit habit doesn't exists or something
-            went wrong on the loading process
-          </p>
-          <Link
-            to="/"
-            className="h-10 text-zinc-800 bg-zinc-200 rounded-md flex items-center px-4 mt-10"
-          >
-            Return to the home page
-          </Link>
-        </div>
-      </div>
+      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
     );
+  }
+
+  if (!habitQuery.data) {
+    return <HabitNotFound />;
   }
 
   const handleEdit = (e) => {
@@ -91,18 +88,20 @@ const HabitDetail = () => {
         deleteHabit(habitId);
         navigate("/");
       })
-      .finally(() => toast.success(`${habit.title} was successfully deleted`));
+      .finally(() =>
+        toast.success(`${habitQuery.data.title} was successfully deleted`)
+      );
   };
 
   const keysToAction = [
     {
       keys: ["shiftKey", "d"],
-      conditionals: [habit, !isEditing],
+      conditionals: [habitQuery.data, !isEditing],
       callback: () => handleDelete(id),
     },
     {
       keys: ["shiftKey", "e"],
-      conditionals: [habit, !isDialogOpen, !isEditing],
+      conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
@@ -111,12 +110,12 @@ const HabitDetail = () => {
     },
     {
       keys: ["Escape"],
-      conditionals: [isDialogOpen, habit],
+      conditionals: [isDialogOpen, habitQuery.data],
       callback: handleDialogClose,
     },
     {
       keys: ["Escape"],
-      conditionals: [isEditing, habit],
+      conditionals: [isEditing, habitQuery.data],
       callback: handleEditModalClose,
     },
     {
@@ -126,23 +125,31 @@ const HabitDetail = () => {
     },
   ];
 
-  useKeyPress(keysToAction);
+  // useKeyPress(keysToAction);
 
   const habitInfo = [
-    { title: "streak", data: habit.currentStreak, icon: "FireIcon" },
+    {
+      title: "streak",
+      data: getHabitStreak(habitQuery.data.entries),
+      icon: "FireIcon",
+    },
     {
       title: "completed",
-      data: habit.daysStateCount.completed,
+      data: getTotal(habitQuery.data.entries, "completed"),
       icon: "CheckIcon",
     },
-    { title: "failed", data: habit.daysStateCount.failed, icon: "XMarkIcon" },
+    {
+      title: "failed",
+      data: getTotal(habitQuery.data.entries, "failed"),
+      icon: "XMarkIcon",
+    },
   ];
 
   const toggleHabitDay = (dayId) => {
-    updateHabit(habit.id, dayId);
+    updateHabit(habitQuery.data.id, dayId);
   };
 
-  console.log(habit);
+  console.log(habitQuery.data);
 
   return (
     <motion.main
@@ -154,7 +161,7 @@ const HabitDetail = () => {
     >
       <Layout>
         <HabitDetailHeader
-          habit={habit}
+          habit={habitQuery.data}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
@@ -164,8 +171,8 @@ const HabitDetail = () => {
               isEditing={isEditing}
               onClose={handleEditModalClose}
               initialValues={{
-                title: habit.title,
-                description: habit.description,
+                title: habitQuery.data.title,
+                description: habitQuery.data.description,
               }}
             />
           </Modal>
@@ -177,7 +184,10 @@ const HabitDetail = () => {
           ))}
         </div>
 
-        <HabitMontlyViewGrid habit={habit} toggleHabitDay={toggleHabitDay} />
+        <HabitMontlyViewGrid
+          habit={habitQuery.data}
+          toggleHabitDay={toggleHabitDay}
+        />
 
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
@@ -186,7 +196,9 @@ const HabitDetail = () => {
               <li
                 key={`${milestone}-days-badge`}
                 className={`${
-                  !habit?.badges.includes(milestone) ? "grayscale" : ""
+                  !habitQuery.data?.badges.includes(milestone)
+                    ? "grayscale"
+                    : ""
                 } text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
               >
                 <span className="block text-4xl font-bold text-emerald-500">
@@ -228,9 +240,19 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
 };
 
 const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
+  // Divide the entries array on subarray's of months based on the entry date
+  // this implemetation doesn't take into consideration the year of the entry
+  // so if the habit is tracked for more than a year the entries will be grouped
+  // TODO: take into consideration the year of the entry to group the entries
+  const months = habit.entries.reduce((acc, entry) => {
+    const month = new Date(entry.date).getMonth();
+    acc[month] = acc[month] ? [...acc[month], entry] : [entry];
+    return acc;
+  }, []);
+
   return (
     <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-      {habit.entries.map((month, idx) => (
+      {months.map((month, idx) => (
         <li key={`${habit.id}-${idx}`}>
           <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
         </li>
@@ -251,6 +273,28 @@ const DashboardDetail = ({ title, data, icon }) => {
         {icon == "XMarkIcon" && <XMarkIcon className="h-12 text-rose-500" />}
         {icon == "CheckIcon" && <CheckIcon className="h-12 text-green-500" />}
       </span>
+    </div>
+  );
+};
+
+const HabitNotFound = () => {
+  return (
+    <div className="grid place-items-center min-h-screen">
+      <div className="max-w-sm flex flex-col text-center items-center gap-4 ">
+        <h2 className="text-3xl font-bold text-zinc-300">
+          Something went wrong
+        </h2>
+        <p className="text-zinc-500">
+          It looks like the searched habit habit doesn't exists or something
+          went wrong on the loading process
+        </p>
+        <Link
+          to="/"
+          className="h-10 text-zinc-800 bg-zinc-200 rounded-md flex items-center px-4 mt-10"
+        >
+          Return to the home page
+        </Link>
+      </div>
     </div>
   );
 };
