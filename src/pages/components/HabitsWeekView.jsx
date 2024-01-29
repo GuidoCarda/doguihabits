@@ -3,6 +3,7 @@ import {
   getDayMonthYear,
   getPast7Days,
   getWeekDayString,
+  nextState,
   startOfDay,
 } from "../../utils";
 import { useHabitsActions } from "../../store/useHabitsStore";
@@ -25,10 +26,15 @@ import {
 import { toast } from "react-hot-toast";
 import { IconButton } from "../../components/Buttons";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateHabitEntry } from "../../services/habits";
+
 const weekDays = ["Sab", "Dom", "Lun", "Mar", "Mie", "Jue", "Vie"];
 
 const HabitsWeekView = ({ habit }) => {
   const { updateHabit, deleteHabit } = useHabitsActions();
+
+  const queryClient = useQueryClient();
 
   const dialog = useDialog();
 
@@ -50,28 +56,48 @@ const HabitsWeekView = ({ habit }) => {
     .filter((day) => new Date(day.date).getDate() <= currentDate.getDate())
     .slice(-7);
 
-  // TODO: Fix this logic with the new data structure
-  // if (lastWeek.length < 7) {
-  //   // if we are on the first days of the month and if the habit has prev data
-  //   if (currentMonthIndex > 0) {
-  //     const prevMonth = [...habit.entries.at(-2)];
-  //     lastWeek = [
-  //       ...prevMonth.slice(prevMonth.length - 7 + lastWeek.length),
-  //       ...lastWeek,
-  //     ];
-  //   } else {
-  //     //if the current habit does not have data for the previous month,
-  //     //generate placeholder values.
+  const mutation = useMutation({
+    mutationFn: ({ habitId, dayId, newState }) =>
+      updateHabitEntry(habitId, dayId, newState),
+    // Optional: Provide an onMutate function for optimistic updates
+    onMutate: ({ habitId, dayId, newState }) => {
+      // Snapshot the current data for rollback on error
+      const previousData = queryClient.getQueryData(["habits"]);
 
-  //     //get prev 7 days based on the first available date
-  //     const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].id))
-  //       .map((date) => ({ id: date, state: "pending" }))
-  //       .sort((a, b) => a.id.getDate() - b.id.getDate())
-  //       .slice(lastWeek.length);
+      // Optimistically update the UI
+      queryClient.setQueryData(["habits"], (oldData) => {
+        console.log(oldData);
+        // Update the relevant data optimistically
+        const updatedData = oldData.map((habit) => {
+          if (habit.id === habitId) {
+            return {
+              ...habit,
+              entries: habit.entries.map((entry) =>
+                entry.id === dayId ? { ...entry, state: newState } : entry
+              ),
+            };
+          }
+          return habit;
+        });
 
-  //     lastWeek = previousPlaceholderDates.concat(lastWeek);
-  //   }
-  // }
+        return updatedData;
+      });
+
+      // Return a rollback function
+      return () => queryClient.setQueryData("habits", previousData);
+    },
+    onError: (error, variables, rollback) => {
+      // Rollback to the previous data on error
+      console.log("error", error);
+      rollback();
+      // Handle errors as needed
+    },
+    // Optional: Provide an onSettled function for cleanup or additional actions
+    onSettled: () => {
+      // Refetch the 'habits' query after the mutation is settled
+      queryClient.invalidateQueries("habits");
+    },
+  });
 
   const getCompletionPercentage = (habit) => {
     const { daysStateCount } = habit;
@@ -126,7 +152,14 @@ const HabitsWeekView = ({ habit }) => {
                   startOfDay(date).getMonth() <
                   startOfDay(habit.createdAt).getMonth()
                 }
-                onClick={() => updateHabit(habit.id, id)}
+                // onClick={() => updateHabit(habit.id, id)}
+                onClick={() =>
+                  mutation.mutate({
+                    habitId: habit.id,
+                    dayId: id,
+                    newState: nextState(state),
+                  })
+                }
                 className={clsx(
                   "rounded-md h-10 w-10 font-semibold border-2 border-transparent transition-colors duration-300",
                   {

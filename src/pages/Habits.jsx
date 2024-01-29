@@ -28,24 +28,28 @@ import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+import { getHabitsWithEntries } from "../services/habits";
+import { useQuery } from "@tanstack/react-query";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("");
 
-  //Get habits sorted by criteria if any, else get them in default order of creation
-  const habits = useHabits(sortCriteria);
-  const hasHabits = habits.length > 0;
-  const habitsLimitReached = habits.length >= 5;
+  const habitsQuery = useQuery({
+    queryKey: ["habits"],
+    queryFn: getHabitsWithEntries,
+    refetchOnWindowFocus: false,
+  });
 
-  console.log("habits inside habits page", habits);
+  //Get habits sorted by criteria if any, else get them in default order of creation
+  // const habits = useHabits(sortCriteria);
+
+  // console.log("habits inside habits page", habits);
 
   // This ref prevents loosing the habitsCount value on re-render to
   // ensure only executing the checkAndUpdateHabits fn only when
   // a habit is created
-  const habitsCountRef = useRef(habits.length);
-
-  const { checkAndUpdateHabits } = useHabitsActions();
+  // const habitsCountRef = useRef(habitsQuery.data.length);
 
   //Runs when the component mounts and checks whether the habits have or not the needed data
   // useEffect(() => {
@@ -83,31 +87,37 @@ const Habits = () => {
     }
   };
 
-  // KeysActions maps to provide the user keyboard shortcuts
-  const keysToAction = [
-    {
-      keys: ["shiftKey", "n"],
-      conditionals: [!isOpen && !habitsLimitReached],
-      callback: (e) => {
-        e.preventDefault();
-        handleShowToggle();
-      },
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [isOpen],
-      callback: handleShowToggle,
-    },
-    {
-      keys: ["shiftKey", "b"],
-      conditionals: [],
-      callback: (e) => {
-        console.log("wombo combo");
-      },
-    },
-  ];
+  if (habitsQuery.isPending) return <p>Loading...</p>;
 
-  useKeyPress(keysToAction);
+  const hasHabits = habitsQuery.data.length > 0;
+  const habitsLimitReached = habitsQuery.data.length >= 5;
+  console.log("react query data", habitsQuery.data);
+
+  // KeysActions maps to provide the user keyboard shortcuts
+  // const keysToAction = [
+  //   {
+  //     keys: ["shiftKey", "n"],
+  //     conditionals: [!isOpen && !habitsLimitReached],
+  //     callback: (e) => {
+  //       e.preventDefault();
+  //       handleShowToggle();
+  //     },
+  //   },
+  //   {
+  //     keys: ["Escape"],
+  //     conditionals: [isOpen],
+  //     callback: handleShowToggle,
+  //   },
+  //   {
+  //     keys: ["shiftKey", "b"],
+  //     conditionals: [],
+  //     callback: (e) => {
+  //       console.log("wombo combo");
+  //     },
+  //   },
+  // ];
+
+  // useKeyPress(keysToAction);
 
   // update sorting criteria when user selects new option
   const handleSortChange = (event) => {
@@ -132,7 +142,7 @@ const Habits = () => {
           handleSignOut={handleSignOut}
         />
 
-        {habits.length > 1 && (
+        {habitsQuery.data.length > 1 && (
           <HabitsSorting
             onClick={handleSortChange}
             sortCriteria={sortCriteria}
@@ -151,7 +161,7 @@ const Habits = () => {
           )}
         </AnimatePresence>
 
-        {hasHabits && <HabitsGrid habits={habits} />}
+        {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
         {!hasHabits && <EmptyState onClick={handleShowToggle} />}
       </Layout>
     </motion.main>

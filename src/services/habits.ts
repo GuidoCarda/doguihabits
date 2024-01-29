@@ -43,6 +43,7 @@ export const createDocInFirebase = async (habit) => {
 // otherwise you can use addDoc which will generate a random id for you
 
 export const getHabitsWithEntries = async () => {
+  console.log("getHabitWithEntries called");
   try {
     const habitsCollection = collection(db, "habits");
     const habitsSnapshot = await getDocs(habitsCollection);
@@ -68,6 +69,7 @@ export const getHabitsWithEntries = async () => {
 };
 
 export const getHabitEntries = async (habitId: string) => {
+  console.log("getHabitEntries called");
   try {
     const entriesCollection = collection(db, "habits", habitId, "entries");
     const entriesQuery = query(entriesCollection, orderBy("date", "asc"));
@@ -97,6 +99,7 @@ export const updateHabitEntry = async (
 ) => {
   console.log(habitId, entryId, state);
   try {
+    console.log(habitId, entryId, state);
     const entriesCollection = collection(db, "habits", habitId, "entries");
     const entryRef = doc(entriesCollection, entryId);
     await updateDoc(entryRef, { state });
