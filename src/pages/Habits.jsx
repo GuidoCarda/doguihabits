@@ -7,7 +7,7 @@ import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
 //Zustand Store
-import { useHabits, useHabitsActions } from "../store/useHabitsStore";
+import { useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
 import useMediaQuery from "../hooks/useMediaQuery";
@@ -87,7 +87,10 @@ const Habits = () => {
     }
   };
 
-  if (habitsQuery.isPending) return <p>Loading...</p>;
+  if (habitsQuery.isPending)
+    return (
+      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
+    );
 
   const hasHabits = habitsQuery.data.length > 0;
   const habitsLimitReached = habitsQuery.data.length >= 5;
@@ -142,12 +145,15 @@ const Habits = () => {
           handleSignOut={handleSignOut}
         />
 
+        {/* 
+        //TODO: refactor sorting to accomodate react-query usage
+        
         {habitsQuery.data.length > 1 && (
           <HabitsSorting
             onClick={handleSortChange}
             sortCriteria={sortCriteria}
           />
-        )}
+        )} */}
 
         <AnimatePresence mode="wait" initial={false}>
           {isOpen && (

@@ -28,16 +28,46 @@ import { toast } from "react-hot-toast";
 import { IconButton } from "../../components/Buttons";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateHabitEntry } from "../../services/habits";
+import { deleteHabit, updateHabitEntry } from "../../services/habits";
 
 const weekDays = ["Sab", "Dom", "Lun", "Mar", "Mie", "Jue", "Vie"];
 
 const HabitsWeekView = ({ habit }) => {
-  const { updateHabit, deleteHabit } = useHabitsActions();
+  const { updateHabit } = useHabitsActions();
 
   const queryClient = useQueryClient();
 
   const dialog = useDialog();
+
+  const habitDeleteMutation = useMutation({
+    mutationKey: ["deleteHabit", habit.id],
+    mutationFn: deleteHabit,
+    onMutate: (habitId) => {
+      console.log(habitId);
+      // Snapshot the previous value
+      const previousHabits = queryClient.getQueryData(["habits"]);
+
+      //Optimistically update the UI filtering out the habit to be deleted
+      //I'm not 100% sure about the ux, I might look into alternatives
+      // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
+      queryClient.setQueryData(["habits"], (oldData) =>
+        oldData.filter((habit) => habit.id !== habitId)
+      );
+
+      // Return a rollback function
+      return () => queryClient.setQueryData(["habits"], previousHabits);
+    },
+    onError: (error, variables, rollback) => {
+      console.log(error);
+      // Rollback to the previous value
+      rollback();
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries("habits");
+      toast.success(`${habit.title} was successfully deleted`);
+    },
+  });
 
   const handleDelete = () => {
     //Throw a confirmation dialog
@@ -46,9 +76,7 @@ const HabitsWeekView = ({ habit }) => {
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    })
-      .then(() => setTimeout(() => deleteHabit(habit.id), 100))
-      .finally(() => toast.success(`${habit.title} was successfully deleted`));
+    }).then(() => habitDeleteMutation.mutate(habit.id));
   };
 
   const currentDate = new Date();

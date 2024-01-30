@@ -6,6 +6,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/Buttons";
 import { useParams } from "react-router-dom";
+import { createHabit } from "../../services/habits";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
   const [input, setInput] = useState(initialValues?.title ?? "");
@@ -13,8 +15,26 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
     useState(initialValues?.description) ?? "";
   const { id: habitId } = useParams();
   const isMobile = useMediaQuery("(max-width: 638px)");
+  const queryClient = useQueryClient();
+  const { editHabit } = useHabitsActions();
 
-  const { createHabit, editHabit } = useHabitsActions();
+  const newHabitMutation = useMutation({
+    mutationKey: "newHabit",
+    mutationFn: createHabit,
+    onMutate: (variables) => {
+      console.log("onMutate runs");
+      console.log("onMutate variables", variables);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["habits"]);
+      setInput("");
+      setDescription("");
+      onClose();
+      toast.success(`${input} habit created successfully`, {
+        position: isMobile ? "bottom-center" : "bottom-right",
+      });
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,18 +50,18 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
     if (isEditing && habitId) {
       editHabit(habitId, habitData);
     } else {
-      createHabit(habitData);
+      newHabitMutation.mutate(habitData);
     }
 
-    setInput("");
-    setDescription("");
-    onClose();
-    toast.success(
-      `${input} habit ${isEditing ? "updated" : "created"} successfully`,
-      {
-        position: isMobile ? "bottom-center" : "bottom-right",
-      }
-    );
+    // setInput("");
+    // setDescription("");
+    // onClose();
+    // toast.success(
+    //   `${input} habit ${isEditing ? "updated" : "created"} successfully`,
+    //   {
+    //     position: isMobile ? "bottom-center" : "bottom-right",
+    //   }
+    // );
   };
 
   const isInputLengthInvalid = input.length > 30;
@@ -105,11 +125,18 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
         className={clsx(
           "w-max mt-8 ml-auto bg-green-600 text-white font-bold rounded-md",
           "enabled:hover:bg-green-600/90",
-          "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed"
+          "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed",
+          {
+            "animate-pulse duration-200": newHabitMutation.isPending,
+          }
         )}
-        disabled={isInputLengthInvalid}
+        disabled={isInputLengthInvalid || newHabitMutation.isPending}
       >
-        {isEditing ? "edit habit" : "create habit"}
+        {isEditing
+          ? "edit habit"
+          : newHabitMutation.isPending
+          ? "creating..."
+          : "create habit"}
       </Button>
     </form>
   );

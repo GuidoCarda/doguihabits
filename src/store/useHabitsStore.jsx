@@ -9,12 +9,7 @@ import {
   startOfDay,
 } from "../utils";
 import { toast } from "react-hot-toast";
-import {
-  createDocInFirebase,
-  getHabitEntries,
-  getHabitsWithEntries,
-  updateHabitEntry,
-} from "../services/habits";
+import { getHabitsWithEntries, updateHabitEntry } from "../services/habits";
 import { auth } from "../firebase";
 
 const today = new Date();
@@ -67,8 +62,8 @@ const createHabit = async (set, get, habitData) => {
     description: "",
   };
 
-  const habitId = await createDocInFirebase(newHabit);
-  const entries = await getHabitEntries(habitId);
+  // const habitId = await createDocInFirebase(newHabit);
+  // const entries = await getHabitEntries(habitId);
 
   set({ habits: [{ ...newHabit, id: habitId, entries }, ...state.habits] });
 };
