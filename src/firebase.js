@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD0sHTFzqsvlqzEE1f3it0kZKmDMa8v82o",
-  authDomain: "doguihabits.firebaseapp.com",
-  projectId: "doguihabits",
-  storageBucket: "doguihabits.appspot.com",
-  messagingSenderId: "225819376156",
-  appId: "1:225819376156:web:8dcddeb756ca668ef7bdd9",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
