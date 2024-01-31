@@ -6,11 +6,11 @@ import useClickOutside from "../hooks/useClickOutside";
 import { Button } from "./Buttons";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
-  const domNode = useClickOutside(onClose);
+  const domNode = useClickOutside(options.isPending ? () => {} : onClose);
 
   if (!open) return;
 
-  const { title, description, submitText } = options;
+  const { title, description, submitText, pendingText, isPending } = options;
 
   return ReactDom.createPortal(
     <Backdrop>
@@ -34,8 +34,10 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
             onClick={onClose}
             className={clsx(
               "capitalize ml-auto bg-zinc-800  text-neutral-100",
-              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
+              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2",
+              "disabled:opacity-20 disabled:cursor-not-allowed"
             )}
+            disabled={isPending}
           >
             cancel
           </Button>
@@ -44,10 +46,12 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
             onClick={onSubmit}
             className={clsx(
               "capitalize bg-emerald-500/20 border-2 border-emerald-700 text-neutral-100",
-              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2"
+              "outline-none focus-visible:ring-2 focus:ring-zinc-500 focus:ring-2",
+              "disabled:bg-emerald-500/20 disabled:cursor-not-allowed"
             )}
+            disabled={isPending}
           >
-            {submitText}
+            {isPending ? pendingText : submitText}
           </Button>
         </footer>
       </div>

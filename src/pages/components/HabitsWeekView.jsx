@@ -30,20 +30,16 @@ import { IconButton } from "../../components/Buttons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 
-const weekDays = ["Sab", "Dom", "Lun", "Mar", "Mie", "Jue", "Vie"];
-
 const HabitsWeekView = ({ habit }) => {
-  const { updateHabit } = useHabitsActions();
-
   const queryClient = useQueryClient();
-
   const dialog = useDialog();
 
   const habitDeleteMutation = useMutation({
     mutationKey: ["deleteHabit", habit.id],
     mutationFn: deleteHabit,
-    onMutate: (habitId) => {
-      console.log(habitId);
+    onMutate: async (habitId) => {
+      await queryClient.cancelQueries({ queryKey: ["habits"] });
+
       // Snapshot the previous value
       const previousHabits = queryClient.getQueryData(["habits"]);
 
@@ -51,7 +47,9 @@ const HabitsWeekView = ({ habit }) => {
       //I'm not 100% sure about the ux, I might look into alternatives
       // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
       queryClient.setQueryData(["habits"], (oldData) =>
-        oldData.filter((habit) => habit.id !== habitId)
+        oldData.map((habit) =>
+          habit.id === habitId ? { ...habit, isDeleting: true } : habit
+        )
       );
 
       // Return a rollback function
@@ -76,7 +74,11 @@ const HabitsWeekView = ({ habit }) => {
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    }).then(() => habitDeleteMutation.mutate(habit.id));
+      isPending: habitDeleteMutation.isPending,
+      pendingText: "Deleting...",
+      // onConfirm: () => habitDeleteMutation.mutate(habit.id),
+      onConfirm: () => habitDeleteMutation.mutateAsync(habit.id),
+    });
   };
 
   const currentDate = new Date();
@@ -147,7 +149,10 @@ const HabitsWeekView = ({ habit }) => {
       animate={{ opacity: 1 }}
       className={clsx(
         "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full  mx-auto",
-        "md:max-w-max md:mx-0"
+        "md:max-w-max md:mx-0",
+        {
+          "opacity-20 animate-pulse duration-100": habit?.isDeleting,
+        }
       )}
     >
       <div className="flex px-4 pt-4 items-center justify-between gap-4">

@@ -1,14 +1,17 @@
 import produce from "immer";
 import { create } from "zustand";
 
-const useDialogStore = create((set) => ({
+const useDialogStore = create((set, get) => ({
   open: false,
   awaitingPromise: {},
   state: {
     title: "Title",
     description: "Description",
-    submitText: "comfirm",
+    submitText: "Confirm",
+    pendingText: "Confirming",
     catchOnCancel: false,
+    isPending: false,
+    onConfirm: () => {},
   },
   dialog: (options) => {
     set(
@@ -34,17 +37,32 @@ const useDialogStore = create((set) => ({
         // Set catchOnCancel to false if you are not catching promise
         // to avoid uncatched promise error.
         state.state.catchOnCancel && state.awaitingPromise?.reject?.();
+        state.state.isPending = false;
         state.open = false;
       })
     );
   },
-  handleSubmit: () => {
+  handleSubmit: async () => {
+    // Set isPending to true to disable the submit button
     set(
       produce((state) => {
-        state.awaitingPromise?.resolve?.();
-        state.open = false;
+        state.state.isPending = true;
       })
     );
+
+    try {
+      await get().state.onConfirm();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set(
+        produce((state) => {
+          state.awaitingPromise?.resolve?.();
+          state.state.isPending = false;
+          state.open = false;
+        })
+      );
+    }
   },
 }));
 
