@@ -5,11 +5,17 @@ import {
   signInWithEmailAndPassword,
   signInWithRedirect,
 } from "firebase/auth";
-import { app, auth } from "../firebase";
+import { auth } from "../firebase";
 
 const googleAuthProvider = new GoogleAuthProvider();
 
-export const signUp = async (email: string, password: string) => {
+/**
+ * Sign up a user in firebase with email and password
+ * @param {string} email
+ * @param {string} password
+ * @returns The firebase user object
+ */
+export const signUp = async (email, password) => {
   try {
     const userCredentils = await createUserWithEmailAndPassword(
       auth,
@@ -23,7 +29,13 @@ export const signUp = async (email: string, password: string) => {
   }
 };
 
-export const signIn = async (email: string, password: string) => {
+/**
+ *
+ * @param {string} email
+ * @param {string} password
+ * @returns The firebase user object
+ */
+export const signIn = async (email, password) => {
   try {
     const userCredentials = await signInWithEmailAndPassword(
       auth,
@@ -38,6 +50,10 @@ export const signIn = async (email: string, password: string) => {
   }
 };
 
+/**
+ * Sign in with Google
+ * @returns The firebase user object
+ */
 export const signInWithGoogle = async () => {
   try {
     await signInWithRedirect(auth, googleAuthProvider);
