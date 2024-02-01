@@ -94,7 +94,7 @@ const Habits = () => {
 
   const hasHabits = habitsQuery.data.length > 0;
   const habitsLimitReached = habitsQuery.data.length >= 5;
-  console.log("react query data", habitsQuery.data);
+  // console.log("react query data", habitsQuery.data);
 
   // KeysActions maps to provide the user keyboard shortcuts
   // const keysToAction = [

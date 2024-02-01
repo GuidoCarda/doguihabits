@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
-  daysInMonth,
+  daysInCurrentMonth,
   getAllDaysInMonth,
   getTotal,
   isSameMonth,
@@ -14,13 +14,7 @@ import { auth } from "../firebase";
 
 const today = new Date();
 
-const generatePendingHabitEntries = (datesArray) => {
-  return datesArray.map((date) => ({
-    id: date,
-    state: "pending",
-  }));
-};
-export const generatePendingHabitEntries2 = (datesArray) => {
+export const generatePendingHabitEntries = (datesArray) => {
   return datesArray.map((date) => ({
     date,
     state: "pending",
@@ -91,7 +85,7 @@ export const getHabitStreak = (entries) => {
   const reversedEntries = entries
     .flat()
     .reverse()
-    .slice(daysInMonth(lastMonth) - today.getDate());
+    .slice(daysInCurrentMonth(lastMonth) - today.getDate());
 
   for (let entry of reversedEntries) {
     if (entry.state !== "completed") {
@@ -193,7 +187,7 @@ const deleteHabit = (set, get, id) => {
   set({ habits: state.habits.filter((habit) => habit.id !== id) });
 };
 
-const getNextMonth = (prevDate) => {
+export const getNextMonthPendingHabitEntries = (prevDate) => {
   const date = new Date(prevDate);
   date.setMonth(date.getMonth() + 1);
   const monthDates = getAllDaysInMonth(date.getFullYear(), date.getMonth());
@@ -207,7 +201,7 @@ const getNextMonth = (prevDate) => {
  * @param {Date} prevMonthAdded the last month added date object
  * @returns {Boolean} whether it should or shouldn't add the next month
  */
-const shouldAddNextMonth = (currentDate, prevMonthAdded) => {
+export const shouldAddNextMonth = (currentDate, prevMonthAdded) => {
   const isYearBeforeCurrent =
     prevMonthAdded.getFullYear() < currentDate.getFullYear();
   const isMonthBeforeCurrent =

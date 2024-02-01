@@ -11,8 +11,12 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { getAllDaysInMonth } from "../utils";
-import { generatePendingHabitEntries2 } from "../store/useHabitsStore";
+import { getAllDaysInMonth, isSameMonth, startOfDay } from "../utils";
+import {
+  generatePendingHabitEntries,
+  getNextMonthPendingHabitEntries,
+  shouldAddNextMonth,
+} from "../store/useHabitsStore";
 
 /**
  * Creates a new habit with entries and the formData.
@@ -41,7 +45,7 @@ export const createHabit = async (formData) => {
     const habitId = habitRef.id;
     const entriesCollection = collection(habitsCollection, habitId, "entries");
 
-    const entries = generatePendingHabitEntries2(
+    const entries = generatePendingHabitEntries(
       getAllDaysInMonth(new Date().getFullYear(), new Date().getMonth())
     );
 
@@ -58,6 +62,50 @@ export const createHabit = async (formData) => {
     return habitId;
   } catch (err) {
     console.error(err);
+  }
+};
+/**
+ * Create the entries for a given habit by its ID
+ * @param {string} habitId
+ * @param {Array} entries
+ * @returns null if everything goes well
+ * @throws An error if something goes wrong in the creation proccess
+ */
+export const createHabitEntries = async (habitId, entries) => {
+  try {
+    const habitsCollection = collection(db, "habits");
+    const entriesCollection = collection(habitsCollection, habitId, "entries");
+
+    const entriesBatch = writeBatch(db);
+    for (const entry of entries) {
+      entriesBatch.set(doc(entriesCollection), entry);
+    }
+    await entriesBatch.commit();
+
+    console.log(
+      `Entries created for habitID ${habitId}. Month added: ${new Date().getMonth()}`
+    );
+
+    return null;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+/**
+ * Get an Array of habits ids a user has
+ * @returns An array of habit ids.
+ */
+export const getHabitsIds = async () => {
+  try {
+    const habitsCollection = collection(db, "habits");
+    const habitsSnapshot = await getDocs(habitsCollection);
+
+    return habitsSnapshot.map((doc) => doc.id);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 
@@ -85,6 +133,8 @@ export const getHabitsWithEntries = async () => {
       const entries = await getHabitEntries(habit.id);
       habit.entries = entries;
     }
+
+    await checkAndUpdateHabits(habits);
 
     return habits;
   } catch (error) {
@@ -194,4 +244,36 @@ export const deleteHabit = async (id) => {
     console.log(error);
     throw error;
   }
+};
+
+export const checkAndUpdateHabits = async (habits) => {
+  const currentDate = startOfDay(new Date());
+
+  for (const habit of habits) {
+    // I purposelly chose the -7nth entry because a weird behaviour with js
+    // dates that happens when you add a month to a date and its on the 31th day
+    // in some cases js will return a date 2 months later.
+    // -> https://stackoverflow.com/a/56388408
+    const lastMonthRecordedDate = startOfDay(habit.entries.at(-7).date);
+    const monthsToAdd = [];
+    let prevMonthAdded = lastMonthRecordedDate;
+
+    // if the habit contains the current month, returns
+    if (isSameMonth(currentDate, prevMonthAdded)) {
+      return;
+    }
+
+    // Calculate the months that are missing and add them to the habit object.
+    while (shouldAddNextMonth(currentDate, prevMonthAdded)) {
+      monthsToAdd.push(getNextMonthPendingHabitEntries(prevMonthAdded));
+      prevMonthAdded = new Date(
+        prevMonthAdded.getFullYear(),
+        prevMonthAdded.getMonth() + 1
+      );
+    }
+
+    await createHabitEntries(habit.id, monthsToAdd.flat());
+  }
+
+  return;
 };
