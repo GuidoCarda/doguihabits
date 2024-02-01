@@ -1,13 +1,15 @@
 import React from "react";
 import {
+  daysInCurrentMonth,
   getDayMonthYear,
+  getDaysInMonth,
   getPast7Days,
   getTotal,
   getWeekDayString,
   nextState,
   startOfDay,
 } from "../../utils";
-import { getHabitStreak, useHabitsActions } from "../../store/useHabitsStore";
+import { getHabitStreak } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
 //Animations, styling
@@ -81,11 +83,33 @@ const HabitsWeekView = ({ habit }) => {
     });
   };
 
-  const currentDate = new Date();
+  const currentDate = startOfDay(new Date());
 
-  let lastWeek = habit.entries
-    .filter((day) => new Date(day.date).getDate() <= currentDate.getDate())
-    .slice(-7);
+  const currentEntryIndex = habit.entries.findIndex(
+    (entry) => startOfDay(entry.date).getTime() === currentDate.getTime()
+  );
+
+  let lastWeek = habit.entries.slice(
+    currentEntryIndex + 1 - 7,
+    currentEntryIndex + 1
+  );
+
+  if (currentEntryIndex < 7) {
+    lastWeek = habit.entries.slice(0, currentEntryIndex + 1);
+  }
+
+  if (lastWeek.length < 7) {
+    //if the current habit does not have data for the previous month,
+    //generate placeholder values.
+
+    //get prev 7 days based on the first available date
+    const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].date))
+      .map((date) => ({ id: date, date, state: "pending" }))
+      .sort((a, b) => a.id.getDate() - b.id.getDate())
+      .slice(lastWeek.length);
+
+    lastWeek = previousPlaceholderDates.concat(lastWeek);
+  }
 
   const mutation = useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>

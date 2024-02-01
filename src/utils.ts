@@ -29,7 +29,7 @@ export const randomId = (length: number = 6): string => {
     .substring(2, length + 2);
 };
 
-export const daysInMonth = (): number => {
+export const daysInCurrentMonth = (): number => {
   const date = new Date();
   //getMonth is 0 based
   const month = date.getMonth() + 1;
