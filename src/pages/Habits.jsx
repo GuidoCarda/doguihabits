@@ -27,43 +27,23 @@ import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
-import { getHabitsWithEntries } from "../services/habits";
-import { useQuery } from "@tanstack/react-query";
+import { deleteAllHabits, getHabitsWithEntries } from "../services/habits";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("");
+  const user = useAuth();
 
   const habitsQuery = useQuery({
-    queryKey: ["habits"],
-    queryFn: getHabitsWithEntries,
+    queryKey: ["habits", user.uid],
+    queryFn: () => getHabitsWithEntries(user.uid),
     refetchOnWindowFocus: false,
   });
 
   //Get habits sorted by criteria if any, else get them in default order of creation
   // const habits = useHabits(sortCriteria);
-
-  // console.log("habits inside habits page", habits);
-
-  // This ref prevents loosing the habitsCount value on re-render to
-  // ensure only executing the checkAndUpdateHabits fn only when
-  // a habit is created
-  // const habitsCountRef = useRef(habitsQuery.data.length);
-
-  //Runs when the component mounts and checks whether the habits have or not the needed data
-  // useEffect(() => {
-  //   console.log("Page mount, checkAndUpdateHabits runs");
-  //   checkAndUpdateHabits();
-  // }, []);
-
-  //Runs each time a habit is added only
-  // useEffect(() => {
-  //   if (habits.length > habitsCountRef.current) {
-  //     console.log("habit added, so checkAndUpdateHabits runs");
-  //     checkAndUpdateHabits();
-  //   }
-  //   habitsCountRef.current = habits.length;
-  // }, [habits.length]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -174,8 +154,25 @@ const PageHeader = ({
   handleShowToggle,
   handleSignOut,
 }) => {
-  const { deleteAllHabits } = useHabitsActions();
   const dialog = useDialog();
+  const user = useAuth();
+  const queryClient = useQueryClient();
+
+  const deleteAllHabitsMutation = useMutation({
+    mutationFn: () =>
+      deleteAllHabits(
+        queryClient.getQueryData(["habits", user.uid]).map((habit) => habit.id)
+      ),
+
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["habits", user.uid], context.previousHabits);
+      toast.error("An error occurred while deleting habits");
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["habits", user.uid], []);
+      toast.success("All habits deleted");
+    },
+  });
 
   const handleDelete = () => {
     dialog({
@@ -183,9 +180,10 @@ const PageHeader = ({
       description: "Are you sure you want to delete all habits",
       catchOnCancel: false,
       submitText: "Confirm",
-    })
-      .then(() => setTimeout(() => deleteAllHabits(), 100))
-      .finally(() => toast.success(`All habits were successfully deleted`));
+      isPending: deleteAllHabitsMutation.isPending,
+      pendingText: "Deleting...",
+      onConfirm: () => deleteAllHabitsMutation.mutateAsync(),
+    });
   };
 
   return (

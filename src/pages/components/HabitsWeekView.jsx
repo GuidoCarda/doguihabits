@@ -31,10 +31,12 @@ import { IconButton } from "../../components/Buttons";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
+import { useAuth } from "../../context/AuthContext";
 
 const HabitsWeekView = ({ habit }) => {
   const queryClient = useQueryClient();
   const dialog = useDialog();
+  const user = useAuth();
 
   const habitDeleteMutation = useMutation({
     mutationKey: ["deleteHabit", habit.id],
@@ -117,10 +119,10 @@ const HabitsWeekView = ({ habit }) => {
     // Optional: Provide an onMutate function for optimistic updates
     onMutate: ({ habitId, dayId, newState }) => {
       // Snapshot the current data for rollback on error
-      const previousData = queryClient.getQueryData(["habits"]);
+      const previousData = queryClient.getQueryData(["habits", user.uid]);
 
       // Optimistically update the UI
-      queryClient.setQueryData(["habits"], (oldData) => {
+      queryClient.setQueryData(["habits", user.uid], (oldData) => {
         console.log(oldData);
         // Update the relevant data optimistically
         const updatedData = oldData.map((habit) => {
@@ -139,7 +141,7 @@ const HabitsWeekView = ({ habit }) => {
       });
 
       // Return a rollback function
-      return () => queryClient.setQueryData("habits", previousData);
+      return () => queryClient.setQueryData(["habits", user.uid], previousData);
     },
     onError: (error, variables, rollback) => {
       // Rollback to the previous data on error
@@ -150,7 +152,7 @@ const HabitsWeekView = ({ habit }) => {
     // Optional: Provide an onSettled function for cleanup or additional actions
     onSettled: () => {
       // Refetch the 'habits' query after the mutation is settled
-      queryClient.invalidateQueries("habits");
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 
