@@ -33,12 +33,14 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
-import { getHabitById } from "../services/habits";
-import { getTotal } from "../utils";
+import { getHabitById, updateHabitEntry } from "../services/habits";
+import { getTotal, nextState } from "../utils";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,16 +48,54 @@ const HabitDetail = () => {
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
 
-  const { deleteHabit, updateHabit, editHabit } = useHabitsActions();
+  const { deleteHabit, editHabit } = useHabitsActions();
 
   const completionMilestones = useHabitsStore(
     (state) => state.completionMilestones
   );
 
-  // const habit = useHabit(id);
+  console.log(id);
+
   const habitQuery = useQuery({
     queryKey: ["habit", id],
     queryFn: () => getHabitById(id),
+  });
+
+  const updateHabitEntryMutation = useMutation({
+    mutationFn: ({ habitId, dayId, newState }) =>
+      updateHabitEntry(habitId, dayId, newState),
+    // The onMutate callback allow us to perform an optimistic update on the UI
+    onMutate: ({ habitId, dayId, newState }) => {
+      console.log(habitId, dayId, newState);
+      // Snapshot the current data for rollback on error
+      const previousData = queryClient.getQueryData(["habit", id]);
+
+      // Optimistically update the UI
+      queryClient.setQueryData(["habit", id], (oldData) => {
+        // Update the habit entry state
+        const updatedEntries = oldData.entries.map((entry) => {
+          if (entry.id === dayId) {
+            return { ...entry, state: newState };
+          }
+          return entry;
+        });
+
+        return { ...oldData, entries: updatedEntries };
+      });
+
+      // Return a rollback function to be used if the mutation fails
+      return () => queryClient.setQueryData(["habit", id], previousData);
+    },
+    onError: (error, variables, rollback) => {
+      // Rollback to the previous data on error
+      console.log("error", error);
+      rollback();
+      // Handle errors as needed
+    },
+    onSettled: () => {
+      // trigger the ['habit',id] query after the mutation is settled
+      queryClient.invalidateQueries(["habit", id]);
+    },
   });
 
   if (habitQuery.isPending) {
@@ -93,37 +133,37 @@ const HabitDetail = () => {
       );
   };
 
-  const keysToAction = [
-    {
-      keys: ["shiftKey", "d"],
-      conditionals: [habitQuery.data, !isEditing],
-      callback: () => handleDelete(id),
-    },
-    {
-      keys: ["shiftKey", "e"],
-      conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
-      callback: (e) => {
-        //prevent the habit form of getting the 'e' shortcut keypress as input
-        e.preventDefault();
-        handleEdit(e);
-      },
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [isDialogOpen, habitQuery.data],
-      callback: handleDialogClose,
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [isEditing, habitQuery.data],
-      callback: handleEditModalClose,
-    },
-    {
-      keys: ["Escape"],
-      conditionals: [!isDialogOpen, !isEditing],
-      callback: () => navigate("/"),
-    },
-  ];
+  // const keysToAction = [
+  //   {
+  //     keys: ["shiftKey", "d"],
+  //     conditionals: [habitQuery.data, !isEditing],
+  //     callback: () => handleDelete(id),
+  //   },
+  //   {
+  //     keys: ["shiftKey", "e"],
+  //     conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
+  //     callback: (e) => {
+  //       //prevent the habit form of getting the 'e' shortcut keypress as input
+  //       e.preventDefault();
+  //       handleEdit(e);
+  //     },
+  //   },
+  //   {
+  //     keys: ["Escape"],
+  //     conditionals: [isDialogOpen, habitQuery.data],
+  //     callback: handleDialogClose,
+  //   },
+  //   {
+  //     keys: ["Escape"],
+  //     conditionals: [isEditing, habitQuery.data],
+  //     callback: handleEditModalClose,
+  //   },
+  //   {
+  //     keys: ["Escape"],
+  //     conditionals: [!isDialogOpen, !isEditing],
+  //     callback: () => navigate("/"),
+  //   },
+  // ];
 
   // useKeyPress(keysToAction);
 
@@ -145,11 +185,14 @@ const HabitDetail = () => {
     },
   ];
 
-  const toggleHabitDay = (dayId) => {
-    updateHabit(habitQuery.data.id, dayId);
+  const toggleHabitDay = (dayId, state) => {
+    console.log("toggleHabitDay", dayId, state);
+    updateHabitEntryMutation.mutate({
+      habitId: id,
+      dayId,
+      newState: nextState(state),
+    });
   };
-
-  console.log(habitQuery.data);
 
   return (
     <motion.main
