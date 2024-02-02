@@ -8,6 +8,7 @@ import {
   orderBy,
   query,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -95,12 +96,14 @@ export const createHabitEntries = async (habitId, entries) => {
 
 /**
  * Get an Array of habits ids a user has
+ * @param {string} userId - The id of the user to get the habits from
  * @returns An array of habit ids.
  */
-export const getHabitsIds = async () => {
+export const getHabitsIds = async (userId) => {
   try {
     const habitsCollection = collection(db, "habits");
-    const habitsSnapshot = await getDocs(habitsCollection);
+    const habitsQuery = query(habitsCollection, where("uid", "==", userId));
+    const habitsSnapshot = await getDocs(habitsQuery);
 
     return habitsSnapshot.map((doc) => doc.id);
   } catch (error) {
@@ -114,11 +117,12 @@ export const getHabitsIds = async () => {
  * @throws An error if something goes wrong on the request
  * @returns The habits array with its corresponding entries
  */
-export const getHabitsWithEntries = async () => {
+export const getHabitsWithEntries = async (userId) => {
   console.log("getHabitWithEntries called");
   try {
     const habitsCollection = collection(db, "habits");
-    const habitsSnapshot = await getDocs(habitsCollection);
+    const habitsQuery = query(habitsCollection, where("uid", "==", userId));
+    const habitsSnapshot = await getDocs(habitsQuery);
 
     const habits = [];
     habitsSnapshot.forEach((doc) => {
@@ -217,7 +221,7 @@ export const updateHabitEntry = async (habitId, entryId, state) => {
 
 /**
  * Delete a given habit by its ID.
- * @param id - The id of the habit to delete
+ * @param {string} id - The id of the habit to delete
  */
 export const deleteHabit = async (id) => {
   try {
@@ -242,6 +246,21 @@ export const deleteHabit = async (id) => {
     console.log(`habit ${id} deleted`);
   } catch (error) {
     console.log(error);
+    throw error;
+  }
+};
+
+/**
+ * Delete all habits by its IDs
+ * @param {string[]} habitsIds - The ids of the habits to delete
+ */
+export const deleteAllHabits = async (habitsIds) => {
+  try {
+    for (const habit of habitsIds) {
+      await deleteHabit(habit);
+    }
+  } catch (error) {
+    console.error(error);
     throw error;
   }
 };
