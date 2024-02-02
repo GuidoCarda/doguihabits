@@ -33,7 +33,11 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
-import { getHabitById, updateHabitEntry } from "../services/habits";
+import {
+  deleteHabit,
+  getHabitById,
+  updateHabitEntry,
+} from "../services/habits";
 import { getTotal, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
@@ -48,13 +52,11 @@ const HabitDetail = () => {
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
 
-  const { deleteHabit, editHabit } = useHabitsActions();
+  const { editHabit } = useHabitsActions();
 
   const completionMilestones = useHabitsStore(
     (state) => state.completionMilestones
   );
-
-  console.log(id);
 
   const habitQuery = useQuery({
     queryKey: ["habit", id],
@@ -107,20 +109,49 @@ const HabitDetail = () => {
     setIsEditing(false);
   };
 
-  const handleDelete = (habitId) => {
+  const habitDeleteMutation = useMutation({
+    mutationKey: ["deleteHabit", id],
+    mutationFn: deleteHabit,
+    onMutate: async (habitId) => {
+      await queryClient.cancelQueries({ queryKey: ["habits"] });
+
+      // Snapshot the previous value
+      const previousHabits = queryClient.getQueryData(["habits"]);
+
+      //Optimistically update the UI filtering out the habit to be deleted
+      //I'm not 100% sure about the ux, I might look into alternatives
+      // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
+      queryClient.setQueryData(["habits"], (oldData) =>
+        oldData.filter((habit) => habit.id !== habitId)
+      );
+
+      // Return a rollback function
+      return () => queryClient.setQueryData(["habits"], previousHabits);
+    },
+    onError: (error, variables, rollback) => {
+      console.log(error);
+      // Rollback to the previous value
+      rollback();
+    },
+
+    onSuccess: (data, variables, context) => {
+      console.log("onSuccess", data, variables, context);
+      // queryClient.invalidateQueries("habits");
+      navigate(-1, { replace: true });
+      // toast.success(`${habit.title} was successfully deleted`);
+    },
+  });
+
+  const handleDelete = () => {
     dialog({
       title: "Warning!",
       description: "Are you sure you want to delete this habit",
       catchOnCancel: false,
       submitText: "Confirm",
-    })
-      .then(() => {
-        deleteHabit(habitId);
-        navigate("/");
-      })
-      .finally(() =>
-        toast.success(`${habitQuery.data.title} was successfully deleted`)
-      );
+      isPending: habitDeleteMutation.isPending,
+      pendingText: "Deleting...",
+      onConfirm: () => habitDeleteMutation.mutateAsync(id),
+    });
   };
 
   const keysToAction = [
