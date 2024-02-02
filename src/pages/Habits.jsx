@@ -10,7 +10,6 @@ import HabitsSorting from "./components/HabitSorting";
 import { useHabitsActions } from "../store/useHabitsStore";
 
 //Hooks
-import useMediaQuery from "../hooks/useMediaQuery";
 import useKeyPress from "../hooks/useKeyPress";
 
 //Animations
@@ -87,40 +86,28 @@ const Habits = () => {
     }
   };
 
-  if (habitsQuery.isPending)
-    return (
-      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
-    );
-
-  const hasHabits = habitsQuery.data.length > 0;
-  const habitsLimitReached = habitsQuery.data.length >= 5;
-  // console.log("react query data", habitsQuery.data);
+  const habitsCount = habitsQuery?.data?.length ?? 0;
+  const hasHabits = habitsCount > 0;
+  const habitsLimitReached = habitsCount >= 5;
 
   // KeysActions maps to provide the user keyboard shortcuts
-  // const keysToAction = [
-  //   {
-  //     keys: ["shiftKey", "n"],
-  //     conditionals: [!isOpen && !habitsLimitReached],
-  //     callback: (e) => {
-  //       e.preventDefault();
-  //       handleShowToggle();
-  //     },
-  //   },
-  //   {
-  //     keys: ["Escape"],
-  //     conditionals: [isOpen],
-  //     callback: handleShowToggle,
-  //   },
-  //   {
-  //     keys: ["shiftKey", "b"],
-  //     conditionals: [],
-  //     callback: (e) => {
-  //       console.log("wombo combo");
-  //     },
-  //   },
-  // ];
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "n"],
+      conditionals: [!isOpen && !habitsLimitReached],
+      callback: (e) => {
+        e.preventDefault();
+        handleShowToggle();
+      },
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isOpen],
+      callback: handleShowToggle,
+    },
+  ];
 
-  // useKeyPress(keysToAction);
+  useKeyPress(keysToAction);
 
   // update sorting criteria when user selects new option
   const handleSortChange = (event) => {
@@ -167,8 +154,15 @@ const Habits = () => {
           )}
         </AnimatePresence>
 
+        {habitsQuery.isPending && (
+          <div className="h-96 w-full grid place-content-center">
+            <h3 className="animate-pulse">Getting your habits...</h3>
+          </div>
+        )}
         {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
-        {!hasHabits && <EmptyState onClick={handleShowToggle} />}
+        {!habitsQuery.isPending && !hasHabits && (
+          <EmptyState onClick={handleShowToggle} />
+        )}
       </Layout>
     </motion.main>
   );

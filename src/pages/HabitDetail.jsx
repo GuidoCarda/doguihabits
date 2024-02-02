@@ -98,16 +98,6 @@ const HabitDetail = () => {
     },
   });
 
-  if (habitQuery.isPending) {
-    return (
-      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
-    );
-  }
-
-  if (!habitQuery.data) {
-    return <HabitNotFound />;
-  }
-
   const handleEdit = (e) => {
     setIsEditing(true);
     e.preventDefault();
@@ -133,54 +123,60 @@ const HabitDetail = () => {
       );
   };
 
-  // const keysToAction = [
-  //   {
-  //     keys: ["shiftKey", "d"],
-  //     conditionals: [habitQuery.data, !isEditing],
-  //     callback: () => handleDelete(id),
-  //   },
-  //   {
-  //     keys: ["shiftKey", "e"],
-  //     conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
-  //     callback: (e) => {
-  //       //prevent the habit form of getting the 'e' shortcut keypress as input
-  //       e.preventDefault();
-  //       handleEdit(e);
-  //     },
-  //   },
-  //   {
-  //     keys: ["Escape"],
-  //     conditionals: [isDialogOpen, habitQuery.data],
-  //     callback: handleDialogClose,
-  //   },
-  //   {
-  //     keys: ["Escape"],
-  //     conditionals: [isEditing, habitQuery.data],
-  //     callback: handleEditModalClose,
-  //   },
-  //   {
-  //     keys: ["Escape"],
-  //     conditionals: [!isDialogOpen, !isEditing],
-  //     callback: () => navigate("/"),
-  //   },
-  // ];
+  const keysToAction = [
+    {
+      keys: ["shiftKey", "d"],
+      conditionals: [habitQuery.data, !isEditing],
+      callback: () => handleDelete(id),
+    },
+    {
+      keys: ["shiftKey", "e"],
+      conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
+      callback: (e) => {
+        //prevent the habit form of getting the 'e' shortcut keypress as input
+        e.preventDefault();
+        handleEdit(e);
+      },
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isDialogOpen, habitQuery.data],
+      callback: handleDialogClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [isEditing, habitQuery.data],
+      callback: handleEditModalClose,
+    },
+    {
+      keys: ["Escape"],
+      conditionals: [!isDialogOpen, !isEditing, !habitQuery.isPending],
+      callback: () => navigate("/"),
+    },
+  ];
 
-  // useKeyPress(keysToAction);
+  useKeyPress(keysToAction);
 
   const habitInfo = [
     {
       title: "streak",
-      data: getHabitStreak(habitQuery.data.entries),
+      data: habitQuery?.data?.entries
+        ? getHabitStreak(habitQuery.data.entries)
+        : 0,
       icon: "FireIcon",
     },
     {
       title: "completed",
-      data: getTotal(habitQuery.data.entries, "completed"),
+      data: habitQuery?.data?.entries
+        ? getTotal(habitQuery.data.entries, "completed")
+        : 0,
       icon: "CheckIcon",
     },
     {
       title: "failed",
-      data: getTotal(habitQuery.data.entries, "failed"),
+      data: habitQuery?.data?.entries
+        ? getTotal(habitQuery.data.entries, "failed")
+        : 0,
       icon: "XMarkIcon",
     },
   ];
@@ -193,6 +189,16 @@ const HabitDetail = () => {
       newState: nextState(state),
     });
   };
+
+  if (habitQuery.isPending) {
+    return (
+      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
+    );
+  }
+
+  if (!habitQuery.data) {
+    return <HabitNotFound />;
+  }
 
   return (
     <motion.main
