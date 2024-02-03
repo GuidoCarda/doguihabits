@@ -22,7 +22,6 @@ import { Link } from "react-router-dom";
 //Icons
 import {
   CheckBadgeIcon,
-  CheckIcon,
   FireIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
@@ -36,38 +35,37 @@ import { useAuth } from "../../context/AuthContext";
 const HabitsWeekView = ({ habit }) => {
   const queryClient = useQueryClient();
   const dialog = useDialog();
-  const user = useAuth();
+  const { user } = useAuth();
 
   const habitDeleteMutation = useMutation({
     mutationKey: ["deleteHabit", habit.id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
-      await queryClient.cancelQueries({ queryKey: ["habits"] });
+      await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
 
       // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits"]);
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
 
       //Optimistically update the UI filtering out the habit to be deleted
       //I'm not 100% sure about the ux, I might look into alternatives
       // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
-      queryClient.setQueryData(["habits"], (oldData) =>
-        oldData.map((habit) =>
+      queryClient.setQueryData(["habits", user.uid], (oldData) =>
+        oldData?.map((habit) =>
           habit.id === habitId ? { ...habit, isDeleting: true } : habit
         )
       );
 
       // Return a rollback function
-      return () => queryClient.setQueryData(["habits"], previousHabits);
+      return () =>
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
     onError: (error, variables, rollback) => {
       console.log(error);
       // Rollback to the previous value
       rollback();
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries("habits");
-      toast.success(`${habit.title} was successfully deleted`);
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 
@@ -144,15 +142,16 @@ const HabitsWeekView = ({ habit }) => {
       return () => queryClient.setQueryData(["habits", user.uid], previousData);
     },
     onError: (error, variables, rollback) => {
-      // Rollback to the previous data on error
-      console.log("error", error);
-      rollback();
       // Handle errors as needed
+      toast.error("Sorry, An error occurred while updating the habit");
+      // Rollback to the previous data on error
+      rollback();
     },
     // Optional: Provide an onSettled function for cleanup or additional actions
     onSettled: () => {
       // Refetch the 'habits' query after the mutation is settled
       queryClient.invalidateQueries(["habits", user.uid]);
+      toast.success("Habit updated successfully");
     },
   });
 
