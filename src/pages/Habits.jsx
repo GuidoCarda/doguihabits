@@ -34,12 +34,13 @@ import { useAuth } from "../context/AuthContext";
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("");
-  const user = useAuth();
+  const { user, isLoading } = useAuth();
 
   const habitsQuery = useQuery({
     queryKey: ["habits", user.uid],
     queryFn: () => getHabitsWithEntries(user.uid),
     refetchOnWindowFocus: false,
+    enabled: !isLoading,
   });
 
   //Get habits sorted by criteria if any, else get them in default order of creation

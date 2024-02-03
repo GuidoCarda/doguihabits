@@ -35,27 +35,39 @@ function App() {
       <Toaster toastOptions={toastOptions} key={"toasts"} />
 
       <Routes>
-        <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Habits />} />
           <Route path="/habits/:id" element={<HabitDetail />} />
         </Route>
         <Route path="test" element={<Test />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </AnimatePresence>
   );
 }
 
 function ProtectedRoutes() {
-  const user = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
+  const from = location?.state?.from ?? "/";
 
-  return user ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" state={{ from: location }} replace />
-  );
+  console.log("location inside ProtectedRoutes", location);
+  console.log(user, "user inside ProtectedRoutes component");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full grid place-content-center text-zinc-200 ">
+        <h3 className="text-xl animation-pulse duration-200">Loading...</h3>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from }} replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default App;

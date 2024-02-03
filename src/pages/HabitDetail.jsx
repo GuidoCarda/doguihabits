@@ -223,7 +223,11 @@ const HabitDetail = () => {
 
   if (habitQuery.isPending) {
     return (
-      <p className="text-slate-200 animate-pulse duration-200">Loading...</p>
+      <div className="min-h-screen grid place-content-center">
+        <p className=" text-slate-200 animate-pulse duration-200">
+          Loading habit details...
+        </p>
+      </div>
     );
   }
 

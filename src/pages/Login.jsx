@@ -15,16 +15,16 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [action, setAction] = useState(ACTIONS.SIGN_UP);
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
+  const from = location?.state?.from?.pathname || "/";
 
-  const user = useAuth();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     if (user) {
-      navigate("/", { state: { from: location }, replace: true });
+      navigate("/", { state: { from }, replace: true });
     }
   }, [user]);
 
@@ -47,15 +47,15 @@ const Login = () => {
     console.log(user);
 
     if (user) {
-      navigate("/");
+      navigate("/", { state: { from }, replace: true });
     }
     return null;
   };
 
   if (isLoading) {
     return (
-      <div className="h-full w-full grid place-content-center text-zinc-300">
-        <h3 className="animate-pulse">Loading...</h3>
+      <div className="min-h-screen w-full grid place-content-center text-zinc-300">
+        <h3 className="animate-pulse">Loading ...</h3>
       </div>
     );
   }
