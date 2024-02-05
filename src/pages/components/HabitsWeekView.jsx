@@ -60,7 +60,8 @@ const HabitsWeekView = ({ habit }) => {
         queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
     onError: (error, variables, rollback) => {
-      console.log(error);
+      console.error(error);
+      toast.error("Sorry, An error occurred while deleting the habit");
       // Rollback to the previous value
       rollback();
     },
@@ -114,14 +115,12 @@ const HabitsWeekView = ({ habit }) => {
   const mutation = useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
-    // Optional: Provide an onMutate function for optimistic updates
     onMutate: ({ habitId, dayId, newState }) => {
       // Snapshot the current data for rollback on error
       const previousData = queryClient.getQueryData(["habits", user.uid]);
 
       // Optimistically update the UI
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        console.log(oldData);
         // Update the relevant data optimistically
         const updatedData = oldData.map((habit) => {
           if (habit.id === habitId) {
@@ -138,12 +137,29 @@ const HabitsWeekView = ({ habit }) => {
         return updatedData;
       });
 
+      // Snapshot the current habit data
+      const previousHabit = previousData.find((h) => h.id === habitId);
+
+      // Update the especified habit optimistically to avoid a new query
+      queryClient.setQueryData(["habit", habitId], {
+        ...previousHabit,
+        entries: previousHabit.entries.map((entry) =>
+          entry.id === dayId ? { ...entry, state: newState } : entry
+        ),
+      });
+
       // Return a rollback function
-      return () => queryClient.setQueryData(["habits", user.uid], previousData);
+      return () => {
+        // Rollback to the previous habits data
+        queryClient.setQueryData(["habits", user.uid], previousData);
+        // Rollback to the previous habit data
+        queryClient.setQueryData(["habit", habitId], previousHabit);
+      };
     },
     onError: (error, variables, rollback) => {
       // Handle errors as needed
       toast.error("Sorry, An error occurred while updating the habit");
+      console.error(error);
       // Rollback to the previous data on error
       rollback();
     },
@@ -151,7 +167,6 @@ const HabitsWeekView = ({ habit }) => {
     onSettled: () => {
       // Refetch the 'habits' query after the mutation is settled
       queryClient.invalidateQueries(["habits", user.uid]);
-      toast.success("Habit updated successfully");
     },
   });
 

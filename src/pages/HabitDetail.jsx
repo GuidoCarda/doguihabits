@@ -40,11 +40,15 @@ import {
 } from "../services/habits";
 import { getTotal, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
 
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // console.log(user.uid);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -68,14 +72,31 @@ const HabitDetail = () => {
       updateHabitEntry(habitId, dayId, newState),
     // The onMutate callback allow us to perform an optimistic update on the UI
     onMutate: ({ habitId, dayId, newState }) => {
-      console.log(habitId, dayId, newState);
-      // Snapshot the current data for rollback on error
-      const previousData = queryClient.getQueryData(["habit", id]);
+      // Snapshot the current habits data for rollback on error
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
 
-      // Optimistically update the UI
+      // Optimistically update the habits data
+      queryClient.setQueryData(["habits", user.uid], (oldData) => {
+        console.log(oldData);
+        return oldData?.map((habit) =>
+          habit.id === habitId
+            ? {
+                ...habit,
+                entries: habit.entries.map((entry) =>
+                  entry.id === dayId ? { ...entry, state: newState } : entry
+                ),
+              }
+            : habit
+        );
+      });
+
+      // Snapshot the current habit data for rollback on error
+      const previousHabitData = queryClient.getQueryData(["habit", id]);
+
+      // Optimistically update the UI optimistically
       queryClient.setQueryData(["habit", id], (oldData) => {
         // Update the habit entry state
-        const updatedEntries = oldData.entries.map((entry) => {
+        const updatedEntries = oldData.entries?.map((entry) => {
           if (entry.id === dayId) {
             return { ...entry, state: newState };
           }
@@ -86,16 +107,18 @@ const HabitDetail = () => {
       });
 
       // Return a rollback function to be used if the mutation fails
-      return () => queryClient.setQueryData(["habit", id], previousData);
+      return () => {
+        queryClient.setQueryData(["habit", id], previousHabitData);
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
+      };
     },
     onError: (error, variables, rollback) => {
       // Rollback to the previous data on error
-      console.log("error", error);
+      console.error("error", error);
       rollback();
       // Handle errors as needed
     },
     onSettled: () => {
-      // trigger the ['habit',id] query after the mutation is settled
       queryClient.invalidateQueries(["habit", id]);
     },
   });
@@ -113,29 +136,30 @@ const HabitDetail = () => {
     mutationKey: ["deleteHabit", id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
-      await queryClient.cancelQueries({ queryKey: ["habits"] });
+      await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
 
       // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits"]);
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
 
       //Optimistically update the UI filtering out the habit to be deleted
       //I'm not 100% sure about the ux, I might look into alternatives
       // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
-      queryClient.setQueryData(["habits"], (oldData) =>
-        oldData.filter((habit) => habit.id !== habitId)
+      queryClient.setQueryData(["habits", user.uid], (oldData) =>
+        oldData?.filter((habit) => habit.id !== habitId)
       );
 
       // Return a rollback function
-      return () => queryClient.setQueryData(["habits"], previousHabits);
+      return () =>
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
     onError: (error, variables, rollback) => {
-      console.log(error);
+      console.error(error);
       // Rollback to the previous value
       rollback();
     },
 
     onSuccess: (data, variables, context) => {
-      console.log("onSuccess", data, variables, context);
+      // console.log("onSuccess", data, variables, context);
       // queryClient.invalidateQueries("habits");
       navigate(-1, { replace: true });
       // toast.success(`${habit.title} was successfully deleted`);
@@ -213,7 +237,7 @@ const HabitDetail = () => {
   ];
 
   const toggleHabitDay = (dayId, state) => {
-    console.log("toggleHabitDay", dayId, state);
+    // console.log("toggleHabitDay", dayId, state);
     updateHabitEntryMutation.mutate({
       habitId: id,
       dayId,

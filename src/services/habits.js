@@ -206,15 +206,12 @@ export const getHabitById = async (habitId) => {
  * @throws An error if the habit could not be updated
  */
 export const updateHabitEntry = async (habitId, entryId, state) => {
-  console.log(habitId, entryId, state);
   try {
-    console.log(habitId, entryId, state);
     const entriesCollection = collection(db, "habits", habitId, "entries");
     const entryRef = doc(entriesCollection, entryId);
     await updateDoc(entryRef, { state });
-    console.log(`entry ${entryId} updated from habit ${habitId} updated `);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 };

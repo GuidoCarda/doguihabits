@@ -40,7 +40,6 @@ const Habits = () => {
     queryKey: ["habits", user.uid],
     queryFn: () => getHabitsWithEntries(user.uid),
     refetchOnWindowFocus: false,
-    enabled: !isLoading,
   });
 
   //Get habits sorted by criteria if any, else get them in default order of creation

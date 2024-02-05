@@ -52,9 +52,6 @@ function ProtectedRoutes() {
   const location = useLocation();
   const from = location?.state?.from ?? "/";
 
-  console.log("location inside ProtectedRoutes", location);
-  console.log(user, "user inside ProtectedRoutes component");
-
   if (isLoading) {
     return (
       <div className="min-h-screen w-full grid place-content-center text-zinc-200 ">
