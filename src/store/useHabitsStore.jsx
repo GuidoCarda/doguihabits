@@ -177,6 +177,24 @@ const updateHabit = async (set, get, habitId, dayId) => {
 };
 
 /**
+ * Check if the current streak is a new milestone and return the new milestones.
+ * @param {Function} get - The get function from the Zustand store.
+ * @param {number} currentStreak - The current streak of the habit.
+ * @param {Array} badges - The badges of the habit.
+ * @returns {Array} - The new milestones.
+ * */
+const checkForNewMilestones = (get, currentStreak, badges) => {
+  console.log("checkForNewMilestones", currentStreak, badges);
+  const completionMilestones = get().completionMilestones;
+
+  const newMilestones = completionMilestones.filter(
+    (milestone) => milestone <= currentStreak && !badges.includes(milestone)
+  );
+
+  return newMilestones > 0 ? newMilestones[0] : null;
+};
+
+/**
  * Check and update the habits with the months that are missing in order to have an up-to-date record.
  * @param {Function} set - The set function from the Zustand store.
  * @param {Function} get - The get function from the Zustand store.
@@ -286,7 +304,8 @@ const useHabitsStore = create(
           editHabit(set, get, habitId, habitData),
         deleteHabit: (id) => deleteHabit(set, get, id),
         checkAndUpdateHabits: () => checkAndUpdateHabits(set, get),
-        deleteAllHabits: () => set({ habits: [] }),
+        checkForNewMilestones: (currentStreak, badges) =>
+          checkForNewMilestones(get, currentStreak, badges),
       },
     }),
     { name: "habits", partialize: (state) => ({ habits: state.habits }) }

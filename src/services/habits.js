@@ -1,5 +1,6 @@
 import {
   addDoc,
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
@@ -292,4 +293,20 @@ export const checkAndUpdateHabits = async (habits) => {
   }
 
   return;
+};
+
+/**
+ * Add completion badge to habit document
+ * @param {string} habitId
+ *
+ */
+export const addBadge = async (habitId, badge) => {
+  const habitsCollection = collection(db, "habits");
+  const habitRef = doc(habitsCollection, habitId);
+
+  await updateDoc(habitRef, {
+    badges: arrayUnion(badge),
+  });
+
+  return null;
 };
