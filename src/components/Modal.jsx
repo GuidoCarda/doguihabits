@@ -1,15 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import HabitForm from "../pages/components/HabitForm";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { IconButton } from "./Buttons";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import useClickOutside from "../hooks/useClickOutside";
 import useMediaQuery from "../hooks/useMediaQuery";
+import { useIsMutating } from "@tanstack/react-query";
 
 const Modal = ({ onClose, title, children }, ref) => {
-  const domNode = useClickOutside(onClose);
+  const isMutating = useIsMutating({
+    mutationKey: ["habit"],
+  });
+
+  const domNode = useClickOutside(isMutating > 0 ? () => {} : onClose);
 
   //Conditionally style components and animations based on device
   const isMobile = useMediaQuery("(max-width: 638px)");

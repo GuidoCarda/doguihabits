@@ -15,10 +15,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 //Auth
 import { useAuth } from "../../context/AuthContext";
 
-function useEditHabit() {
+function useEditHabit(habitId) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: ["habit", "edit"],
+    mutationKey: ["habit", "edit", habitId],
     mutationFn: ({ habitId, data }) => editHabit(habitId, data),
     onSuccess: () => {
       toast.success("Habit data updated susccessfully");
@@ -32,7 +32,7 @@ function useCreateHabit(user) {
   const isMobile = useMediaQuery("(max-width: 638px)");
 
   return useMutation({
-    mutationKey: "newHabit",
+    mutationKey: ["habit", "new"],
     mutationFn: createHabit,
     onMutate: (variables) => {
       console.log("onMutate runs");
@@ -63,7 +63,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) {
-      return toast.error("empty title", {});
+      return toast.error("empty title");
     }
     if (input.trim().length > 30) {
       return toast.error("The title is too long");
@@ -79,6 +79,8 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
   };
 
   const isInputLengthInvalid = input.length > 30;
+  const isPending = newHabitMutation.isPending || editHabitMutation.isPending;
+  const pendingMessage = isEditing ? "updating habit" : "creating habit";
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
@@ -141,16 +143,13 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
           "enabled:hover:bg-green-600/90",
           "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed",
           {
-            "animate-pulse duration-200": newHabitMutation.isPending,
+            "animate-pulse duration-200": isPending,
           }
         )}
-        disabled={isInputLengthInvalid || newHabitMutation.isPending}
+        disabled={isInputLengthInvalid || isPending}
       >
-        {isEditing
-          ? "edit habit"
-          : newHabitMutation.isPending
-          ? "creating..."
-          : "create habit"}
+        {isPending && pendingMessage}
+        {!isPending && "submit"}
       </Button>
     </form>
   );
