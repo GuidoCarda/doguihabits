@@ -9,7 +9,10 @@ import {
   nextState,
   startOfDay,
 } from "../../utils";
-import { getHabitStreak } from "../../store/useHabitsStore";
+import {
+  getHabitStreak,
+  getPast7DaysEntries,
+} from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
 //Animations, styling
@@ -32,13 +35,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
 
-const HabitsWeekView = ({ habit }) => {
+function useDeleteHabit(id, user) {
   const queryClient = useQueryClient();
-  const dialog = useDialog();
-  const { user } = useAuth();
-
-  const habitDeleteMutation = useMutation({
-    mutationKey: ["deleteHabit", habit.id],
+  return useMutation({
+    mutationKey: ["deleteHabit", id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
       await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
@@ -51,7 +51,7 @@ const HabitsWeekView = ({ habit }) => {
       // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
       queryClient.setQueryData(["habits", user.uid], (oldData) =>
         oldData?.map((habit) =>
-          habit.id === habitId ? { ...habit, isDeleting: true } : habit
+          id === habitId ? { ...habit, isDeleting: true } : habit
         )
       );
 
@@ -69,50 +69,11 @@ const HabitsWeekView = ({ habit }) => {
       queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
+}
 
-  const handleDelete = () => {
-    //Throw a confirmation dialog
-    dialog({
-      title: "Warning!",
-      description: "Are you sure you want to delete this habit",
-      catchOnCancel: false,
-      submitText: "Confirm",
-      isPending: habitDeleteMutation.isPending,
-      pendingText: "Deleting...",
-      // onConfirm: () => habitDeleteMutation.mutate(habit.id),
-      onConfirm: () => habitDeleteMutation.mutateAsync(habit.id),
-    });
-  };
-
-  const currentDate = startOfDay(new Date());
-
-  const currentEntryIndex = habit.entries.findIndex(
-    (entry) => startOfDay(entry.date).getTime() === currentDate.getTime()
-  );
-
-  let lastWeek = habit.entries.slice(
-    currentEntryIndex + 1 - 7,
-    currentEntryIndex + 1
-  );
-
-  if (currentEntryIndex < 7) {
-    lastWeek = habit.entries.slice(0, currentEntryIndex + 1);
-  }
-
-  if (lastWeek.length < 7) {
-    //if the current habit does not have data for the previous month,
-    //generate placeholder values.
-
-    //get prev 7 days based on the first available date
-    const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].date))
-      .map((date) => ({ id: date, date, state: "pending" }))
-      .sort((a, b) => a.id.getDate() - b.id.getDate())
-      .slice(lastWeek.length);
-
-    lastWeek = previousPlaceholderDates.concat(lastWeek);
-  }
-
-  const mutation = useMutation({
+function useUpdateHabitEntry(user) {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
     onMutate: ({ habitId, dayId, newState }) => {
@@ -169,6 +130,30 @@ const HabitsWeekView = ({ habit }) => {
       queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
+}
+
+const HabitsWeekView = ({ habit }) => {
+  const dialog = useDialog();
+  const { user } = useAuth();
+
+  const habitDeleteMutation = useDeleteHabit(habit.id, user.uid);
+  const mutation = useUpdateHabitEntry(user);
+
+  const handleDelete = () => {
+    //Throw a confirmation dialog
+    dialog({
+      title: "Warning!",
+      description: "Are you sure you want to delete this habit",
+      catchOnCancel: false,
+      submitText: "Confirm",
+      isPending: habitDeleteMutation.isPending,
+      pendingText: "Deleting...",
+      onConfirm: () => habitDeleteMutation.mutateAsync(habit.id),
+    });
+  };
+
+  const currentDate = startOfDay(new Date());
+  const lastWeek = getPast7DaysEntries(habit.entries, currentDate);
 
   const getCompletionPercentage = (habit) => {
     const daysStateCount = {

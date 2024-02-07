@@ -6,7 +6,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 //Global state hooks
 import useHabitsStore, {
   getHabitStreak,
-  useHabit,
   useHabitsActions,
 } from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
@@ -42,32 +41,16 @@ import { getTotal, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 
-const HabitDetail = () => {
-  let { id } = useParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  // console.log(user.uid);
-
-  const [isEditing, setIsEditing] = useState(false);
-
-  const dialog = useDialog();
-  const isDialogOpen = useDialogStore((state) => state.open);
-  const handleDialogClose = useDialogStore((state) => state.handleClose);
-
-  const { editHabit } = useHabitsActions();
-
-  const completionMilestones = useHabitsStore(
-    (state) => state.completionMilestones
-  );
-
-  const habitQuery = useQuery({
+function useHabit(id) {
+  return useQuery({
     queryKey: ["habit", id],
     queryFn: () => getHabitById(id),
   });
+}
 
-  const updateHabitEntryMutation = useMutation({
+function useUpdateHabitEntry(id, user) {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
     // The onMutate callback allow us to perform an optimistic update on the UI
@@ -122,17 +105,13 @@ const HabitDetail = () => {
       queryClient.invalidateQueries(["habit", id]);
     },
   });
+}
 
-  const handleEdit = (e) => {
-    setIsEditing(true);
-    e.preventDefault();
-  };
+function useDeleteHabit(id, user) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const handleEditModalClose = () => {
-    setIsEditing(false);
-  };
-
-  const habitDeleteMutation = useMutation({
+  return useMutation({
     mutationKey: ["deleteHabit", id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
@@ -165,6 +144,37 @@ const HabitDetail = () => {
       // toast.success(`${habit.title} was successfully deleted`);
     },
   });
+}
+
+const HabitDetail = () => {
+  let { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const dialog = useDialog();
+  const isDialogOpen = useDialogStore((state) => state.open);
+  const handleDialogClose = useDialogStore((state) => state.handleClose);
+
+  const { editHabit } = useHabitsActions();
+
+  const completionMilestones = useHabitsStore(
+    (state) => state.completionMilestones
+  );
+
+  const habitQuery = useHabit(id);
+  const updateHabitEntryMutation = useUpdateHabitEntry(id, user);
+  const habitDeleteMutation = useDeleteHabit(id, user);
+
+  const handleEdit = (e) => {
+    setIsEditing(true);
+    e.preventDefault();
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditing(false);
+  };
 
   const handleDelete = () => {
     dialog({
@@ -175,6 +185,14 @@ const HabitDetail = () => {
       isPending: habitDeleteMutation.isPending,
       pendingText: "Deleting...",
       onConfirm: () => habitDeleteMutation.mutateAsync(id),
+    });
+  };
+
+  const toggleHabitDay = (dayId, state) => {
+    updateHabitEntryMutation.mutate({
+      habitId: id,
+      dayId,
+      newState: nextState(state),
     });
   };
 
@@ -235,15 +253,6 @@ const HabitDetail = () => {
       icon: "XMarkIcon",
     },
   ];
-
-  const toggleHabitDay = (dayId, state) => {
-    // console.log("toggleHabitDay", dayId, state);
-    updateHabitEntryMutation.mutate({
-      habitId: id,
-      dayId,
-      newState: nextState(state),
-    });
-  };
 
   if (habitQuery.isPending) {
     return (

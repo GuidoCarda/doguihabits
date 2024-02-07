@@ -291,6 +291,36 @@ const editHabit = (set, get, habitId, habitData) => {
   set({ habits: updatedHabits });
 };
 
+export const getPast7DaysEntries = (entries, currentDate) => {
+  const currentEntryIndex = entries.findIndex(
+    (entry) => startOfDay(entry.date).getTime() === currentDate.getTime()
+  );
+
+  let lastWeek = entries.slice(
+    currentEntryIndex + 1 - 7,
+    currentEntryIndex + 1
+  );
+
+  if (currentEntryIndex < 7) {
+    lastWeek = entries.slice(0, currentEntryIndex + 1);
+  }
+
+  if (lastWeek.length < 7) {
+    //if the current habit does not have data for the previous month,
+    //generate placeholder values.
+
+    //get prev 7 days based on the first available date
+    const previousPlaceholderDates = getPast7Days(new Date(lastWeek[0].date))
+      .map((date) => ({ id: date, date, state: "pending" }))
+      .sort((a, b) => a.id.getDate() - b.id.getDate())
+      .slice(lastWeek.length);
+
+    lastWeek = previousPlaceholderDates.concat(lastWeek);
+  }
+
+  return lastWeek;
+};
+
 const useHabitsStore = create(
   persist(
     (set, get) => ({

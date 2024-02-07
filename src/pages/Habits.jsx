@@ -31,16 +31,20 @@ import { deleteAllHabits, getHabitsWithEntries } from "../services/habits";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 
+function useHabits(userId) {
+  return useQuery({
+    queryKey: ["habits", userId],
+    queryFn: () => getHabitsWithEntries(userId),
+    refetchOnWindowFocus: false,
+  });
+}
+
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("");
   const { user, isLoading } = useAuth();
 
-  const habitsQuery = useQuery({
-    queryKey: ["habits", user.uid],
-    queryFn: () => getHabitsWithEntries(user.uid),
-    refetchOnWindowFocus: false,
-  });
+  const habitsQuery = useHabits(user.uid);
 
   //Get habits sorted by criteria if any, else get them in default order of creation
   // const habits = useHabits(sortCriteria);
