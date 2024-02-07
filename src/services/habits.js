@@ -30,13 +30,13 @@ import {
  */
 export const createHabit = async (formData) => {
   console.log("createHabit called", formData);
-  const { input, description } = formData;
+  const { title, description } = formData;
 
   try {
     const newHabit = {
       uid: auth?.currentUser?.uid,
       createdAt: new Date(),
-      title: input,
+      title,
       badges: [],
       currentStreak: 0,
       description: description ?? "",
@@ -307,6 +307,15 @@ export const addBadge = async (habitId, badge) => {
   await updateDoc(habitRef, {
     badges: arrayUnion(badge),
   });
+
+  return null;
+};
+
+export const editHabit = async (habitId, data) => {
+  const habitsCollection = collection(db, "habits");
+  const habitRef = doc(habitsCollection, habitId);
+
+  await updateDoc(habitRef, data);
 
   return null;
 };

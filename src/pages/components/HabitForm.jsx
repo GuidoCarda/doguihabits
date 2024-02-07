@@ -1,24 +1,37 @@
-import { useHabitsActions } from "../../store/useHabitsStore";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import clsx from "clsx";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/Buttons";
+
+//Routing
 import { useParams } from "react-router-dom";
-import { createHabit } from "../../services/habits";
+
+//Api
+import { createHabit, editHabit } from "../../services/habits";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
-  const [input, setInput] = useState(initialValues?.title ?? "");
-  const [description, setDescription] =
-    useState(initialValues?.description) ?? "";
-  const { id: habitId } = useParams();
-  const isMobile = useMediaQuery("(max-width: 638px)");
-  const queryClient = useQueryClient();
-  const { editHabit } = useHabitsActions();
+//Auth
+import { useAuth } from "../../context/AuthContext";
 
-  const newHabitMutation = useMutation({
+function useEditHabit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["habit", "edit"],
+    mutationFn: ({ habitId, data }) => editHabit(habitId, data),
+    onSuccess: () => {
+      toast.success("Habit data updated susccessfully");
+      queryClient.invalidateQueries(["habit"]);
+    },
+  });
+}
+
+function useCreateHabit(user) {
+  const queryClient = useQueryClient();
+  const isMobile = useMediaQuery("(max-width: 638px)");
+
+  return useMutation({
     mutationKey: "newHabit",
     mutationFn: createHabit,
     onMutate: (variables) => {
@@ -26,7 +39,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
       console.log("onMutate variables", variables);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["habits"]);
+      queryClient.invalidateQueries(["habits", user.uid]);
       setInput("");
       setDescription("");
       onClose();
@@ -35,6 +48,17 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
       });
     },
   });
+}
+
+const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
+  const [input, setInput] = useState(initialValues?.title ?? "");
+  const [description, setDescription] =
+    useState(initialValues?.description) ?? "";
+  const { id: habitId } = useParams();
+  const { user } = useAuth();
+
+  const newHabitMutation = useCreateHabit(user);
+  const editHabitMutation = useEditHabit();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,23 +69,13 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
       return toast.error("The title is too long");
     }
 
-    const habitData = { input, description };
+    const habitData = { title: input, description };
 
     if (isEditing && habitId) {
-      editHabit(habitId, habitData);
+      editHabitMutation.mutate({ habitId, data: habitData });
     } else {
       newHabitMutation.mutate(habitData);
     }
-
-    // setInput("");
-    // setDescription("");
-    // onClose();
-    // toast.success(
-    //   `${input} habit ${isEditing ? "updated" : "created"} successfully`,
-    //   {
-    //     position: isMobile ? "bottom-center" : "bottom-right",
-    //   }
-    // );
   };
 
   const isInputLengthInvalid = input.length > 30;

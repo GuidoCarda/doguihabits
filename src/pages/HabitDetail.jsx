@@ -167,9 +167,8 @@ const HabitDetail = () => {
   const updateHabitEntryMutation = useUpdateHabitEntry(id, user);
   const habitDeleteMutation = useDeleteHabit(id, user);
 
-  const handleEdit = (e) => {
+  const handleEdit = () => {
     setIsEditing(true);
-    e.preventDefault();
   };
 
   const handleEditModalClose = () => {
@@ -208,7 +207,7 @@ const HabitDetail = () => {
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
-        handleEdit(e);
+        handleEdit();
       },
     },
     {
