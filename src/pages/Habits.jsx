@@ -35,6 +35,9 @@ function useHabits(userId) {
   return useQuery({
     queryKey: ["habits", userId],
     queryFn: () => getHabitsWithEntries(userId),
+    select: (data) => {
+      return data.toSorted((a, b) => b.createdAt - a.createdAt);
+    },
     refetchOnWindowFocus: false,
   });
 }

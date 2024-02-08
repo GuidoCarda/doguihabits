@@ -29,23 +29,29 @@ function useEditHabit(habitId) {
 
 function useCreateHabit(user) {
   const queryClient = useQueryClient();
-  const isMobile = useMediaQuery("(max-width: 638px)");
 
   return useMutation({
     mutationKey: ["habit", "new"],
     mutationFn: createHabit,
     onMutate: (variables) => {
-      console.log("onMutate runs");
       console.log("onMutate variables", variables);
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
+      console.log("previousHabits", previousHabits);
+
+      queryClient.setQueryData(["habits", user.uid], (oldData) => [
+        { ...variables, isCreating: true },
+        ...oldData,
+      ]);
+
+      return () =>
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["habits", user.uid]);
-      setInput("");
-      setDescription("");
-      onClose();
-      toast.success(`${input} habit created successfully`, {
-        position: isMobile ? "bottom-center" : "bottom-right",
-      });
+    },
+    onError: (error, context, rollback) => {
+      console.error(error);
+      rollback();
     },
   });
 }
@@ -56,6 +62,8 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
     useState(initialValues?.description) ?? "";
   const { id: habitId } = useParams();
   const { user } = useAuth();
+
+  const isMobile = useMediaQuery("(max-width: 638px)");
 
   const newHabitMutation = useCreateHabit(user);
   const editHabitMutation = useEditHabit();
@@ -74,7 +82,16 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
     if (isEditing && habitId) {
       editHabitMutation.mutate({ habitId, data: habitData });
     } else {
-      newHabitMutation.mutate(habitData);
+      newHabitMutation.mutate(habitData, {
+        onSuccess: () => {
+          onClose();
+          setInput("");
+          setDescription("");
+          // toast.success(`${input} habit created successfully`, {
+          //   position: isMobile ? "bottom-center" : "bottom-right",
+          // });
+        },
+      });
     }
   };
 
@@ -134,7 +151,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
           className="resize-none h-28 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 py-2 outline-none w-full focus:border-green-500/40"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-        ></textarea>
+        />
       </div>
 
       <Button
