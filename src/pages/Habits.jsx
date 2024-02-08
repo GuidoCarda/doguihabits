@@ -25,19 +25,18 @@ import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
-import { auth } from "../firebase";
-import { signOut } from "firebase/auth";
 import { deleteAllHabits, getHabitsWithEntries } from "../services/habits";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 
-function useHabits(userId) {
+function useHabits(userId, select) {
   return useQuery({
     queryKey: ["habits", userId],
     queryFn: () => getHabitsWithEntries(userId),
-    select: (data) => {
-      return data.toSorted((a, b) => b.createdAt - a.createdAt);
-    },
+    // select: (data) => {
+    //   return data.toSorted((a, b) => b.createdAt - a.createdAt);
+    // },
+    select,
     refetchOnWindowFocus: false,
   });
 }
@@ -45,20 +44,12 @@ function useHabits(userId) {
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("");
-  const { user, isLoading } = useAuth();
+  const { user, handleSignOut } = useAuth();
 
   const habitsQuery = useHabits(user.uid);
 
   //Get habits sorted by criteria if any, else get them in default order of creation
   // const habits = useHabits(sortCriteria);
-
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("sign out");
-      })
-      .catch((err) => console.error(err));
-  };
 
   const handleClose = () => setIsOpen(false);
 

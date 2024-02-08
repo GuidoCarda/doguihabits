@@ -33,54 +33,50 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
 
-function useDeleteHabit(id, user) {
+function useDeleteHabit(id, userId) {
   const queryClient = useQueryClient();
+
   // console.log("useDeleteHabit", id);
   return useMutation({
     mutationKey: ["habit", "delete", id],
     mutationFn: deleteHabit,
-    onMutate: async (habitId) => {
-      // await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
-
+    onMutate: (habitId) => {
       // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-      console.log(previousHabits);
-      //Optimistically update the UI filtering out the habit to be deleted
-      //I'm not 100% sure about the ux, I might look into alternatives
-      // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
-      queryClient.setQueryData(["habits", user.uid], (oldData) =>
+      const previousHabits = queryClient.getQueryData(["habits", userId]);
+
+      queryClient.setQueryData(["habits", userId], (oldData) =>
         oldData?.map((habit) =>
-          id === habitId ? { ...habit, isDeleting: true } : habit
+          habit.id === habitId ? { ...habit, isDeleting: true } : habit
         )
       );
 
       // Return a rollback function
-      return () =>
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
+      return () => queryClient.setQueryData(["habits", userId], previousHabits);
     },
     onError: (error, variables, rollback) => {
       console.error(error);
-      toast.error("Sorry, An error occurred while deleting the habit");
       // Rollback to the previous value
       rollback();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
+      queryClient.setQueryData(["habits", userId], (oldData) =>
+        oldData?.filter((habit) => habit.id !== id)
+      );
     },
   });
 }
 
-function useUpdateHabitEntry(user) {
+function useUpdateHabitEntry(userId) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
     onMutate: ({ habitId, dayId, newState }) => {
       // Snapshot the current data for rollback on error
-      const previousData = queryClient.getQueryData(["habits", user.uid]);
+      const previousData = queryClient.getQueryData(["habits", userId]);
 
       // Optimistically update the UI
-      queryClient.setQueryData(["habits", user.uid], (oldData) => {
+      queryClient.setQueryData(["habits", userId], (oldData) => {
         // Update the relevant data optimistically
         const updatedData = oldData.map((habit) => {
           if (habit.id === habitId) {
@@ -111,7 +107,7 @@ function useUpdateHabitEntry(user) {
       // Return a rollback function
       return () => {
         // Rollback to the previous habits data
-        queryClient.setQueryData(["habits", user.uid], previousData);
+        queryClient.setQueryData(["habits", userId], previousData);
         // Rollback to the previous habit data
         queryClient.setQueryData(["habit", habitId], previousHabit);
       };
@@ -126,7 +122,7 @@ function useUpdateHabitEntry(user) {
     // Optional: Provide an onSettled function for cleanup or additional actions
     onSettled: () => {
       // Refetch the 'habits' query after the mutation is settled
-      queryClient.invalidateQueries(["habits", user.uid]);
+      queryClient.invalidateQueries(["habits", userId]);
     },
   });
 }
@@ -136,7 +132,7 @@ const HabitsWeekView = ({ habit }) => {
   const { user } = useAuth();
 
   const habitDeleteMutation = useDeleteHabit(habit.id, user.uid);
-  const mutation = useUpdateHabitEntry(user);
+  const mutation = useUpdateHabitEntry(user.uid);
 
   const handleDelete = () => {
     //Throw a confirmation dialog
@@ -147,7 +143,15 @@ const HabitsWeekView = ({ habit }) => {
       submitText: "Confirm",
       isPending: habitDeleteMutation.isPending,
       pendingText: "Deleting...",
-      onConfirm: () => habitDeleteMutation.mutateAsync(habit.id),
+      onConfirm: () =>
+        habitDeleteMutation.mutateAsync(habit.id, {
+          onError: () => {
+            toast.error("An error occurred while deleting the habit");
+          },
+          onSuccess: () => {
+            toast.success("Habit deleted successfully");
+          },
+        }),
     });
   };
 
