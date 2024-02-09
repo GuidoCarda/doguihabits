@@ -279,12 +279,8 @@ function HabitWeekViewSkeleton({ title }) {
     >
       <div className="flex px-4 pt-4 items-center justify-between gap-4">
         <div>
-          <span className="block transition-transform  font-bold text-lg">
-            {title}
-          </span>
-          <span className="text-xs group-focus:bg-emerald-400/20 group-focus:text-zinc-50 group-hover:bg-emerald-400/20 group-hover:text-zinc-50 bg-zinc-700 text-zinc-300  font-normal w-max h-5 leading-2 grid place-items-center px-2 rounded-sm">
-            created at --/--/---
-          </span>
+          <span className="block font-bold text-lg">{title}</span>
+          <span className="text-xs  bg-zinc-700 text-zinc-300  w-28 h-4 leading-2 grid place-items-center px-2 rounded-sm"></span>
         </div>
         <IconButton
           aria-label="delete habit"

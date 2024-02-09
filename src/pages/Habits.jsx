@@ -6,9 +6,6 @@ import Modal from "../components/Modal";
 import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
 
-//Zustand Store
-import { useHabitsActions } from "../store/useHabitsStore";
-
 //Hooks
 import useKeyPress from "../hooks/useKeyPress";
 
@@ -155,17 +152,11 @@ const Habits = () => {
   );
 };
 
-const PageHeader = ({
-  hasHabits,
-  habitsLimitReached,
-  handleShowToggle,
-  handleSignOut,
-}) => {
-  const dialog = useDialog();
-  const user = useAuth();
+function useDeleteAllHabits() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
-  const deleteAllHabitsMutation = useMutation({
+  return useMutation({
     mutationFn: () =>
       deleteAllHabits(
         queryClient.getQueryData(["habits", user.uid]).map((habit) => habit.id)
@@ -173,23 +164,44 @@ const PageHeader = ({
 
     onError: (err, variables, context) => {
       queryClient.setQueryData(["habits", user.uid], context.previousHabits);
-      toast.error("An error occurred while deleting habits");
     },
     onSuccess: () => {
       queryClient.setQueryData(["habits", user.uid], []);
-      toast.success("All habits deleted");
     },
   });
+}
+
+const PageHeader = ({
+  hasHabits,
+  habitsLimitReached,
+  handleShowToggle,
+  handleSignOut,
+}) => {
+  const dialog = useDialog();
+
+  const deleteAllHabitsMutation = useDeleteAllHabits();
 
   const handleDelete = () => {
     dialog({
       title: "Warning!",
-      description: "Are you sure you want to delete all habits",
+      description:
+        "Are you sure you want to delete all habits? This action cannot be undone.",
       catchOnCancel: false,
       submitText: "Confirm",
       isPending: deleteAllHabitsMutation.isPending,
       pendingText: "Deleting...",
-      onConfirm: () => deleteAllHabitsMutation.mutateAsync(),
+      onConfirm: () =>
+        deleteAllHabitsMutation.mutateAsync(
+          {},
+          {
+            onError: (err, variables, context) => {
+              toast.error("An error occurred while deleting habits");
+            },
+            onSuccess: () => {
+              toast.success("All habits deleted");
+            },
+          }
+        ),
     });
   };
 
