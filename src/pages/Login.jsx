@@ -7,8 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 
 const ACTIONS = {
-  SIGN_IN: "signin",
-  SIGN_UP: "signup",
+  SIGN_IN: "Sign In",
+  SIGN_UP: "Sign Up",
 };
 
 const Login = () => {
@@ -118,10 +118,6 @@ const Login = () => {
           >
             Iniciar sesion con google
           </Button>
-          <div className="text-zinc-300  mt-10 text-xl border-2 border-zinc-800 p-4 rounded-md ">
-            <h2>Email: {email}</h2>
-            <h2>Password: {password}</h2>
-          </div>
         </form>
       </Layout>
     </motion.section>

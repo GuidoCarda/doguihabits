@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import {
   daysInCurrentMonth,
   getAllDaysInMonth,
+  getPast7Days,
   getTotal,
   isSameMonth,
   nextState,

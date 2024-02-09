@@ -30,13 +30,28 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
+import { getTotal } from "../utils";
 
-function useHabits(userId) {
+const sortFunctions = {
+  newest: (a, b) => b.createdAt - a.createdAt,
+  oldest: (a, b) => a.createdAt - b.createdAt,
+  completed: (a, b) =>
+    getTotal(b.entries, "completed") - getTotal(a.entries, "completed"),
+};
+
+function useHabits(sortCriteria) {
+  console.log(sortCriteria);
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["habits", userId],
-    queryFn: () => getHabitsWithEntries(userId),
+    queryKey: ["habits", user.uid],
+    queryFn: () => getHabitsWithEntries(user.uid),
     select: (data) => {
-      return data.toSorted((a, b) => b.createdAt - a.createdAt);
+      console.log(sortCriteria);
+      if (sortCriteria in sortFunctions) {
+        console.log(sortFunctions[sortCriteria]);
+        return data.toSorted(sortFunctions[sortCriteria]);
+      }
+      return data;
     },
     refetchOnWindowFocus: false,
   });
@@ -44,18 +59,15 @@ function useHabits(userId) {
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [sortCriteria, setSortCriteria] = useState("");
-  const { user, handleSignOut } = useAuth();
+  const [sortCriteria, setSortCriteria] = useState("newest");
+  const { handleSignOut } = useAuth();
 
-  const habitsQuery = useHabits(user.uid);
+  const habitsQuery = useHabits(sortCriteria);
   const isMutating = Boolean(
     useIsMutating({
       mutationKey: ["habit"],
     })
   );
-
-  //Get habits sorted by criteria if any, else get them in default order of creation
-  // const habits = useHabits(sortCriteria);
 
   const handleClose = () => setIsOpen(false);
 
@@ -96,7 +108,7 @@ const Habits = () => {
   // update sorting criteria when user selects new option
   const handleSortChange = (event) => {
     const id = event.target.id;
-    const newSortCriteria = id !== sortCriteria ? id : "";
+    const newSortCriteria = id !== sortCriteria ? id : "newest";
     setSortCriteria(newSortCriteria);
   };
 
@@ -116,15 +128,12 @@ const Habits = () => {
           handleSignOut={handleSignOut}
         />
 
-        {/* 
-        //TODO: refactor sorting to accomodate react-query usage
-        
-        {habitsQuery.data.length > 1 && (
+        {habitsCount > 1 && (
           <HabitsSorting
             onClick={handleSortChange}
             sortCriteria={sortCriteria}
           />
-        )} */}
+        )}
 
         <AnimatePresence mode="wait" initial={false}>
           {isOpen && (
@@ -137,7 +146,6 @@ const Habits = () => {
             </Modal>
           )}
         </AnimatePresence>
-
         {habitsQuery.isPending && (
           <div className="h-96 w-full grid place-content-center">
             <h3 className="animate-pulse">Getting your habits...</h3>
@@ -243,7 +251,7 @@ const PageHeader = ({
 
 const HabitsGrid = ({ habits }) => {
   return (
-    <motion.div layout className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
+    <motion.div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
       {habits.map((habit) => (
         <HabitsWeekView key={habit.id} habit={habit} />
       ))}
