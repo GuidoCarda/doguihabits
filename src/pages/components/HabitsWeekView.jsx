@@ -180,8 +180,8 @@ const HabitsWeekView = ({ habit }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className={clsx(
-        "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full  mx-auto",
-        "md:max-w-max md:mx-0",
+        "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full",
+        "sm:max-w-max sm:mx-auto md:mx-0",
         {
           "opacity-20 animate-pulse duration-100": habit?.isDeleting,
         }
@@ -208,12 +208,19 @@ const HabitsWeekView = ({ habit }) => {
         </IconButton>
       </div>
 
-      <div className="grid grid-cols-7 gap-4 px-4">
+      <div className="grid grid-cols-7 px-4 gap-4  ">
         {lastWeek.map(({ id, date, state }) => {
           const [day] = getDayMonthYear(date);
           return (
-            <div key={`day-${id}`}>
-              <span className="block text-xs w-10 text-center font-semibold text-zinc-400 pb-1">
+            <div
+              key={`day-${id}`}
+              className={clsx("grid place-content-center")}
+            >
+              <span
+                className={clsx(
+                  "block text-xs text-center font-semibold text-zinc-400 pb-1"
+                )}
+              >
                 {getWeekDayString(startOfDay(date).getDay()).slice(0, 3)}
               </span>
               <button
@@ -272,7 +279,7 @@ function HabitWeekViewSkeleton({ title }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className={clsx(
-        "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full  mx-auto select-none",
+        "bg-zinc-800 rounded-xl text-neutral-100 space-y-4 w-full mx-auto select-none",
         "md:max-w-max md:mx-0",
         "opacity-20 animate-pulse duration-100"
       )}

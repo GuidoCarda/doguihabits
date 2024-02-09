@@ -31,6 +31,7 @@ import {
 } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { getTotal } from "../utils";
+import clsx from "clsx";
 
 const sortFunctions = {
   newest: (a, b) => b.createdAt - a.createdAt,
@@ -251,7 +252,7 @@ const PageHeader = ({
 
 const HabitsGrid = ({ habits }) => {
   return (
-    <motion.div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 ">
+    <motion.div className={clsx("flex gap-4 flex-wrap justify-start")}>
       {habits.map((habit) => (
         <HabitsWeekView key={habit.id} habit={habit} />
       ))}
