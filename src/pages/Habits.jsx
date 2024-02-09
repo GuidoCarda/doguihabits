@@ -26,17 +26,21 @@ import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { deleteAllHabits, getHabitsWithEntries } from "../services/habits";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 
-function useHabits(userId, select) {
+function useHabits(userId) {
   return useQuery({
     queryKey: ["habits", userId],
     queryFn: () => getHabitsWithEntries(userId),
-    // select: (data) => {
-    //   return data.toSorted((a, b) => b.createdAt - a.createdAt);
-    // },
-    select,
+    select: (data) => {
+      return data.toSorted((a, b) => b.createdAt - a.createdAt);
+    },
     refetchOnWindowFocus: false,
   });
 }
@@ -47,6 +51,11 @@ const Habits = () => {
   const { user, handleSignOut } = useAuth();
 
   const habitsQuery = useHabits(user.uid);
+  const isMutating = Boolean(
+    useIsMutating({
+      mutationKey: ["habit"],
+    })
+  );
 
   //Get habits sorted by criteria if any, else get them in default order of creation
   // const habits = useHabits(sortCriteria);
@@ -72,7 +81,7 @@ const Habits = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "n"],
-      conditionals: [!isOpen && !habitsLimitReached],
+      conditionals: [!isOpen, !habitsLimitReached, !isMutating],
       callback: (e) => {
         e.preventDefault();
         handleShowToggle();
@@ -80,7 +89,7 @@ const Habits = () => {
     },
     {
       keys: ["Escape"],
-      conditionals: [isOpen],
+      conditionals: [isOpen, !isMutating],
       callback: handleShowToggle,
     },
   ];

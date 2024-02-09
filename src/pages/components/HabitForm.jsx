@@ -10,33 +10,56 @@ import { useParams } from "react-router-dom";
 
 //Api
 import { createHabit, editHabit } from "../../services/habits";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 //Auth
 import { useAuth } from "../../context/AuthContext";
 
 function useEditHabit(habitId) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   return useMutation({
     mutationKey: ["habit", "edit", habitId],
     mutationFn: ({ habitId, data }) => editHabit(habitId, data),
-    onSuccess: () => {
-      toast.success("Habit data updated susccessfully");
-      queryClient.invalidateQueries(["habit"]);
+    onMutate: (variables) => {
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
+
+      queryClient.setQueryData(["habits", user.uid], (oldData) => {
+        console.log(oldData);
+        return oldData?.map((habit) =>
+          habit.id === habitId ? { ...habit, ...variables?.data } : habit
+        );
+      });
+
+      return () => {
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
+      };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(["habit", habitId], (oldData) => {
+        return { ...oldData, ...variables?.data };
+      });
+      queryClient.invalidateQueries(["habit", habitId]);
+    },
+    onError: (error, variables, rollback) => {
+      rollback();
     },
   });
 }
 
-function useCreateHabit(user) {
+function useCreateHabit() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationKey: ["habit", "new"],
     mutationFn: createHabit,
     onMutate: (variables) => {
-      console.log("onMutate variables", variables);
       const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-      console.log("previousHabits", previousHabits);
 
       queryClient.setQueryData(["habits", user.uid], (oldData) => [
         { ...variables, isCreating: true },
@@ -65,8 +88,14 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
 
   const isMobile = useMediaQuery("(max-width: 638px)");
 
-  const newHabitMutation = useCreateHabit(user);
-  const editHabitMutation = useEditHabit();
+  const newHabitMutation = useCreateHabit();
+  const editHabitMutation = useEditHabit(habitId);
+
+  const handleModalClose = () => {
+    onClose();
+    setInput("");
+    setDescription("");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,16 +109,28 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
     const habitData = { title: input, description };
 
     if (isEditing && habitId) {
-      editHabitMutation.mutate({ habitId, data: habitData });
+      editHabitMutation.mutate(
+        { habitId, data: habitData },
+        {
+          onSuccess: () => {
+            handleModalClose();
+            toast.success(`${input} habit updated successfully`, {
+              position: isMobile ? "bottom-center" : "bottom-right",
+            });
+          },
+          onError: () => {
+            handleModalClose();
+            toast.error("Something went wrong updating the habit");
+          },
+        }
+      );
     } else {
       newHabitMutation.mutate(habitData, {
         onSuccess: () => {
-          onClose();
-          setInput("");
-          setDescription("");
-          // toast.success(`${input} habit created successfully`, {
-          //   position: isMobile ? "bottom-center" : "bottom-right",
-          // });
+          handleModalClose();
+          toast.success(`${input} habit created successfully`, {
+            position: isMobile ? "bottom-center" : "bottom-right",
+          });
         },
       });
     }
@@ -165,8 +206,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
         )}
         disabled={isInputLengthInvalid || isPending}
       >
-        {isPending && pendingMessage}
-        {!isPending && "submit"}
+        {isPending ? pendingMessage : isEditing ? "edit" : "create"}
       </Button>
     </form>
   );

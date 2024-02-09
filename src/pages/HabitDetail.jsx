@@ -10,7 +10,7 @@ import useHabitsStore, {
 } from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
 
-import { useQuery } from "@tanstack/react-query";
+import { useIsMutating, useQuery } from "@tanstack/react-query";
 
 //Components
 import Layout from "../components/Layout";
@@ -48,8 +48,10 @@ function useHabit(id) {
   });
 }
 
-function useUpdateHabitEntry(id, user) {
+function useUpdateHabitEntry(id) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
@@ -107,12 +109,13 @@ function useUpdateHabitEntry(id, user) {
   });
 }
 
-function useDeleteHabit(id, user) {
+function useDeleteHabit(id) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return useMutation({
-    mutationKey: ["deleteHabit", id],
+    mutationKey: ["habit", "delete", id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
       await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
@@ -149,7 +152,6 @@ function useDeleteHabit(id, user) {
 const HabitDetail = () => {
   let { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -157,15 +159,19 @@ const HabitDetail = () => {
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
 
-  const { editHabit } = useHabitsActions();
-
   const completionMilestones = useHabitsStore(
     (state) => state.completionMilestones
   );
 
   const habitQuery = useHabit(id);
-  const updateHabitEntryMutation = useUpdateHabitEntry(id, user);
-  const habitDeleteMutation = useDeleteHabit(id, user);
+  const updateHabitEntryMutation = useUpdateHabitEntry(id);
+  const habitDeleteMutation = useDeleteHabit(id);
+
+  const isMutating = Boolean(
+    useIsMutating({
+      mutationKey: ["habit"],
+    })
+  );
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -198,12 +204,12 @@ const HabitDetail = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "d"],
-      conditionals: [habitQuery.data, !isEditing],
+      conditionals: [habitQuery.data, !isEditing, !isMutating],
       callback: () => handleDelete(id),
     },
     {
       keys: ["shiftKey", "e"],
-      conditionals: [habitQuery.data, !isDialogOpen, !isEditing],
+      conditionals: [habitQuery.data, !isDialogOpen, !isEditing, !isMutating],
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
@@ -212,17 +218,22 @@ const HabitDetail = () => {
     },
     {
       keys: ["Escape"],
-      conditionals: [isDialogOpen, habitQuery.data],
+      conditionals: [isDialogOpen, habitQuery.data, !isMutating],
       callback: handleDialogClose,
     },
     {
       keys: ["Escape"],
-      conditionals: [isEditing, habitQuery.data],
+      conditionals: [isEditing, habitQuery.data, !isMutating],
       callback: handleEditModalClose,
     },
     {
       keys: ["Escape"],
-      conditionals: [!isDialogOpen, !isEditing, !habitQuery.isPending],
+      conditionals: [
+        !isDialogOpen,
+        !isEditing,
+        !habitQuery.isPending,
+        !isMutating,
+      ],
       callback: () => navigate("/"),
     },
   ];
