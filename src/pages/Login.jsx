@@ -67,8 +67,8 @@ const Login = () => {
       exit={{ opacity: 0 }}
       key={"login_page"}
     >
-      <Layout>
-        <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
+      <Layout className={"min-h-screen grid place-items-center"}>
+        <form className="max-w-lg w-full" onSubmit={handleSubmit}>
           <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
             {action}
           </h1>
@@ -95,28 +95,40 @@ const Login = () => {
           <Button className="bg-green-600 w-full text-zinc-100 font-bold">
             {action}
           </Button>
-          {action === ACTIONS.SIGN_UP && (
+          {
             <div className="flex gap-2 justify-center mt-4">
-              <p className="text-zinc-400">Ya tienes una cuenta?</p>
+              <p className="text-zinc-400">
+                {action === ACTIONS.SIGN_UP
+                  ? "Already have an account?"
+                  : "You dont have an account?"}
+              </p>
               <button
                 type="button"
                 className="text-green-600 "
-                onClick={() => setAction(ACTIONS.SIGN_IN)}
+                onClick={() =>
+                  setAction((prev) =>
+                    prev === ACTIONS.SIGN_IN ? ACTIONS.SIGN_UP : ACTIONS.SIGN_IN
+                  )
+                }
               >
-                inicia sesión
+                {action === ACTIONS.SIGN_UP ? "Sign in" : "Sign up"}
               </button>
             </div>
-          )}
+          }
+          <div className="flex items-center gap-4 mt-10">
+            <div className="w-full h-[1px] bg-zinc-500"></div>
+            <span className="text-zinc-400 flex-shrink-0">
+              Or continue with
+            </span>
+            <div className="w-full h-[1px] bg-zinc-500"></div>
+          </div>
 
-          <span className="text-zinc-300 block text-center mt-4">
-            o tambien puedes
-          </span>
           <Button
             onClick={() => signInWithGoogle()}
             type="button"
             className="text-zinc-800 mt-6 bg-white w-full font-semibold"
           >
-            Iniciar sesion con google
+            Google
           </Button>
         </form>
       </Layout>
