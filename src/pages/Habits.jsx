@@ -34,33 +34,31 @@ import { getTotal } from "../utils";
 import clsx from "clsx";
 
 const sortFunctions = {
-  newest: (a, b) => b.createdAt - a.createdAt,
+  latest: (a, b) => b.createdAt - a.createdAt,
   oldest: (a, b) => a.createdAt - b.createdAt,
   completed: (a, b) =>
     getTotal(b.entries, "completed") - getTotal(a.entries, "completed"),
 };
 
 function useHabits(sortCriteria) {
-  console.log(sortCriteria);
   const { user } = useAuth();
   return useQuery({
     queryKey: ["habits", user.uid],
     queryFn: () => getHabitsWithEntries(user.uid),
     select: (data) => {
-      console.log(sortCriteria);
       if (sortCriteria in sortFunctions) {
-        console.log(sortFunctions[sortCriteria]);
         return data.toSorted(sortFunctions[sortCriteria]);
       }
       return data;
     },
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [sortCriteria, setSortCriteria] = useState("newest");
+  const [sortCriteria, setSortCriteria] = useState("latest");
   const { handleSignOut } = useAuth();
 
   const habitsQuery = useHabits(sortCriteria);
@@ -109,7 +107,7 @@ const Habits = () => {
   // update sorting criteria when user selects new option
   const handleSortChange = (event) => {
     const id = event.target.id;
-    const newSortCriteria = id !== sortCriteria ? id : "newest";
+    const newSortCriteria = id !== sortCriteria ? id : "latest";
     setSortCriteria(newSortCriteria);
   };
 

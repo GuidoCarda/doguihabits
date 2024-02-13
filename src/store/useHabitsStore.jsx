@@ -185,7 +185,6 @@ const updateHabit = async (set, get, habitId, dayId) => {
  * @returns {Array} - The new milestones.
  * */
 const checkForNewMilestones = (get, currentStreak, badges) => {
-  console.log("checkForNewMilestones", currentStreak, badges);
   const completionMilestones = get().completionMilestones;
 
   const newMilestones = completionMilestones.filter(

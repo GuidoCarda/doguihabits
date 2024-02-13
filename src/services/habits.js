@@ -297,8 +297,10 @@ export const checkAndUpdateHabits = async (habits) => {
 
 /**
  * Add completion badge to habit document
- * @param {string} habitId
- *
+ * @param {string} habitId - The id of the habit to add the badge
+ * @param {number} badge - The badge to add
+ * @returns The badge added
+ * @throws An error if the badge could not be added
  */
 export const addBadge = async (habitId, badge) => {
   const habitsCollection = collection(db, "habits");
@@ -307,8 +309,7 @@ export const addBadge = async (habitId, badge) => {
   await updateDoc(habitRef, {
     badges: arrayUnion(badge),
   });
-
-  return null;
+  return badge;
 };
 
 export const editHabit = async (habitId, data) => {

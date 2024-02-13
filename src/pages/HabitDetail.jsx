@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 //Routing
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -33,6 +33,7 @@ import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
 import {
+  addBadge,
   deleteHabit,
   getHabitById,
   updateHabitEntry,
@@ -48,21 +49,46 @@ function useHabit(id) {
   });
 }
 
+function useAddBadge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ habitId, newMilestone }) => addBadge(habitId, newMilestone),
+    onMutate: ({ habitId, newMilestone }) => {
+      const previousHabitData = queryClient.getQueryData(["habit", habitId]);
+
+      queryClient.setQueryData(["habit", habitId], (oldData) => {
+        return { ...oldData, badges: oldData.badges.concat(newMilestone) };
+      });
+    },
+    onError: (error, variables, rollback) => {
+      console.error(error);
+    },
+    onSuccess: () => {
+      toast.success("New milestone reached!", { icon: "🎉" });
+    },
+  });
+}
+
 function useUpdateHabitEntry(id) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const ongoingMutations = useRef(0);
+  const addBadgeMutation = useAddBadge();
+
+  const { checkForNewMilestones } = useHabitsActions();
 
   return useMutation({
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
     // The onMutate callback allow us to perform an optimistic update on the UI
     onMutate: ({ habitId, dayId, newState }) => {
+      ongoingMutations.current++;
+
       // Snapshot the current habits data for rollback on error
       const previousHabits = queryClient.getQueryData(["habits", user.uid]);
 
       // Optimistically update the habits data
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        console.log(oldData);
         return oldData?.map((habit) =>
           habit.id === habitId
             ? {
@@ -81,7 +107,7 @@ function useUpdateHabitEntry(id) {
       // Optimistically update the UI optimistically
       queryClient.setQueryData(["habit", id], (oldData) => {
         // Update the habit entry state
-        const updatedEntries = oldData.entries?.map((entry) => {
+        const updatedEntries = oldData?.entries?.map((entry) => {
           if (entry.id === dayId) {
             return { ...entry, state: newState };
           }
@@ -97,14 +123,28 @@ function useUpdateHabitEntry(id) {
         queryClient.setQueryData(["habits", user.uid], previousHabits);
       };
     },
+    onSuccess: async (data, variables, context) => {
+      const habitData = queryClient.getQueryData(["habit", id]);
+
+      const newMilestone = checkForNewMilestones(
+        getHabitStreak(habitData?.entries),
+        habitData?.badges
+      );
+
+      if (newMilestone) {
+        await addBadgeMutation.mutateAsync({ habitId: id, newMilestone });
+      }
+    },
     onError: (error, variables, rollback) => {
-      // Rollback to the previous data on error
-      console.error("error", error);
+      ongoingMutations.current = 0;
       rollback();
-      // Handle errors as needed
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["habit", id]);
+      ongoingMutations.current--;
+
+      if (ongoingMutations.current === 0) {
+        queryClient.invalidateQueries(["habits", user.uid]);
+      }
     },
   });
 }
@@ -194,11 +234,18 @@ const HabitDetail = () => {
   };
 
   const toggleHabitDay = (dayId, state) => {
-    updateHabitEntryMutation.mutate({
-      habitId: id,
-      dayId,
-      newState: nextState(state),
-    });
+    updateHabitEntryMutation.mutate(
+      {
+        habitId: id,
+        dayId,
+        newState: nextState(state),
+      },
+      {
+        onError: () => {
+          toast.error("An error occurred while updating the habit entries");
+        },
+      }
+    );
   };
 
   const keysToAction = [
@@ -323,7 +370,7 @@ const HabitDetail = () => {
               <li
                 key={`${milestone}-days-badge`}
                 className={`${
-                  !habitQuery.data?.badges.includes(milestone)
+                  !habitQuery.data?.badges?.includes(milestone)
                     ? "grayscale"
                     : ""
                 } text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
@@ -371,7 +418,7 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
   // this implemetation doesn't take into consideration the year of the entry
   // so if the habit is tracked for more than a year the entries will be grouped
   // TODO: take into consideration the year of the entry to group the entries
-  const months = habit.entries.reduce((acc, entry) => {
+  const months = habit?.entries?.reduce((acc, entry) => {
     const month = new Date(entry.date).getMonth();
     acc[month] = acc[month] ? [...acc[month], entry] : [entry];
     return acc;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   getDayMonthYear,
   getPast7Days,
@@ -29,7 +29,11 @@ import {
 import { toast } from "react-hot-toast";
 import { IconButton } from "../../components/Buttons";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
 
@@ -66,17 +70,22 @@ function useDeleteHabit(id, userId) {
   });
 }
 
-function useUpdateHabitEntry(userId) {
+function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const ongoingMutations = useRef(0);
+
   return useMutation({
+    mutationKey: ["habits", "update"],
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
     onMutate: ({ habitId, dayId, newState }) => {
+      ongoingMutations.current++;
       // Snapshot the current data for rollback on error
-      const previousData = queryClient.getQueryData(["habits", userId]);
+      const previousData = queryClient.getQueryData(["habits", user.uid]);
 
       // Optimistically update the UI
-      queryClient.setQueryData(["habits", userId], (oldData) => {
+      queryClient.setQueryData(["habits", user.uid], (oldData) => {
         // Update the relevant data optimistically
         const updatedData = oldData.map((habit) => {
           if (habit.id === habitId) {
@@ -107,22 +116,23 @@ function useUpdateHabitEntry(userId) {
       // Return a rollback function
       return () => {
         // Rollback to the previous habits data
-        queryClient.setQueryData(["habits", userId], previousData);
+        queryClient.setQueryData(["habits", user.uid], previousData);
         // Rollback to the previous habit data
         queryClient.setQueryData(["habit", habitId], previousHabit);
       };
     },
     onError: (error, variables, rollback) => {
-      // Handle errors as needed
-      toast.error("Sorry, An error occurred while updating the habit");
-      console.error(error);
+      ongoingMutations.current = 0;
       // Rollback to the previous data on error
       rollback();
     },
     // Optional: Provide an onSettled function for cleanup or additional actions
-    onSettled: () => {
-      // Refetch the 'habits' query after the mutation is settled
-      queryClient.invalidateQueries(["habits", userId]);
+    onSuccess: () => {
+      ongoingMutations.current--;
+
+      if (ongoingMutations.current === 0) {
+        return queryClient.invalidateQueries(["habits", user.uid]);
+      }
     },
   });
 }
@@ -132,7 +142,7 @@ const HabitsWeekView = ({ habit }) => {
   const { user } = useAuth();
 
   const habitDeleteMutation = useDeleteHabit(habit.id, user.uid);
-  const mutation = useUpdateHabitEntry(user.uid);
+  const mutation = useUpdateHabitEntry();
 
   const handleDelete = () => {
     //Throw a confirmation dialog
@@ -230,11 +240,20 @@ const HabitsWeekView = ({ habit }) => {
                   startOfDay(habit.createdAt).getMonth()
                 }
                 onClick={() =>
-                  mutation.mutate({
-                    habitId: habit.id,
-                    dayId: id,
-                    newState: nextState(state),
-                  })
+                  mutation.mutate(
+                    {
+                      habitId: habit.id,
+                      dayId: id,
+                      newState: nextState(state),
+                    },
+                    {
+                      onError: () => {
+                        toast.error(
+                          "Sorry, An error occurred while updating the habit"
+                        );
+                      },
+                    }
+                  )
                 }
                 className={clsx(
                   "rounded-md h-10 w-10 font-semibold border-2 border-transparent transition-colors duration-300",
