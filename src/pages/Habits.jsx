@@ -146,7 +146,7 @@ const Habits = () => {
           )}
         </AnimatePresence>
         {habitsQuery.isPending && (
-          <div className="h-96 w-full grid place-content-center">
+          <div className="absolute inset-0 h-screen w-full grid place-content-center bg-zinc-900">
             <h3 className="animate-pulse">Getting your habits...</h3>
           </div>
         )}
