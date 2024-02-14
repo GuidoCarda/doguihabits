@@ -49,8 +49,10 @@ function useHabit(id) {
   });
 }
 
-function useAddBadge() {
+export function useAddBadge() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation({
     mutationFn: ({ habitId, newMilestone }) => addBadge(habitId, newMilestone),
     onMutate: ({ habitId, newMilestone }) => {
@@ -59,12 +61,23 @@ function useAddBadge() {
       queryClient.setQueryData(["habit", habitId], (oldData) => {
         return { ...oldData, badges: oldData.badges.concat(newMilestone) };
       });
+
+      queryClient.setQueryData(["habits", user.uid], (oldData) => {
+        return oldData.map((habit) => {
+          if (habit.id === habitId) {
+            return { ...habit, badges: habit.badges.concat(newMilestone) };
+          }
+          return habit;
+        });
+      });
     },
     onError: (error, variables, rollback) => {
       console.error(error);
     },
-    onSuccess: () => {
-      toast.success("New milestone reached!", { icon: "🎉" });
+    onSuccess: (data) => {
+      toast.success(`Congratulations! You reached the ${data} days milestone`, {
+        icon: "🎉",
+      });
     },
   });
 }

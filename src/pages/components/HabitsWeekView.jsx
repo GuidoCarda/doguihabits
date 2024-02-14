@@ -7,9 +7,10 @@ import {
   nextState,
   startOfDay,
 } from "../../utils";
-import {
+import useHabitsStore, {
   getHabitStreak,
   getPast7DaysEntries,
+  useHabitsActions,
 } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
@@ -36,6 +37,7 @@ import {
 } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
+import { useAddBadge } from "../HabitDetail";
 
 function useDeleteHabit(id, userId) {
   const queryClient = useQueryClient();
@@ -74,6 +76,8 @@ function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const ongoingMutations = useRef(0);
+  const addBadgeMutation = useAddBadge();
+  const { checkForNewMilestones } = useHabitsActions();
 
   return useMutation({
     mutationKey: ["habits", "update"],
@@ -127,8 +131,22 @@ function useUpdateHabitEntry() {
       rollback();
     },
     // Optional: Provide an onSettled function for cleanup or additional actions
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
+      console.log(ongoingMutations.current, "ongoingMutations.current");
       ongoingMutations.current--;
+
+      const habitData = queryClient
+        .getQueryData(["habits", user.uid])
+        ?.find((habit) => habit.id === variables.habitId);
+
+      const newMilestone = checkForNewMilestones(
+        getHabitStreak(habitData?.entries),
+        habitData?.badges
+      );
+
+      if (newMilestone) {
+        addBadgeMutation.mutate({ habitId: variables.habitId, newMilestone });
+      }
 
       if (ongoingMutations.current === 0) {
         return queryClient.invalidateQueries(["habits", user.uid]);
