@@ -10,11 +10,7 @@ import { useParams } from "react-router-dom";
 
 //Api
 import { createHabit, editHabit } from "../../services/habits";
-import {
-  useIsMutating,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 //Auth
 import { useAuth } from "../../context/AuthContext";

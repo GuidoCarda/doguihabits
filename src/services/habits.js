@@ -29,13 +29,13 @@ import {
  * @returns The id of the habit just created
  */
 export const createHabit = async (formData) => {
-  console.log("createHabit called", formData);
   const { title, description } = formData;
+  const date = new Date();
 
   try {
     const newHabit = {
       uid: auth?.currentUser?.uid,
-      createdAt: new Date(),
+      createdAt: date,
       title,
       badges: [],
       currentStreak: 0,
@@ -48,7 +48,7 @@ export const createHabit = async (formData) => {
     const entriesCollection = collection(habitsCollection, habitId, "entries");
 
     const entries = generatePendingHabitEntries(
-      getAllDaysInMonth(new Date().getFullYear(), new Date().getMonth())
+      getAllDaysInMonth(date.getFullYear(), date.getMonth())
     );
 
     const entriesBatch = writeBatch(db);

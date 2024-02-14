@@ -38,9 +38,16 @@ import {
   getHabitById,
   updateHabitEntry,
 } from "../services/habits";
-import { getTotal, nextState } from "../utils";
+import {
+  getMonthString,
+  getTotal,
+  isPast,
+  isThisMonth,
+  nextState,
+} from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
+import clsx from "clsx";
 
 function useHabit(id) {
   return useQuery({
@@ -102,11 +109,13 @@ function useUpdateHabitEntry(id) {
 
       // Optimistically update the habits data
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
+        if (!oldData) return;
+
         return oldData?.map((habit) =>
           habit.id === habitId
             ? {
                 ...habit,
-                entries: habit.entries.map((entry) =>
+                entries: habit?.entries?.map((entry) =>
                   entry.id === dayId ? { ...entry, state: newState } : entry
                 ),
               }
@@ -398,6 +407,68 @@ const HabitDetail = () => {
         </div>
       </Layout>
     </motion.main>
+  );
+};
+
+const HabitEntriesInLineView = ({ entries }) => {
+  const today = new Date();
+  const { id } = useParams();
+
+  const updateHabitEntryMutation = useUpdateHabitEntry(id);
+
+  const toggleHabitDay = (entryId, state) => {
+    updateHabitEntryMutation.mutate({
+      habitId: id,
+      dayId: entryId,
+      newState: nextState(state),
+    });
+  };
+
+  return (
+    <div>
+      <h2 className="text-md  uppercase tracking-wider text-zinc-500 mb-1 ml-2 mt-10 hover:text-white max-w-max select-none">
+        Inline full history
+      </h2>
+      <div className="bg-zinc-800 p-2  rounded-xl ">
+        <ul className="flex flex-wrap gap-2">
+          {entries.map((day, idx) => {
+            const isCurrentMonth = isThisMonth(day.date);
+            const entryDate = day.date.getDate();
+
+            if (isCurrentMonth && entryDate > today.getDate()) {
+              return null;
+            }
+
+            return (
+              <li key={day.id} className="aspect-square h-10 w-10">
+                <button
+                  disabled={
+                    isCurrentMonth && day.date.getDate() > today.getDate()
+                  }
+                  aria-label="toggle habit state"
+                  onClick={() => toggleHabitDay(day.id, day.state)}
+                  className={clsx(
+                    "w-full h-full rounded-md border-2 border-transparent text-white font-semibold transition-colors",
+                    {
+                      "bg-success": day.state === "completed",
+                      "bg-failed": day.state === "failed",
+                      "bg-zinc-700":
+                        isPast(day.date) &&
+                        day.state !== "failed" &&
+                        day.state !== "completed",
+                    },
+                    "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent",
+                    "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20"
+                  )}
+                >
+                  {idx + 1}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
   );
 };
 
