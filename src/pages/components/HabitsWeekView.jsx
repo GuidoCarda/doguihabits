@@ -30,11 +30,7 @@ import {
 import { toast } from "react-hot-toast";
 import { IconButton } from "../../components/Buttons";
 
-import {
-  useIsMutating,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
 import { useAddBadge } from "../HabitDetail";
@@ -131,21 +127,23 @@ function useUpdateHabitEntry() {
       rollback();
     },
     // Optional: Provide an onSettled function for cleanup or additional actions
-    onSuccess: (data, variables, context) => {
-      console.log(ongoingMutations.current, "ongoingMutations.current");
+    onSuccess: async (data, variables, context) => {
       ongoingMutations.current--;
 
       const habitData = queryClient
         .getQueryData(["habits", user.uid])
         ?.find((habit) => habit.id === variables.habitId);
 
-      const newMilestone = checkForNewMilestones(
+      const newBadges = checkForNewMilestones(
         getHabitStreak(habitData?.entries),
         habitData?.badges
       );
 
-      if (newMilestone) {
-        addBadgeMutation.mutate({ habitId: variables.habitId, newMilestone });
+      if (newBadges) {
+        await addBadgeMutation.mutateAsync({
+          habitId: variables.habitId,
+          newBadges,
+        });
       }
 
       if (ongoingMutations.current === 0) {

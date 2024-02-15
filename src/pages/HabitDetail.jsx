@@ -33,18 +33,12 @@ import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
 import {
-  addBadge,
+  addBadges,
   deleteHabit,
   getHabitById,
   updateHabitEntry,
 } from "../services/habits";
-import {
-  getMonthString,
-  getTotal,
-  isPast,
-  isThisMonth,
-  nextState,
-} from "../utils";
+import { getTotal, isPast, isThisMonth, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import clsx from "clsx";
@@ -61,19 +55,17 @@ export function useAddBadge() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: ({ habitId, newMilestone }) => addBadge(habitId, newMilestone),
-    onMutate: ({ habitId, newMilestones }) => {
-      console.log("add badge called");
-      const previousHabitData = queryClient.getQueryData(["habit", habitId]);
-
+    mutationKey: ["habit", "addBadge"],
+    mutationFn: ({ habitId, newBadges }) => addBadges(habitId, newBadges),
+    onMutate: ({ habitId, newBadges }) => {
       queryClient.setQueryData(["habit", habitId], (oldData) => {
-        return { ...oldData, badges: oldData.badges.concat(newMilestones) };
+        return { ...oldData, badges: oldData?.badges?.concat(newBadges) };
       });
 
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
         return oldData.map((habit) => {
           if (habit.id === habitId) {
-            return { ...habit, badges: habit.badges.concat(newMilestones) };
+            return { ...habit, badges: habit?.badges?.concat(newBadges) };
           }
           return habit;
         });
@@ -83,9 +75,14 @@ export function useAddBadge() {
       console.error(error);
     },
     onSuccess: (data) => {
-      toast.success(`Congratulations! You reached the ${data} days milestone`, {
-        icon: "🎉",
-      });
+      const lastReachedMilestone = data.at(data.length > 1 ? -1 : 0);
+
+      toast.success(
+        `Congratulations! You reached the ${lastReachedMilestone} days milestone`,
+        {
+          icon: "🎉",
+        }
+      );
     },
   });
 }
@@ -147,15 +144,19 @@ function useUpdateHabitEntry(id) {
       };
     },
     onSuccess: async (data, variables, context) => {
+      if (ongoingMutations.current > 1) return;
+
       const habitData = queryClient.getQueryData(["habit", id]);
 
-      const newMilestones = checkForNewMilestones(
+      const newBadges = checkForNewMilestones(
         getHabitStreak(habitData?.entries),
         habitData?.badges
       );
-
-      for (const newMilestone of newMilestones) {
-        await addBadgeMutation.mutateAsync({ habitId: id, newMilestone });
+      if (newBadges) {
+        await addBadgeMutation.mutateAsync({
+          habitId: variables.habitId,
+          newBadges,
+        });
       }
     },
     onError: (error, variables, rollback) => {
@@ -165,9 +166,9 @@ function useUpdateHabitEntry(id) {
     onSettled: () => {
       ongoingMutations.current--;
 
-      if (ongoingMutations.current === 0) {
-        queryClient.invalidateQueries(["habits", user.uid]);
-      }
+      // if (ongoingMutations.current === 0) {
+      //   queryClient.invalidateQueries(["habits", user.uid]);
+      // }
     },
   });
 }
