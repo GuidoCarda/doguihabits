@@ -190,8 +190,7 @@ const checkForNewMilestones = (get, currentStreak, badges) => {
   const newMilestones = completionMilestones.filter(
     (milestone) => milestone <= currentStreak && !badges.includes(milestone)
   );
-
-  return newMilestones > 0 ? newMilestones[0] : null;
+  return newMilestones;
 };
 
 /**

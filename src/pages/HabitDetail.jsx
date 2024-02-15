@@ -62,17 +62,18 @@ export function useAddBadge() {
 
   return useMutation({
     mutationFn: ({ habitId, newMilestone }) => addBadge(habitId, newMilestone),
-    onMutate: ({ habitId, newMilestone }) => {
+    onMutate: ({ habitId, newMilestones }) => {
+      console.log("add badge called");
       const previousHabitData = queryClient.getQueryData(["habit", habitId]);
 
       queryClient.setQueryData(["habit", habitId], (oldData) => {
-        return { ...oldData, badges: oldData.badges.concat(newMilestone) };
+        return { ...oldData, badges: oldData.badges.concat(newMilestones) };
       });
 
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
         return oldData.map((habit) => {
           if (habit.id === habitId) {
-            return { ...habit, badges: habit.badges.concat(newMilestone) };
+            return { ...habit, badges: habit.badges.concat(newMilestones) };
           }
           return habit;
         });
@@ -148,12 +149,12 @@ function useUpdateHabitEntry(id) {
     onSuccess: async (data, variables, context) => {
       const habitData = queryClient.getQueryData(["habit", id]);
 
-      const newMilestone = checkForNewMilestones(
+      const newMilestones = checkForNewMilestones(
         getHabitStreak(habitData?.entries),
         habitData?.badges
       );
 
-      if (newMilestone) {
+      for (const newMilestone of newMilestones) {
         await addBadgeMutation.mutateAsync({ habitId: id, newMilestone });
       }
     },
@@ -346,6 +347,8 @@ const HabitDetail = () => {
   if (!habitQuery.data) {
     return <HabitNotFound />;
   }
+
+  // console.log(habitQuery.data);
 
   return (
     <motion.main
