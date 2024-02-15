@@ -8,7 +8,7 @@ import useClickOutside from "../hooks/useClickOutside";
 import useMediaQuery from "../hooks/useMediaQuery";
 import { useIsMutating } from "@tanstack/react-query";
 
-const Modal = ({ onClose, title, children }, ref) => {
+const Modal = ({ onClose, title, className, children }, ref) => {
   const isMutating = useIsMutating({
     mutationKey: ["habit"],
   });
@@ -38,8 +38,9 @@ const Modal = ({ onClose, title, children }, ref) => {
         key={"modal"}
         className={clsx(
           "bg-zinc-900 p-6 w-full min-h-2/4 self-end rounded-t-2xl border-2 border-zinc-800",
-          "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
-          "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md"
+          "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg",
+          "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md",
+          className
         )}
       >
         <div className="flex items-center justify-between mb-8">
