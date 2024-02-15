@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from "framer-motion";
 //Icons
 import {
   ArrowLeftOnRectangleIcon,
+  Cog6ToothIcon,
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
@@ -145,6 +146,7 @@ const Habits = () => {
             </Modal>
           )}
         </AnimatePresence>
+
         {habitsQuery.isPending && (
           <div className="absolute inset-0 h-screen w-full grid place-content-center bg-zinc-900">
             <h3 className="animate-pulse">Getting your habits...</h3>
@@ -288,6 +290,83 @@ const EmptyState = ({ onClick }) => {
         </kbd>
       </span>
     </motion.div>
+  );
+};
+
+const SettingsModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const onClose = () => {
+    setIsOpen(false);
+  };
+
+  const shortcuts = [
+    { keys: ["Shift", "n"], label: "Open new habit Modal" },
+    { keys: ["Escape"], label: "Close Modal" },
+  ];
+
+  return (
+    <>
+      <IconButton
+        className="text-slate-200 bg-zinc-800 hover:opacity-95"
+        onClick={() => setIsOpen(true)}
+      >
+        <Cog6ToothIcon className="h-5 w-5" />
+      </IconButton>
+
+      <AnimatePresence mode="wait" initial={false}>
+        {isOpen && (
+          <Modal
+            key={"settings_modal"}
+            title="Settings"
+            onClose={onClose}
+            className={"sm:max-w-3xl"}
+          >
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl text-white mb-4">Shortcuts</h2>
+                <div className="flex flex-col gap-4">
+                  {shortcuts.map(({ keys, label }) => (
+                    <Shortcut keys={keys} label={label} />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl text-white mb-4">Actions</h2>
+                <div className="flex items-center justify-between">
+                  <p className="text-zinc-400">Restart all habit progress</p>
+                  <Button className="w-32 group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300">
+                    Restart
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-zinc-400">Export habits data</p>
+                  <Button className="w-32 group rounded-md bg-white/10 border-2 border-white/30 hover:shadow-lg hover:shadow-white/5 text-zinc-300">
+                    Export
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+const Shortcut = ({ keys, label }) => {
+  return (
+    <div className="flex items-center gap-2">
+      {keys.map((key) => (
+        <kbd
+          key={`shortcut-key-${key}`}
+          className="grid place-content-center px-2 h-6 text-xs rounded-sm bg-zinc-700 text-zinc-400"
+        >
+          {key}
+        </kbd>
+      ))}
+      <span className="text-zinc-400">{label}</span>
+    </div>
   );
 };
 
