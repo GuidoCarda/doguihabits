@@ -55,7 +55,7 @@ function ProtectedRoutes() {
   if (isLoading) {
     return (
       <div className="min-h-screen w-full grid place-content-center text-zinc-200 ">
-        <h3 className="text-xl animation-pulse duration-200">Loading...</h3>
+        <span className="h-10 w-10 rounded-full border-4 border-zinc-700 border-t-emerald-500 animate-spin " />
       </div>
     );
   }

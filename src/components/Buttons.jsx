@@ -46,7 +46,7 @@ const IconTextButton = forwardRef(
         {...props}
       >
         <span>{icon}</span>
-        <span className="capitalize hidden md:flex md:h-full md:items-center ">
+        <span className="capitalize hidden md:flex md:h-full md:items-center">
           {text}
         </span>
       </button>

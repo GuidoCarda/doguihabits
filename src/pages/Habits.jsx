@@ -121,20 +121,21 @@ const Habits = () => {
       className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
+        {habitsQuery.isPending && (
+          <PageLoading message={"Getting your habits..."} />
+        )}
         <PageHeader
           hasHabits={hasHabits}
           habitsLimitReached={habitsLimitReached}
           handleShowToggle={handleShowToggle}
           handleSignOut={handleSignOut}
         />
-
         {habitsCount > 1 && (
           <HabitsSorting
             onClick={handleSortChange}
             sortCriteria={sortCriteria}
           />
         )}
-
         <AnimatePresence mode="wait" initial={false}>
           {isOpen && (
             <Modal
@@ -146,12 +147,6 @@ const Habits = () => {
             </Modal>
           )}
         </AnimatePresence>
-
-        {habitsQuery.isPending && (
-          <div className="absolute inset-0 h-screen w-full grid place-content-center bg-zinc-900">
-            <h3 className="animate-pulse">Getting your habits...</h3>
-          </div>
-        )}
         {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
         {!habitsQuery.isPending && !hasHabits && (
           <EmptyState onClick={handleShowToggle} />
@@ -257,6 +252,22 @@ const HabitsGrid = ({ habits }) => {
         <HabitsWeekView key={habit.id} habit={habit} />
       ))}
     </motion.div>
+  );
+};
+
+export const PageLoading = ({ message }) => {
+  return (
+    <div className="absolute inset-0 z-10 h-screen w-full grid place-content-center bg-zinc-900">
+      <div className="grid grid-flow-col-dense gap-2 mb-6">
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_0s_infinite] rounded-md  " />
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.25s_infinite] rounded-md  " />
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.5s_infinite] rounded-md  " />
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.75s_infinite] rounded-md  " />
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1s_infinite] rounded-md  " />
+        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1.25s_infinite] rounded-md  " />
+      </div>
+      <h3 className="animate-pulse text-center text-zinc-400">{message}</h3>
+    </div>
   );
 };
 

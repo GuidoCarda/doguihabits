@@ -42,6 +42,7 @@ import { getTotal, isPast, isThisMonth, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import clsx from "clsx";
+import { PageLoading } from "./Habits";
 
 function useHabit(id) {
   return useQuery({
@@ -336,20 +337,12 @@ const HabitDetail = () => {
   ];
 
   if (habitQuery.isPending) {
-    return (
-      <div className="min-h-screen grid place-content-center">
-        <p className=" text-slate-200 animate-pulse duration-200">
-          Loading habit details...
-        </p>
-      </div>
-    );
+    return <PageLoading message="Getting your habit details" />;
   }
 
   if (!habitQuery.data) {
     return <HabitNotFound />;
   }
-
-  // console.log(habitQuery.data);
 
   return (
     <motion.main

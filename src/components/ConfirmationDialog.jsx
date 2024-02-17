@@ -1,9 +1,9 @@
-import { forwardRef } from "react";
 import ReactDom from "react-dom";
-import { Backdrop } from "./Modal";
+import { forwardRef } from "react";
 import clsx from "clsx";
 import useClickOutside from "../hooks/useClickOutside";
 import { Button } from "./Buttons";
+import { Backdrop } from "./Modal";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
   const domNode = useClickOutside(options.isPending ? () => {} : onClose);

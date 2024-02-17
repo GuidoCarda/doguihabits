@@ -54,8 +54,8 @@ const Login = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full grid place-content-center text-zinc-300">
-        <h3 className="animate-pulse">Loading ...</h3>
+      <div className="min-h-screen w-full grid place-content-center text-zinc-200 ">
+        <span className="h-10 w-10 rounded-full border-4 border-zinc-700 border-t-emerald-500 animate-spin " />
       </div>
     );
   }
