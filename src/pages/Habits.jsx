@@ -381,4 +381,22 @@ const Shortcut = ({ keys, label }) => {
   );
 };
 
+export const Tooltip = ({ label, children }) => {
+  return (
+    <div className="relative group">
+      {children}
+      <span
+        className={clsx(
+          "absolute hidden opacity-0 z-10 origin-bottom-right select-none left-0 text-sm whitespace-nowrap leading-none py-1 shadow-lg  px-2 rounded-md ",
+          "bg-zinc-900 border-[1px] border-zinc-700 text-zinc-200",
+          "group-hover:opacity-100 group-hover:block",
+          "transition-all duration-200 ease-in-out"
+        )}
+      >
+        {label}
+      </span>
+    </div>
+  );
+};
+
 export default Habits;

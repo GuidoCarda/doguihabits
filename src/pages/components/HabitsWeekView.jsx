@@ -34,6 +34,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteHabit, updateHabitEntry } from "../../services/habits";
 import { useAuth } from "../../context/AuthContext";
 import { useAddBadge } from "../HabitDetail";
+import { Tooltip } from "../Habits";
 
 function useDeleteHabit(id, userId) {
   const queryClient = useQueryClient();
@@ -290,18 +291,25 @@ const HabitsWeekView = ({ habit }) => {
       </div>
 
       <div className="border-t-2 px-4 pb-2 pt-2 border-zinc-700 flex gap-2">
-        <div className="flex group items-center gap-1 ">
-          <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
-          <span className="text-sm  group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">
-            {currentStreak}
-          </span>
-        </div>
-        <div className="flex group items-center gap-1 ">
-          <CheckBadgeIcon className="h-5 w-5 text-green-500" strokeWidth="2" />
-          <span className="text-sm group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">
-            {completionPercentage}%
-          </span>
-        </div>
+        <Tooltip label="Streak">
+          <div className="flex group items-center gap-1 ">
+            <FireIcon className="h-5 w-5 text-red-500" strokeWidth="2" />
+            <span className="text-sm  group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">
+              {currentStreak}
+            </span>
+          </div>
+        </Tooltip>
+        <Tooltip label="Completion Percentage">
+          <div className="flex group items-center gap-1 ">
+            <CheckBadgeIcon
+              className="h-5 w-5 text-green-500"
+              strokeWidth="2"
+            />
+            <span className="text-sm group-hover:text-zinc-100 text-zinc-300 font-semibold select-none">
+              {completionPercentage}%
+            </span>
+          </div>
+        </Tooltip>
       </div>
     </motion.div>
   );
