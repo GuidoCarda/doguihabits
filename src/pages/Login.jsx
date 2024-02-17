@@ -67,8 +67,8 @@ const Login = () => {
       exit={{ opacity: 0 }}
       key={"login_page"}
     >
-      <Layout className={"min-h-screen grid place-items-center"}>
-        <form className="max-w-lg w-full" onSubmit={handleSubmit}>
+      <Layout className={"min-h-screen grid place-items-center "}>
+        <form className="max-w-md w-full" onSubmit={handleSubmit}>
           <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
             {action}
           </h1>
@@ -79,7 +79,7 @@ const Login = () => {
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-10 mb-6 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400"
+            className=" h-10 mb-6 w-full bg-zinc-800 border-[2px] border-zinc-400 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80"
             name="email"
           />
           <label htmlFor="password" className="text-zinc-300 block mb-2">
@@ -89,7 +89,7 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-10 mb-10 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400"
+            className="h-10 mb-10 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80"
             name="password"
           />
           <Button className="bg-green-600 w-full text-zinc-100 font-bold">
