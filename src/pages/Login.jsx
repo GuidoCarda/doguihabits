@@ -4,17 +4,42 @@ import Layout from "../components/Layout";
 import { signIn, signInWithGoogle, signUp } from "../services/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import clsx from "clsx";
 
 const ACTIONS = {
   SIGN_IN: "Sign In",
   SIGN_UP: "Sign Up",
 };
 
+function useSignIn() {
+  return useMutation({
+    mutationFn: ({ email, password }) => signIn(email, password),
+  });
+}
+
+function useSignUp() {
+  return useMutation({
+    mutationFn: ({ email, password }) => signUp(email, password),
+  });
+}
+
+function useAuthAction(action) {
+  const signIn = useSignIn();
+  const signUp = useSignUp();
+
+  const mutation = action === ACTIONS.SIGN_UP ? signUp : signIn;
+
+  return mutation;
+}
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [action, setAction] = useState(ACTIONS.SIGN_UP);
+
+  const mutation = useAuthAction(action);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,28 +53,14 @@ const Login = () => {
     }
   }, [user]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("submit");
 
     if (!email || !password) {
       return alert("algo salio mal");
     }
 
-    let user;
-    if (action === ACTIONS.SIGN_UP) {
-      user = await signUp(email, password);
-      console.log("sign up");
-    } else {
-      user = await signIn(email, password);
-      console.log("sign in");
-    }
-    console.log(user);
-
-    if (user) {
-      navigate("/", { state: { from }, replace: true });
-    }
-    return null;
+    mutation.mutate({ email, password });
   };
 
   if (isLoading) {
@@ -68,31 +79,51 @@ const Login = () => {
       key={"login_page"}
     >
       <Layout className={"min-h-screen grid place-items-center "}>
-        <form className="max-w-md w-full" onSubmit={handleSubmit}>
+        <form className="relative max-w-md w-full" onSubmit={handleSubmit}>
+          <AnimatePresence>
+            {mutation.isError && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute -top-24 w-full py-4 border-2 mb-6 px-4 rounded-md bg-red-500/10 text-white border-red-500/20"
+              >
+                {mutation.error.message}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
             {action}
           </h1>
+
           <label htmlFor="email" className="text-zinc-300 block mb-2">
             Email
           </label>
           <input
-            type="text"
+            disabled={mutation.isPending}
+            type="email"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className=" h-10 mb-6 w-full bg-zinc-800 border-[2px] border-zinc-400 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80"
+            className="h-10 mb-6 w-full bg-zinc-800 border-[2px] border-zinc-400 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80 disabled:cursor-not-allowed "
             name="email"
           />
           <label htmlFor="password" className="text-zinc-300 block mb-2">
             Password
           </label>
           <input
+            disabled={mutation.isPending}
             type="password"
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-10 mb-10 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80"
+            className="h-10 mb-10 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80 disabled:cursor-not-allowed "
             name="password"
           />
-          <Button className="bg-green-600 w-full text-zinc-100 font-bold">
+          <Button
+            disabled={mutation.isPending}
+            className={clsx("bg-green-600 w-full text-zinc-100 font-bold")}
+          >
             {action}
           </Button>
           {
@@ -103,13 +134,15 @@ const Login = () => {
                   : "You dont have an account?"}
               </p>
               <button
+                disabled={mutation.isPending}
                 type="button"
-                className="text-green-600 "
-                onClick={() =>
+                className={clsx("text-green-600")}
+                onClick={() => {
+                  mutation.reset();
                   setAction((prev) =>
                     prev === ACTIONS.SIGN_IN ? ACTIONS.SIGN_UP : ACTIONS.SIGN_IN
-                  )
-                }
+                  );
+                }}
               >
                 {action === ACTIONS.SIGN_UP ? "Sign in" : "Sign up"}
               </button>
@@ -124,9 +157,13 @@ const Login = () => {
           </div>
 
           <Button
+            disabled={mutation.isPending}
             onClick={() => signInWithGoogle()}
             type="button"
-            className="text-zinc-800 mt-6 bg-white w-full font-semibold"
+            className={clsx(
+              "text-zinc-800 mt-6 bg-white w-full font-semibold",
+              mutation.isPending && "bg-gray-300 cursor-not-allowed"
+            )}
           >
             Google
           </Button>

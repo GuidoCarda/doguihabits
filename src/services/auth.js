@@ -25,6 +25,7 @@ export const signUp = async (email, password) => {
     const user = userCredentils.user;
     return user;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
@@ -46,6 +47,7 @@ export const signIn = async (email, password) => {
 
     return user;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
