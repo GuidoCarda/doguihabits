@@ -75,7 +75,7 @@ function useDeleteHabit(id) {
   });
 }
 
-function useUpdateHabitEntry() {
+export function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const ongoingMutations = useRef(0);
@@ -83,10 +83,11 @@ function useUpdateHabitEntry() {
   const { checkForNewMilestones } = useHabitsActions();
 
   return useMutation({
-    mutationKey: ["habits", "update"],
+    mutationKey: ["habits", user.uid, "update"],
     mutationFn: ({ habitId, dayId, newState }) =>
       updateHabitEntry(habitId, dayId, newState),
-    onMutate: ({ habitId, dayId, newState }) => {
+    onMutate: async ({ habitId, dayId, newState }) => {
+      await queryClient.cancelQueries(["habits", user.uid]);
       ongoingMutations.current++;
       // Snapshot the current data for rollback on error
       const previousData = queryClient.getQueryData(["habits", user.uid]);
@@ -109,17 +110,6 @@ function useUpdateHabitEntry() {
         return updatedData;
       });
 
-      // Snapshot the current habit data
-      const previousHabit = previousData.find((h) => h.id === habitId);
-
-      // Update the especified habit optimistically to avoid a new query
-      queryClient.setQueryData(["habit", habitId], {
-        ...previousHabit,
-        entries: previousHabit.entries.map((entry) =>
-          entry.id === dayId ? { ...entry, state: newState } : entry
-        ),
-      });
-
       // Return a rollback function
       return () => {
         // Rollback to the previous habits data
@@ -131,7 +121,7 @@ function useUpdateHabitEntry() {
     onError: (error, variables, rollback) => {
       ongoingMutations.current = 0;
       // Rollback to the previous data on error
-      rollback();
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
     // Optional: Provide an onSettled function for cleanup or additional actions
     onSuccess: async (data, variables, context) => {
@@ -151,10 +141,6 @@ function useUpdateHabitEntry() {
           habitId: variables.habitId,
           newBadges,
         });
-      }
-
-      if (ongoingMutations.current === 0) {
-        return queryClient.invalidateQueries(["habits", user.uid]);
       }
     },
   });

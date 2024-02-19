@@ -41,20 +41,32 @@ const sortFunctions = {
     getTotal(b.entries, "completed") - getTotal(a.entries, "completed"),
 };
 
-function useHabits(sortCriteria) {
+const getSortedHabits = (habits, sortCriteria) => {
+  if (sortCriteria in sortFunctions) {
+    return habits.toSorted(sortFunctions[sortCriteria]);
+  }
+  return habits;
+};
+
+function useHabits(sortCriteria, select) {
   const { user } = useAuth();
+
+  const selectFn = select
+    ? select
+    : (habits) => getSortedHabits(habits, sortCriteria);
+
   return useQuery({
     queryKey: ["habits", user.uid],
     queryFn: () => getHabitsWithEntries(user.uid),
-    select: (data) => {
-      if (sortCriteria in sortFunctions) {
-        return data.toSorted(sortFunctions[sortCriteria]);
-      }
-      return data;
-    },
+    select: selectFn,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    staleTime: 1000 * 60 * 5,
   });
+}
+
+export function useHabit(id) {
+  return useHabits(null, (habits) => habits.find((habit) => habit.id === id));
 }
 
 const Habits = () => {

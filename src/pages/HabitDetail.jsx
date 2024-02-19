@@ -42,27 +42,17 @@ import { getTotal, isPast, isThisMonth, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import clsx from "clsx";
-import { PageLoading } from "./Habits";
-
-function useHabit(id) {
-  return useQuery({
-    queryKey: ["habit", id],
-    queryFn: () => getHabitById(id),
-  });
-}
+import { PageLoading, useHabit } from "./Habits";
+import { useUpdateHabitEntry } from "./components/HabitsWeekView";
 
 export function useAddBadge() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useMutation({
-    mutationKey: ["habit", "addBadge"],
+    mutationKey: ["habits", "addBadge"],
     mutationFn: ({ habitId, newBadges }) => addBadges(habitId, newBadges),
     onMutate: ({ habitId, newBadges }) => {
-      queryClient.setQueryData(["habit", habitId], (oldData) => {
-        return { ...oldData, badges: oldData?.badges?.concat(newBadges) };
-      });
-
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
         return oldData.map((habit) => {
           if (habit.id === habitId) {
@@ -85,91 +75,8 @@ export function useAddBadge() {
         }
       );
     },
-  });
-}
-
-function useUpdateHabitEntry(id) {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const ongoingMutations = useRef(0);
-  const addBadgeMutation = useAddBadge();
-
-  const { checkForNewMilestones } = useHabitsActions();
-
-  return useMutation({
-    mutationFn: ({ habitId, dayId, newState }) =>
-      updateHabitEntry(habitId, dayId, newState),
-    // The onMutate callback allow us to perform an optimistic update on the UI
-    onMutate: ({ habitId, dayId, newState }) => {
-      ongoingMutations.current++;
-
-      // Snapshot the current habits data for rollback on error
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-
-      // Optimistically update the habits data
-      queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        if (!oldData) return;
-
-        return oldData?.map((habit) =>
-          habit.id === habitId
-            ? {
-                ...habit,
-                entries: habit?.entries?.map((entry) =>
-                  entry.id === dayId ? { ...entry, state: newState } : entry
-                ),
-              }
-            : habit
-        );
-      });
-
-      // Snapshot the current habit data for rollback on error
-      const previousHabitData = queryClient.getQueryData(["habit", id]);
-
-      // Optimistically update the UI optimistically
-      queryClient.setQueryData(["habit", id], (oldData) => {
-        // Update the habit entry state
-        const updatedEntries = oldData?.entries?.map((entry) => {
-          if (entry.id === dayId) {
-            return { ...entry, state: newState };
-          }
-          return entry;
-        });
-
-        return { ...oldData, entries: updatedEntries };
-      });
-
-      // Return a rollback function to be used if the mutation fails
-      return () => {
-        queryClient.setQueryData(["habit", id], previousHabitData);
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
-      };
-    },
-    onSuccess: async (data, variables, context) => {
-      if (ongoingMutations.current > 1) return;
-
-      const habitData = queryClient.getQueryData(["habit", id]);
-
-      const newBadges = checkForNewMilestones(
-        getHabitStreak(habitData?.entries),
-        habitData?.badges
-      );
-      if (newBadges) {
-        await addBadgeMutation.mutateAsync({
-          habitId: variables.habitId,
-          newBadges,
-        });
-      }
-    },
-    onError: (error, variables, rollback) => {
-      ongoingMutations.current = 0;
-      rollback();
-    },
     onSettled: () => {
-      ongoingMutations.current--;
-
-      // if (ongoingMutations.current === 0) {
-      //   queryClient.invalidateQueries(["habits", user.uid]);
-      // }
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 }
