@@ -10,7 +10,7 @@ const HabitsSorting = ({ onClick, sortCriteria }) => {
 
   return (
     <div className=" my-4  text-neutral-100">
-      <span className="block mb-2 font-semibold text-zinc-400 w-max ">
+      <span className="block mb-2 select-none leading-none text-zinc-400 w-max ">
         Sort by{" "}
       </span>
 
@@ -21,10 +21,11 @@ const HabitsSorting = ({ onClick, sortCriteria }) => {
             key={mode}
             onClick={onClick}
             className={clsx(
-              `font-semibold border-2 border-zinc-500 hover:opacity-90 outline-none focus-within:ring-2 focus-within:ring-zinc-600 focus:ring-2 focus:ring-zinc-600`,
+              "border-2  transition-all text-zinc-400",
+              "hover:border-zinc-700 hover:text-zinc-300",
               mode === sortCriteria
-                ? "bg-zinc-500"
-                : "bg-zinc-500/40 text-zinc-200"
+                ? "border-emerald-500/50 text-zinc-50 hover:border-emerald-500/50 hover:text-zinc-50"
+                : "border-zinc-800"
             )}
           >
             {label}
