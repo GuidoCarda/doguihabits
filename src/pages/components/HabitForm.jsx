@@ -54,7 +54,10 @@ function useCreateHabit() {
   return useMutation({
     mutationKey: ["habit", "new"],
     mutationFn: createHabit,
-    onMutate: (variables) => {
+    onMutate: async (variables) => {
+      //Cancel any outgoing refetches
+      await queryClient.cancelQueries(["habits", user.uid]);
+
       const previousHabits = queryClient.getQueryData(["habits", user.uid]);
 
       queryClient.setQueryData(["habits", user.uid], (oldData) => [
@@ -65,12 +68,12 @@ function useCreateHabit() {
       return () =>
         queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
-    },
     onError: (error, context, rollback) => {
       console.error(error);
       rollback();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 }

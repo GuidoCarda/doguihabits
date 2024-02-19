@@ -61,7 +61,7 @@ export const createHabit = async (formData) => {
       `habitID ${habitId} created, Entries added for the whole month`
     );
 
-    return habitId;
+    return { id: habitId, ...newHabit, entries };
   } catch (err) {
     console.error(err);
   }

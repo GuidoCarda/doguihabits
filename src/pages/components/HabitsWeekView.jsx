@@ -36,25 +36,28 @@ import { useAuth } from "../../context/AuthContext";
 import { useAddBadge } from "../HabitDetail";
 import { Tooltip } from "../Habits";
 
-function useDeleteHabit(id, userId) {
+function useDeleteHabit(id) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // console.log("useDeleteHabit", id);
   return useMutation({
     mutationKey: ["habit", "delete", id],
     mutationFn: deleteHabit,
-    onMutate: (habitId) => {
-      // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits", userId]);
+    onMutate: async (habitId) => {
+      await queryClient.cancelQueries(["habits", user.uid]);
 
-      queryClient.setQueryData(["habits", userId], (oldData) =>
+      // Snapshot the previous value
+      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
+
+      queryClient.setQueryData(["habits", user.uid], (oldData) =>
         oldData?.map((habit) =>
           habit.id === habitId ? { ...habit, isDeleting: true } : habit
         )
       );
 
       // Return a rollback function
-      return () => queryClient.setQueryData(["habits", userId], previousHabits);
+      return () =>
+        queryClient.setQueryData(["habits", user.uid], previousHabits);
     },
     onError: (error, variables, rollback) => {
       console.error(error);
@@ -62,9 +65,12 @@ function useDeleteHabit(id, userId) {
       rollback();
     },
     onSuccess: () => {
-      queryClient.setQueryData(["habits", userId], (oldData) =>
+      queryClient.setQueryData(["habits", user.uid], (oldData) =>
         oldData?.filter((habit) => habit.id !== id)
       );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 }
