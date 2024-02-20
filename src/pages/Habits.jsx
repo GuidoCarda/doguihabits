@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 
 //Components
 import Layout from "../components/Layout";
@@ -31,7 +31,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
-import { getTotal } from "../utils";
+import { cn, getTotal, isSameDay } from "../utils";
 import clsx from "clsx";
 
 const sortFunctions = {
@@ -163,8 +163,46 @@ const Habits = () => {
         {!habitsQuery.isPending && !hasHabits && (
           <EmptyState onClick={handleShowToggle} />
         )}
+        {hasHabits && <HabitsProgressBar />}
       </Layout>
     </motion.main>
+  );
+};
+
+const HabitsProgressBar = () => {
+  const habitsQuery = useHabits();
+  const habitsCount = habitsQuery.data.length ?? 0;
+
+  const completedHabitsCount = habitsQuery.data
+    .map((habit) => {
+      const todaysEntry = habit?.entries?.find((entry) => {
+        return isSameDay(entry.date, new Date());
+      });
+      return todaysEntry?.state ?? "pending";
+    })
+    .filter((state) => state === "completed").length;
+
+  return (
+    <div className="mt-12">
+      <div className="mb-6">
+        <h2 className="font-semibold text-2xl">Current State</h2>
+        <span className="text-zinc-400">
+          {completedHabitsCount}/{habitsCount} habits completed today
+        </span>
+      </div>
+      <div className="h-10 rounded-md overflow-hidden w-full bg-zinc-700">
+        <motion.div
+          initial={{
+            width: `${(completedHabitsCount / habitsCount) * 100 || 0}%`,
+          }}
+          animate={{
+            width: `${(completedHabitsCount / habitsCount) * 100 || 0}%`,
+            transition: { ease: "easeInOut", duration: 1 },
+          }}
+          className={clsx(`bg-emerald-600 h-full `)}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -232,12 +270,12 @@ export const PageLoading = ({ message }) => {
   return (
     <div className="absolute inset-0 z-10 h-screen w-full grid place-content-center bg-zinc-900">
       <div className="grid grid-flow-col-dense gap-2 mb-6">
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_0s_infinite] rounded-md  " />
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.25s_infinite] rounded-md  " />
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.5s_infinite] rounded-md  " />
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.75s_infinite] rounded-md  " />
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1s_infinite] rounded-md  " />
-        <span class="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1.25s_infinite] rounded-md  " />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_0s_infinite] rounded-md" />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.25s_infinite] rounded-md" />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.5s_infinite] rounded-md" />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.75s_infinite] rounded-md" />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1s_infinite] rounded-md" />
+        <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1.25s_infinite] rounded-md" />
       </div>
       <h3 className="animate-pulse text-center text-zinc-400">{message}</h3>
     </div>
