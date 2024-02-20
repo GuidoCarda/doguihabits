@@ -1,13 +1,14 @@
 import React from "react";
 import clsx from "clsx";
 import { forwardRef } from "react";
+import { cn } from "../utils";
 
 const Button = forwardRef(({ onClick, className, children, ...props }, ref) => {
   return (
     <button
       ref={ref}
       onClick={onClick}
-      className={clsx(className, "h-10 px-4 rounded-md transition-colors")}
+      className={cn(className, "h-10 px-4 rounded-md transition-colors")}
       {...props}
     >
       {children}
@@ -21,7 +22,7 @@ const IconButton = forwardRef(
       <button
         ref={ref}
         onClick={onClick}
-        className={clsx(
+        className={cn(
           "h-10 w-10 transition-colors rounded-md grid place-content-center cursor-pointer",
           className
         )}
@@ -39,7 +40,7 @@ const IconTextButton = forwardRef(
       <button
         ref={ref}
         onClick={onClick}
-        className={clsx(
+        className={cn(
           "h-10 w-10 flex items-center justify-center rounded-md font-semibold transition-colors md:gap-2 md:w-max md:px-4",
           className
         )}
