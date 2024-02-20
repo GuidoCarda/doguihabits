@@ -1,13 +1,10 @@
 import ReactDom from "react-dom";
 import { forwardRef } from "react";
 import clsx from "clsx";
-import useClickOutside from "../hooks/useClickOutside";
 import { Button } from "./Buttons";
 import { Backdrop } from "./Modal";
 
 const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
-  const domNode = useClickOutside(options.isPending ? () => {} : onClose);
-
   if (!open) return;
 
   const { title, description, submitText, pendingText, isPending } = options;
@@ -15,7 +12,6 @@ const ConfirmationDialog = ({ open, options, onClose, onSubmit }, ref) => {
   return ReactDom.createPortal(
     <Backdrop>
       <div
-        ref={domNode}
         key={"confirmDialog"}
         aria-modal="true"
         className="bg-zinc-900 border-2 border-zinc-800 mx-10 p-4 rounded-lg  w-3/4 sm:w-full max-w-lg"
