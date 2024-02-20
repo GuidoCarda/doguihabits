@@ -1,3 +1,6 @@
+import clsx, { ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 const MONTHS = [
   "January",
   "February",
@@ -152,3 +155,7 @@ export const isSameDay = (
 export const isToday = (dirtyDate: Date | string): boolean => {
   return isSameDay(dirtyDate, Date.now());
 };
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
