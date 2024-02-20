@@ -7,13 +7,18 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import useClickOutside from "../hooks/useClickOutside";
 import useMediaQuery from "../hooks/useMediaQuery";
 import { useIsMutating } from "@tanstack/react-query";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 const Modal = ({ onClose, title, className, children }, ref) => {
   const isMutating = useIsMutating({
-    mutationKey: ["habit"],
+    mutationKey: ["habits"],
   });
 
-  const domNode = useClickOutside(isMutating > 0 ? () => {} : onClose);
+  const isDialogOpen = useDialogStore((state) => state.open);
+
+  const domNode = useClickOutside(
+    isMutating > 0 || isDialogOpen ? () => {} : onClose
+  );
 
   //Conditionally style components and animations based on device
   const isMobile = useMediaQuery("(max-width: 638px)");

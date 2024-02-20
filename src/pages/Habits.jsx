@@ -193,66 +193,27 @@ const PageHeader = ({
   handleShowToggle,
   handleSignOut,
 }) => {
-  const dialog = useDialog();
-
-  const deleteAllHabitsMutation = useDeleteAllHabits();
-
-  const handleDelete = () => {
-    dialog({
-      title: "Warning!",
-      description:
-        "Are you sure you want to delete all habits? This action cannot be undone.",
-      catchOnCancel: false,
-      submitText: "Confirm",
-      isPending: deleteAllHabitsMutation.isPending,
-      pendingText: "Deleting...",
-      onConfirm: () =>
-        deleteAllHabitsMutation.mutateAsync(
-          {},
-          {
-            onError: (err, variables, context) => {
-              toast.error("An error occurred while deleting habits");
-            },
-            onSuccess: () => {
-              toast.success("All habits deleted");
-            },
-          }
-        ),
-    });
-  };
-
   return (
     <div className="flex items-center justify-between mb-10">
       <h1 className="text-3xl font-semibold">My Habits</h1>
+      <div className="flex gap-3">
+        {!habitsLimitReached && (
+          <IconTextButton
+            onClick={handleShowToggle}
+            text="new habit"
+            className="bg-emerald-600 font-bold"
+            icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
+          />
+        )}
+        <SettingsModal />
 
-      {hasHabits && (
-        <div className="flex gap-3">
-          {!habitsLimitReached && (
-            <IconTextButton
-              onClick={handleShowToggle}
-              text="new habit"
-              className="bg-green-600 font-bold"
-              icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
-            />
-          )}
-          <IconButton
-            aria-label="remove all habits"
-            className="group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300"
-            onClick={handleDelete}
-          >
-            <TrashIcon
-              className="transition-colors group-hover:text-zinc-50 h-5 w-5"
-              strokeWidth={2}
-            />
-          </IconButton>
-          <IconButton onClick={handleSignOut} className={"group bg-zinc-800"}>
-            <ArrowLeftOnRectangleIcon
-              className=" transition-colors h-5 w-5 text-zinc-300 group-hover:text-zinc-50"
-              strokeWidth={2}
-            />
-          </IconButton>
-        </div>
-      )}
+        <IconButton onClick={handleSignOut} className={"group bg-zinc-800"}>
+          <ArrowLeftOnRectangleIcon
+            className=" transition-colors h-5 w-5 text-zinc-300 group-hover:text-zinc-50"
+            strokeWidth={2}
+          />
+        </IconButton>
+      </div>
     </div>
   );
 };
@@ -288,18 +249,18 @@ const EmptyState = ({ onClick }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: 0.5 } }}
-      className=" mt-32 grid place-content-center justify-items-center gap-4"
+      className="  my-40 grid place-content-center justify-items-center gap-4 "
     >
       <div className="p-5 md:p-0 rounded-lg">
         <img className="h-full w-full" src="EmptyState.png" alt="" />
       </div>
-      <h2 className="text-3xl text-bold">Start by creating a habit</h2>
+      <h2 className="text-3xl font-semibold mb-2">Start by creating a habit</h2>
 
       <Button
         onClick={onClick}
-        className="bg-green-600 font-bold hover:opacity-95 "
+        className="bg-emerald-600 font-bold hover:opacity-95 "
       >
-        create an habit
+        Create an habit
       </Button>
 
       <span className="hidden relative md:flex  items-center gap-1 text-xs text-zinc-500">
@@ -319,13 +280,69 @@ const EmptyState = ({ onClick }) => {
 const SettingsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const dialog = useDialog();
+  const habitsQuery = useHabits();
+
+  const hasHabits = habitsQuery?.data?.length > 0;
+
+  const deleteAllHabitsMutation = useDeleteAllHabits();
+
+  const handleDelete = () => {
+    dialog({
+      title: "Warning!",
+      description:
+        "Are you sure you want to delete all habits? This action cannot be undone.",
+      catchOnCancel: false,
+      submitText: "Confirm",
+      isPending: deleteAllHabitsMutation.isPending,
+      pendingText: "Deleting...",
+      onConfirm: () =>
+        deleteAllHabitsMutation.mutateAsync(
+          {},
+          {
+            onError: (err, variables, context) => {
+              toast.error("An error occurred while deleting habits");
+            },
+            onSuccess: () => {
+              toast.success("All habits deleted");
+            },
+          }
+        ),
+    });
+  };
+
   const onClose = () => {
     setIsOpen(false);
   };
 
-  const shortcuts = [
-    { keys: ["Shift", "n"], label: "Open new habit Modal" },
-    { keys: ["Escape"], label: "Close Modal" },
+  // KeysActions maps to provide the user keyboard shortcuts
+  const keysToAction = [
+    {
+      keys: ["Escape"],
+      conditionals: [isOpen],
+      callback: onClose,
+    },
+  ];
+
+  useKeyPress(keysToAction);
+
+  const shortcutCatalog = [
+    {
+      page: "Habits",
+      bindings: [
+        { keys: ["Shift", "n"], label: "Open new habit Modal" },
+        { keys: ["Escape"], label: "Close Modal" },
+      ],
+    },
+    {
+      page: "Habit Detail",
+      bindings: [
+        { keys: ["Shift", "e"], label: "Open edit habit Modal" },
+        { keys: ["Shift", "d"], label: "Open delete habit dialog" },
+        { keys: ["Escape"], label: "Close Modal" },
+        { keys: ["Escape"], label: "Navigate back" },
+      ],
+    },
   ];
 
   return (
@@ -348,25 +365,39 @@ const SettingsModal = () => {
             <div className="space-y-6">
               <div>
                 <h2 className="text-xl text-white mb-4">Shortcuts</h2>
-                <div className="flex flex-col gap-4">
-                  {shortcuts.map(({ keys, label }) => (
-                    <Shortcut keys={keys} label={label} />
+                <div className="flex flex-col gap-6">
+                  {shortcutCatalog.map(({ page, bindings }) => (
+                    <div>
+                      <h3 className="text-lg text-zinc-400 mb-2">
+                        {page} Page
+                      </h3>
+                      <div className="space-y-2">
+                        {bindings.map(({ keys, label }) => (
+                          <Shortcut keys={keys} label={label} />
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+
               <div className="space-y-2">
                 <h2 className="text-xl text-white mb-4">Actions</h2>
                 <div className="flex items-center justify-between">
-                  <p className="text-zinc-400">Restart all habit progress</p>
-                  <Button className="w-32 group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300">
-                    Restart
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-zinc-400">Export habits data</p>
-                  <Button className="w-32 group rounded-md bg-white/10 border-2 border-white/30 hover:shadow-lg hover:shadow-white/5 text-zinc-300">
-                    Export
-                  </Button>
+                  <p className="text-zinc-400">Remove all habits</p>
+                  <IconTextButton
+                    aria-label="remove all habits"
+                    className=" group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:hover:shadow-none disabled:grayscale"
+                    onClick={handleDelete}
+                    text="delete"
+                    disabled={!hasHabits}
+                    icon={
+                      <TrashIcon
+                        className="transition-colors group-hover:text-zinc-50 h-5 w-5"
+                        strokeWidth={2}
+                      />
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -380,6 +411,8 @@ const SettingsModal = () => {
 const Shortcut = ({ keys, label }) => {
   return (
     <div className="flex items-center gap-2">
+      <span className="text-zinc-300 ml-auto">{label}</span>
+      <div className="border-[1px] border-zinc-800 flex-1" />
       {keys.map((key) => (
         <kbd
           key={`shortcut-key-${key}`}
@@ -388,7 +421,6 @@ const Shortcut = ({ keys, label }) => {
           {key}
         </kbd>
       ))}
-      <span className="text-zinc-400">{label}</span>
     </div>
   );
 };

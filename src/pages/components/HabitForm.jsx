@@ -158,7 +158,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
         </div>
 
         <input
-          className="h-12 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 outline-none w-full focus:border-green-500/40"
+          className="h-12 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 outline-none w-full focus:border-emerald-800"
           type="text"
           id="habit"
           value={input}
@@ -188,7 +188,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
           name="description"
           id="description"
           placeholder="Give a short description if wanted"
-          className="resize-none h-28 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 py-2 outline-none w-full focus:border-green-500/40"
+          className="resize-none h-28 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 py-2 outline-none w-full focus:border-emerald-800"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -196,8 +196,8 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
 
       <Button
         className={clsx(
-          "w-max mt-8 ml-auto bg-green-600 text-white font-bold rounded-md",
-          "enabled:hover:bg-green-600/90",
+          "w-max mt-8 ml-auto bg-emerald-600 text-white font-bold rounded-md",
+          "enabled:hover:bg-emerald-600/80",
           "disabled:bg-zinc-600 disabled:text-zinc-400 disabled:cursor-not-allowed",
           {
             "animate-pulse duration-200": isPending,
