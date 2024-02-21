@@ -23,51 +23,12 @@ import { Button, IconButton, IconTextButton } from "../components/Buttons";
 import { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
-import { deleteAllHabits, getHabitsWithEntries } from "../services/habits";
-import {
-  useIsMutating,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
-import { cn, getTotal, isSameDay } from "../utils";
+import { isSameDay } from "../utils";
 import clsx from "clsx";
-
-const sortFunctions = {
-  latest: (a, b) => b.createdAt - a.createdAt,
-  oldest: (a, b) => a.createdAt - b.createdAt,
-  completed: (a, b) =>
-    getTotal(b.entries, "completed") - getTotal(a.entries, "completed"),
-};
-
-const getSortedHabits = (habits, sortCriteria) => {
-  if (sortCriteria in sortFunctions) {
-    return habits.toSorted(sortFunctions[sortCriteria]);
-  }
-  return habits;
-};
-
-function useHabits(sortCriteria, select) {
-  const { user } = useAuth();
-
-  const selectFn = select
-    ? select
-    : (habits) => getSortedHabits(habits, sortCriteria);
-
-  return useQuery({
-    queryKey: ["habits", user.uid],
-    queryFn: () => getHabitsWithEntries(user.uid),
-    select: selectFn,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    staleTime: 1000 * 60 * 5,
-  });
-}
-
-export function useHabit(id) {
-  return useHabits(null, (habits) => habits.find((habit) => habit.id === id));
-}
+import { useHabits } from "../hooks/api/useHabits";
+import { useDeleteAllHabits } from "../hooks/api/useDeleteHabit";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -205,25 +166,6 @@ const HabitsProgressBar = () => {
     </div>
   );
 };
-
-function useDeleteAllHabits() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationFn: () =>
-      deleteAllHabits(
-        queryClient.getQueryData(["habits", user.uid]).map((habit) => habit.id)
-      ),
-
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(["habits", user.uid], context.previousHabits);
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["habits", user.uid], []);
-    },
-  });
-}
 
 const PageHeader = ({
   hasHabits,

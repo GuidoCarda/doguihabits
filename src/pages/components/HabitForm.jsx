@@ -9,81 +9,14 @@ import { Button } from "../../components/Buttons";
 import { useParams } from "react-router-dom";
 
 //Api
-import { createHabit, editHabit } from "../../services/habits";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-//Auth
-import { useAuth } from "../../context/AuthContext";
-
-function useEditHabit(habitId) {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  return useMutation({
-    mutationKey: ["habit", "edit", habitId],
-    mutationFn: ({ habitId, data }) => editHabit(habitId, data),
-    onMutate: (variables) => {
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-
-      queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        console.log(oldData);
-        return oldData?.map((habit) =>
-          habit.id === habitId ? { ...habit, ...variables?.data } : habit
-        );
-      });
-
-      return () => {
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
-      };
-    },
-    onSuccess: (data, variables, context) => {
-      queryClient.setQueryData(["habit", habitId], (oldData) => {
-        return { ...oldData, ...variables?.data };
-      });
-      queryClient.invalidateQueries(["habit", habitId]);
-    },
-    onError: (error, variables, rollback) => {
-      rollback();
-    },
-  });
-}
-
-function useCreateHabit() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationKey: ["habit", "new"],
-    mutationFn: createHabit,
-    onMutate: async (variables) => {
-      //Cancel any outgoing refetches
-      await queryClient.cancelQueries(["habits", user.uid]);
-
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-
-      queryClient.setQueryData(["habits", user.uid], (oldData) => [
-        { ...variables, isCreating: true },
-        ...oldData,
-      ]);
-
-      return () =>
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
-    },
-    onError: (error, context, rollback) => {
-      console.error(error);
-      rollback();
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
-    },
-  });
-}
+import useCreateHabit from "../../hooks/api/useCreateHabit";
+import useEditHabit from "../../hooks/api/useEditHabit";
 
 const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
   const [input, setInput] = useState(initialValues?.title ?? "");
   const [description, setDescription] =
     useState(initialValues?.description) ?? "";
   const { id: habitId } = useParams();
-  const { user } = useAuth();
 
   const isMobile = useMediaQuery("(max-width: 638px)");
 

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   getDayMonthYear,
   getPast7Days,
@@ -7,10 +7,9 @@ import {
   nextState,
   startOfDay,
 } from "../../utils";
-import useHabitsStore, {
+import {
   getHabitStreak,
   getPast7DaysEntries,
-  useHabitsActions,
 } from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
@@ -27,124 +26,16 @@ import {
   FireIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+
 import { toast } from "react-hot-toast";
 import { IconButton } from "../../components/Buttons";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteHabit, updateHabitEntry } from "../../services/habits";
-import { useAuth } from "../../context/AuthContext";
-import { useAddBadge } from "../HabitDetail";
 import { Tooltip } from "../Habits";
 
-function useDeleteHabit(id) {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+import { useAuth } from "../../context/AuthContext";
 
-  return useMutation({
-    mutationKey: ["habit", "delete", id],
-    mutationFn: deleteHabit,
-    onMutate: async (habitId) => {
-      await queryClient.cancelQueries(["habits", user.uid]);
-
-      // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-
-      queryClient.setQueryData(["habits", user.uid], (oldData) =>
-        oldData?.map((habit) =>
-          habit.id === habitId ? { ...habit, isDeleting: true } : habit
-        )
-      );
-
-      // Return a rollback function
-      return () =>
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
-    },
-    onError: (error, variables, rollback) => {
-      console.error(error);
-      // Rollback to the previous value
-      rollback();
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["habits", user.uid], (oldData) =>
-        oldData?.filter((habit) => habit.id !== id)
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
-    },
-  });
-}
-
-export function useUpdateHabitEntry() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const ongoingMutations = useRef(0);
-  const addBadgeMutation = useAddBadge();
-  const { checkForNewMilestones } = useHabitsActions();
-
-  return useMutation({
-    mutationKey: ["habits", user.uid, "update"],
-    mutationFn: ({ habitId, dayId, newState }) =>
-      updateHabitEntry(habitId, dayId, newState),
-    onMutate: async ({ habitId, dayId, newState }) => {
-      await queryClient.cancelQueries(["habits", user.uid]);
-      ongoingMutations.current++;
-      // Snapshot the current data for rollback on error
-      const previousData = queryClient.getQueryData(["habits", user.uid]);
-
-      // Optimistically update the UI
-      queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        // Update the relevant data optimistically
-        const updatedData = oldData.map((habit) => {
-          if (habit.id === habitId) {
-            return {
-              ...habit,
-              entries: habit.entries.map((entry) =>
-                entry.id === dayId ? { ...entry, state: newState } : entry
-              ),
-            };
-          }
-          return habit;
-        });
-
-        return updatedData;
-      });
-
-      // Return a rollback function
-      return () => {
-        // Rollback to the previous habits data
-        queryClient.setQueryData(["habits", user.uid], previousData);
-        // Rollback to the previous habit data
-        queryClient.setQueryData(["habit", habitId], previousHabit);
-      };
-    },
-    onError: (error, variables, rollback) => {
-      ongoingMutations.current = 0;
-      // Rollback to the previous data on error
-      queryClient.invalidateQueries(["habits", user.uid]);
-    },
-    // Optional: Provide an onSettled function for cleanup or additional actions
-    onSuccess: async (data, variables, context) => {
-      ongoingMutations.current--;
-
-      const habitData = queryClient
-        .getQueryData(["habits", user.uid])
-        ?.find((habit) => habit.id === variables.habitId);
-
-      const newBadges = checkForNewMilestones(
-        getHabitStreak(habitData?.entries),
-        habitData?.badges
-      );
-
-      if (newBadges) {
-        await addBadgeMutation.mutateAsync({
-          habitId: variables.habitId,
-          newBadges,
-        });
-      }
-    },
-  });
-}
+//Api hooks
+import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
+import useDeleteHabit from "../../hooks/api/useDeleteHabit";
 
 const HabitsWeekView = ({ habit }) => {
   const dialog = useDialog();

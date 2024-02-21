@@ -1,16 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 //Routing
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 //Global state hooks
-import useHabitsStore, {
-  getHabitStreak,
-  useHabitsActions,
-} from "../store/useHabitsStore";
+import useHabitsStore, { getHabitStreak } from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
 
-import { useIsMutating, useQuery } from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 
 //Components
 import Layout from "../components/Layout";
@@ -32,54 +29,14 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
-import {
-  addBadges,
-  deleteHabit,
-  getHabitById,
-  updateHabitEntry,
-} from "../services/habits";
+import { deleteHabit } from "../services/habits";
 import { getTotal, isPast, isThisMonth, nextState } from "../utils";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import clsx from "clsx";
-import { PageLoading, useHabit } from "./Habits";
-import { useUpdateHabitEntry } from "./components/HabitsWeekView";
-
-export function useAddBadge() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationKey: ["habits", "addBadge"],
-    mutationFn: ({ habitId, newBadges }) => addBadges(habitId, newBadges),
-    onMutate: ({ habitId, newBadges }) => {
-      queryClient.setQueryData(["habits", user.uid], (oldData) => {
-        return oldData.map((habit) => {
-          if (habit.id === habitId) {
-            return { ...habit, badges: habit?.badges?.concat(newBadges) };
-          }
-          return habit;
-        });
-      });
-    },
-    onError: (error, variables, rollback) => {
-      console.error(error);
-    },
-    onSuccess: (data) => {
-      const lastReachedMilestone = data.at(data.length > 1 ? -1 : 0);
-
-      toast.success(
-        `Congratulations! You reached the ${lastReachedMilestone} days milestone`,
-        {
-          icon: "🎉",
-        }
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
-    },
-  });
-}
+import { PageLoading } from "./Habits";
+import { useHabit } from "../hooks/api/useHabits";
+import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
 
 function useDeleteHabit(id) {
   const queryClient = useQueryClient();
@@ -116,7 +73,6 @@ function useDeleteHabit(id) {
       // console.log("onSuccess", data, variables, context);
       // queryClient.invalidateQueries("habits");
       navigate(-1, { replace: true });
-      // toast.success(`${habit.title} was successfully deleted`);
     },
   });
 }
