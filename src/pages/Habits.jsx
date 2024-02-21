@@ -20,7 +20,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { Button, IconButton, IconTextButton } from "../components/Buttons";
-import { useDialog } from "../store/useDialogStore";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { useIsMutating } from "@tanstack/react-query";
@@ -261,11 +261,16 @@ const SettingsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const dialog = useDialog();
+  const isDialogOpen = useDialogStore((state) => state.open);
   const habitsQuery = useHabits();
 
   const hasHabits = habitsQuery?.data?.length > 0;
 
   const deleteAllHabitsMutation = useDeleteAllHabits();
+
+  const onClose = () => {
+    setIsOpen(false);
+  };
 
   const handleDelete = () => {
     dialog({
@@ -285,21 +290,18 @@ const SettingsModal = () => {
             },
             onSuccess: () => {
               toast.success("All habits deleted");
+              onClose();
             },
           }
         ),
     });
   };
 
-  const onClose = () => {
-    setIsOpen(false);
-  };
-
   // KeysActions maps to provide the user keyboard shortcuts
   const keysToAction = [
     {
       keys: ["Escape"],
-      conditionals: [isOpen],
+      conditionals: [isOpen && !isDialogOpen],
       callback: onClose,
     },
   ];
