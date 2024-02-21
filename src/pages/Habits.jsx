@@ -25,7 +25,7 @@ import { toast } from "react-hot-toast";
 import HabitForm from "./components/HabitForm";
 import { useIsMutating } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
-import { isSameDay } from "../utils";
+import { cn, isSameDay } from "../utils";
 import clsx from "clsx";
 import { useHabits } from "../hooks/api/useHabits";
 import { useDeleteAllHabits } from "../hooks/api/useDeleteHabit";
@@ -365,22 +365,27 @@ const SettingsModal = () => {
 
               <div className="space-y-2">
                 <h2 className="text-xl text-white mb-4">Actions</h2>
-                <div className="flex items-center justify-between">
-                  <p className="text-zinc-400">Remove all habits</p>
-                  <IconTextButton
-                    aria-label="remove all habits"
-                    className=" group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:hover:shadow-none disabled:grayscale"
-                    onClick={handleDelete}
-                    text="delete"
-                    disabled={!hasHabits}
-                    icon={
-                      <TrashIcon
-                        className="transition-colors group-hover:text-zinc-50 h-5 w-5"
-                        strokeWidth={2}
-                      />
-                    }
-                  />
-                </div>
+                <Tooltip
+                  label={"You don't have any habits to delete"}
+                  className={cn(hasHabits && "group-hover:hidden ")}
+                >
+                  <div className="flex items-center justify-between ">
+                    <p className="text-zinc-400">Remove all habits</p>
+                    <IconTextButton
+                      aria-label="remove all habits"
+                      className=" group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
+                      onClick={handleDelete}
+                      text="delete"
+                      disabled={!hasHabits}
+                      icon={
+                        <TrashIcon
+                          className="transition-colors group-hover:text-zinc-50 h-5 w-5"
+                          strokeWidth={2}
+                        />
+                      }
+                    />
+                  </div>
+                </Tooltip>
               </div>
             </div>
           </Modal>
@@ -407,16 +412,17 @@ const Shortcut = ({ keys, label }) => {
   );
 };
 
-export const Tooltip = ({ label, children }) => {
+export const Tooltip = ({ label, className, children }) => {
   return (
     <div className="relative group">
       {children}
       <span
-        className={clsx(
+        className={cn(
           "absolute hidden opacity-0 z-10 origin-bottom-right select-none left-0 text-sm whitespace-nowrap leading-none py-1 shadow-lg  px-2 rounded-md ",
           "bg-zinc-900 border-[1px] border-zinc-700 text-zinc-200",
           "group-hover:opacity-100 group-hover:block",
-          "transition-all duration-200 ease-in-out"
+          "transition-all duration-200 ease-in-out",
+          className
         )}
       >
         {label}
