@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
 //Global state hooks
-import useHabitsStore, { getHabitStreak } from "../store/useHabitsStore";
 import useDialogStore, { useDialog } from "../store/useDialogStore";
 
 import { useIsMutating } from "@tanstack/react-query";
@@ -29,12 +28,19 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
-import { getTotal, isPast, isThisMonth, nextState } from "../utils";
+import {
+  getHabitStreak,
+  getTotal,
+  isPast,
+  isThisMonth,
+  nextState,
+} from "../utils";
 import clsx from "clsx";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
 import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
 import useDeleteHabit from "../hooks/api/useDeleteHabit";
+import { habitMilestones } from "../constants";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -45,10 +51,6 @@ const HabitDetail = () => {
   const dialog = useDialog();
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
-
-  const completionMilestones = useHabitsStore(
-    (state) => state.completionMilestones
-  );
 
   const habitQuery = useHabit(id);
   const updateHabitEntryMutation = useUpdateHabitEntry(id);
@@ -207,7 +209,7 @@ const HabitDetail = () => {
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
-            {completionMilestones.map((milestone) => (
+            {habitMilestones.map((milestone) => (
               <li
                 key={`${milestone}-days-badge`}
                 className={`${

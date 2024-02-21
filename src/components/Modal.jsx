@@ -29,7 +29,10 @@ const Modal = ({ onClose, title, className, children }, ref) => {
         hidden: { y: 400, transition: { damping: 2 } },
         visible: { y: 0, transition: { damping: 2 } },
       }
-    : { hidden: { scale: 0.8 }, visible: { scale: 1 } };
+    : {
+        hidden: { y: 50, transition: { damping: 1 } },
+        visible: { y: 0, transition: { damping: 1 } },
+      };
 
   return ReactDOM.createPortal(
     <Backdrop>
@@ -86,7 +89,7 @@ export const Backdrop = ({ children }) => {
       key={"modal_backdrop"}
       className={clsx(
         "fixed inset-0 h-full w-full",
-        "bg-black/50 backdrop-blur-[2px] md:px-4",
+        "bg-black/50 backdrop-brightness-50 md:px-4",
         "grid place-items-center"
       )}
     >

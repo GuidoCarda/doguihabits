@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { useRef } from "react";
-import { getHabitStreak, useHabitsActions } from "../../store/useHabitsStore";
 import { addBadges, updateHabitEntry } from "../../services/habits";
 import toast from "react-hot-toast";
+import { checkForNewMilestones, getHabitStreak } from "../../utils";
 
 function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const ongoingMutations = useRef(0);
   const addBadgeMutation = useAddBadge();
-  const { checkForNewMilestones } = useHabitsActions();
 
   return useMutation({
     mutationKey: ["habits", user.uid, "update"],

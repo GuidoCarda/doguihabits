@@ -1,16 +1,14 @@
 import React from "react";
 import {
   getDayMonthYear,
+  getHabitStreak,
   getPast7Days,
+  getPast7DaysEntries,
   getTotal,
   getWeekDayString,
   nextState,
   startOfDay,
 } from "../../utils";
-import {
-  getHabitStreak,
-  getPast7DaysEntries,
-} from "../../store/useHabitsStore";
 import { useDialog } from "../../store/useDialogStore";
 
 //Animations, styling

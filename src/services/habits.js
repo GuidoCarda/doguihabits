@@ -13,12 +13,14 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { getAllDaysInMonth, isSameMonth, startOfDay } from "../utils";
 import {
   generatePendingHabitEntries,
+  getAllDaysInMonth,
   getNextMonthPendingHabitEntries,
+  isSameMonth,
   shouldAddNextMonth,
-} from "../store/useHabitsStore";
+  startOfDay,
+} from "../utils";
 
 /**
  * Creates a new habit with entries and the formData.
