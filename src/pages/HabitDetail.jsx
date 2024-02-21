@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 //Routing
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
 //Global state hooks
 import useHabitsStore, { getHabitStreak } from "../store/useHabitsStore";
@@ -29,53 +29,12 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
-import { deleteHabit } from "../services/habits";
 import { getTotal, isPast, isThisMonth, nextState } from "../utils";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useAuth } from "../context/AuthContext";
 import clsx from "clsx";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
 import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
-
-function useDeleteHabit(id) {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
-  return useMutation({
-    mutationKey: ["habit", "delete", id],
-    mutationFn: deleteHabit,
-    onMutate: async (habitId) => {
-      await queryClient.cancelQueries({ queryKey: ["habits", user.uid] });
-
-      // Snapshot the previous value
-      const previousHabits = queryClient.getQueryData(["habits", user.uid]);
-
-      //Optimistically update the UI filtering out the habit to be deleted
-      //I'm not 100% sure about the ux, I might look into alternatives
-      // Because first you see the habit popping out the screen and then the toast notification appears when the mutation is successful
-      queryClient.setQueryData(["habits", user.uid], (oldData) =>
-        oldData?.filter((habit) => habit.id !== habitId)
-      );
-
-      // Return a rollback function
-      return () =>
-        queryClient.setQueryData(["habits", user.uid], previousHabits);
-    },
-    onError: (error, variables, rollback) => {
-      console.error(error);
-      // Rollback to the previous value
-      rollback();
-    },
-
-    onSuccess: (data, variables, context) => {
-      // console.log("onSuccess", data, variables, context);
-      // queryClient.invalidateQueries("habits");
-      navigate(-1, { replace: true });
-    },
-  });
-}
+import useDeleteHabit from "../hooks/api/useDeleteHabit";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -204,7 +163,7 @@ const HabitDetail = () => {
   }
 
   if (!habitQuery.data) {
-    return <HabitNotFound />;
+    return <Navigate to={-1} />;
   }
 
   return (

@@ -7,7 +7,7 @@ function useDeleteHabit(id) {
   const { user } = useAuth();
 
   return useMutation({
-    mutationKey: ["habit", "delete", id],
+    mutationKey: ["habits", user.uid, "delete", id],
     mutationFn: deleteHabit,
     onMutate: async (habitId) => {
       await queryClient.cancelQueries(["habits", user.uid]);
