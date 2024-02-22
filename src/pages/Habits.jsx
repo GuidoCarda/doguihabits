@@ -5,6 +5,8 @@ import Layout from "../components/Layout";
 import Modal from "../components/Modal";
 import HabitsWeekView from "./components/HabitsWeekView";
 import HabitsSorting from "./components/HabitSorting";
+import { Button, IconButton, IconTextButton } from "../components/Buttons";
+import HabitModal from "./components/HabitModal";
 
 //Hooks
 import useKeyPress from "../hooks/useKeyPress";
@@ -19,16 +21,15 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { Button, IconButton, IconTextButton } from "../components/Buttons";
+
 import useDialogStore, { useDialog } from "../store/useDialogStore";
-import { toast } from "react-hot-toast";
-import HabitForm from "./components/HabitForm";
-import { useIsMutating } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
-import { cn, isSameDay } from "../utils";
-import clsx from "clsx";
+import { useIsMutating } from "@tanstack/react-query";
 import { useHabits } from "../hooks/api/useHabits";
 import { useDeleteAllHabits } from "../hooks/api/useDeleteHabit";
+import { toast } from "react-hot-toast";
+import { cn, isSameDay } from "../utils";
+import { HABITS_LIMIT, HABIT_FORM_ACTIONS } from "../constants";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +58,7 @@ const Habits = () => {
 
   const habitsCount = habitsQuery?.data?.length ?? 0;
   const hasHabits = habitsCount > 0;
-  const habitsLimitReached = habitsCount >= 5;
+  const habitsLimitReached = habitsCount >= HABITS_LIMIT;
 
   // KeysActions maps to provide the user keyboard shortcuts
   const keysToAction = [
@@ -109,17 +110,12 @@ const Habits = () => {
             sortCriteria={sortCriteria}
           />
         )}
-        <AnimatePresence mode="wait" initial={false}>
-          {isOpen && (
-            <Modal
-              key={"new_habit_modal"}
-              title="New Habit"
-              onClose={handleClose}
-            >
-              <HabitForm onClose={handleClose} />
-            </Modal>
-          )}
-        </AnimatePresence>
+        <HabitModal
+          isOpen={isOpen}
+          onClose={handleClose}
+          title={"New Habit"}
+          action={HABIT_FORM_ACTIONS.create}
+        />
         {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
         {!habitsQuery.isPending && !hasHabits && (
           <EmptyState onClick={handleShowToggle} />
@@ -160,7 +156,7 @@ const HabitsProgressBar = () => {
             width: `${(completedHabitsCount / habitsCount) * 100 || 0}%`,
             transition: { ease: "easeInOut", duration: 1 },
           }}
-          className={clsx(`bg-emerald-600 h-full `)}
+          className={cn(`bg-emerald-600 h-full `)}
         />
       </div>
     </div>
@@ -200,7 +196,7 @@ const PageHeader = ({
 
 const HabitsGrid = ({ habits }) => {
   return (
-    <motion.div className={clsx("flex gap-4 flex-wrap justify-start")}>
+    <motion.div className={cn("flex gap-4 flex-wrap justify-start")}>
       {habits.map((habit) => (
         <HabitsWeekView key={habit.id} habit={habit} />
       ))}

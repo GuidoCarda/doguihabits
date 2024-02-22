@@ -1,6 +1,6 @@
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { habitMilestones } from "./constants";
+import { HABIT_MILESTONES } from "./constants";
 
 const MONTHS = [
   "January",
@@ -226,7 +226,7 @@ export const checkForNewMilestones = (
   currentStreak: number,
   badges: number[]
 ) => {
-  const newMilestones = habitMilestones.filter(
+  const newMilestones = HABIT_MILESTONES.filter(
     (milestone) => milestone <= currentStreak && !badges.includes(milestone)
   );
   return newMilestones.length > 0 ? newMilestones : null;

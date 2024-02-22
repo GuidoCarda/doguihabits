@@ -11,8 +11,9 @@ import { useParams } from "react-router-dom";
 //Api
 import useCreateHabit from "../../hooks/api/useCreateHabit";
 import useEditHabit from "../../hooks/api/useEditHabit";
+import { HABIT_FORM_ACTIONS } from "../../constants";
 
-const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
+const HabitForm = ({ onClose, action, initialValues }) => {
   const [input, setInput] = useState(initialValues?.title ?? "");
   const [description, setDescription] =
     useState(initialValues?.description) ?? "";
@@ -40,7 +41,7 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
 
     const habitData = { title: input, description };
 
-    if (isEditing && habitId) {
+    if (action === HABIT_FORM_ACTIONS.edit && habitId) {
       editHabitMutation.mutate(
         { habitId, data: habitData },
         {
@@ -70,7 +71,8 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
 
   const isInputLengthInvalid = input.length > 30;
   const isPending = newHabitMutation.isPending || editHabitMutation.isPending;
-  const pendingMessage = isEditing ? "updating habit" : "creating habit";
+  const pendingMessage =
+    action === HABIT_FORM_ACTIONS.edit ? "updating habit" : "creating habit";
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
@@ -138,7 +140,11 @@ const HabitForm = ({ onClose, isEditing = false, initialValues }) => {
         )}
         disabled={isInputLengthInvalid || isPending}
       >
-        {isPending ? pendingMessage : isEditing ? "edit" : "create"}
+        {isPending
+          ? pendingMessage
+          : action === HABIT_FORM_ACTIONS.edit
+          ? "update"
+          : "create"}
       </Button>
     </form>
   );

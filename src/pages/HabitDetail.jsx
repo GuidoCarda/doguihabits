@@ -11,6 +11,7 @@ import { useIsMutating } from "@tanstack/react-query";
 //Components
 import Layout from "../components/Layout";
 import HabitMonthlyView from "./components/HabitMonthlyView";
+import HabitModal from "./components/HabitModal";
 
 //Icons
 import {
@@ -22,12 +23,15 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import { motion } from "framer-motion";
+import { HABIT_FORM_ACTIONS, HABIT_MILESTONES } from "../constants";
+
 import useKeyPress from "../hooks/useKeyPress";
+import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
+import useDeleteHabit from "../hooks/api/useDeleteHabit";
+
+import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
-import Modal from "../components/Modal";
-import HabitForm from "./components/HabitForm";
 import {
   cn,
   getHabitStreak,
@@ -36,12 +40,9 @@ import {
   isThisMonth,
   nextState,
 } from "../utils";
-import clsx from "clsx";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
-import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
-import useDeleteHabit from "../hooks/api/useDeleteHabit";
-import { habitMilestones } from "../constants";
+import clsx from "clsx";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -178,23 +179,22 @@ const HabitDetail = () => {
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Layout>
+        <HabitModal
+          isOpen={isEditing}
+          onClose={handleEditModalClose}
+          title={"Edit habit"}
+          action={HABIT_FORM_ACTIONS.edit}
+          initialValues={{
+            title: habitQuery.data.title,
+            description: habitQuery.data.description,
+          }}
+        />
+
         <HabitDetailHeader
           habit={habitQuery.data}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
-        {isEditing && (
-          <Modal onClose={handleEditModalClose} title={"Edit Habit"}>
-            <HabitForm
-              isEditing={isEditing}
-              onClose={handleEditModalClose}
-              initialValues={{
-                title: habitQuery.data.title,
-                description: habitQuery.data.description,
-              }}
-            />
-          </Modal>
-        )}
 
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
@@ -212,7 +212,7 @@ const HabitDetail = () => {
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
-            {habitMilestones.map((milestone) => (
+            {HABIT_MILESTONES.map((milestone) => (
               <li>
                 <MilestoneBadge
                   milestone={milestone}
