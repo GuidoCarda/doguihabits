@@ -29,6 +29,7 @@ import { IconTextButton } from "../components/Buttons";
 import Modal from "../components/Modal";
 import HabitForm from "./components/HabitForm";
 import {
+  cn,
   getHabitStreak,
   getTotal,
   isPast,
@@ -206,28 +207,40 @@ const HabitDetail = () => {
           toggleHabitDay={toggleHabitDay}
         />
 
+        <HabitEntriesInLineView entries={habitQuery.data.entries} />
+
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
             {habitMilestones.map((milestone) => (
-              <li
-                key={`${milestone}-days-badge`}
-                className={`${
-                  !habitQuery.data?.badges?.includes(milestone)
-                    ? "grayscale"
-                    : ""
-                } text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0 `}
-              >
-                <span className="block text-4xl font-bold text-emerald-500">
-                  {milestone}
-                </span>
-                <span className="block text-zinc-400">days</span>
+              <li>
+                <MilestoneBadge
+                  milestone={milestone}
+                  isCompleted={habitQuery.data?.badges?.includes(milestone)}
+                />
               </li>
             ))}
           </ul>
         </div>
       </Layout>
     </motion.main>
+  );
+};
+
+export const MilestoneBadge = ({ milestone, isCompleted }) => {
+  return (
+    <div
+      key={`${milestone}-days-badge`}
+      className={cn(
+        !isCompleted && "grayscale",
+        "text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0"
+      )}
+    >
+      <span className="block text-4xl font-bold text-emerald-500">
+        {milestone}
+      </span>
+      <span className="block text-zinc-400">days</span>
+    </div>
   );
 };
 
