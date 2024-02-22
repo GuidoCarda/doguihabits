@@ -13,10 +13,9 @@ import useCreateHabit from "../../hooks/api/useCreateHabit";
 import useEditHabit from "../../hooks/api/useEditHabit";
 import { HABIT_FORM_ACTIONS } from "../../constants";
 
-const HabitForm = ({ onClose, action, initialValues }) => {
-  const [input, setInput] = useState(initialValues?.title ?? "");
-  const [description, setDescription] =
-    useState(initialValues?.description) ?? "";
+const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
+  const { title, description } = formValues;
+
   const { id: habitId } = useParams();
 
   const isMobile = useMediaQuery("(max-width: 638px)");
@@ -24,35 +23,29 @@ const HabitForm = ({ onClose, action, initialValues }) => {
   const newHabitMutation = useCreateHabit();
   const editHabitMutation = useEditHabit(habitId);
 
-  const handleModalClose = () => {
-    onClose();
-    setInput("");
-    setDescription("");
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input.trim()) {
+    if (!title.trim()) {
       return toast.error("empty title");
     }
-    if (input.trim().length > 30) {
+    if (title.trim().length > 30) {
       return toast.error("The title is too long");
     }
 
-    const habitData = { title: input, description };
+    const habitData = { title, description };
 
     if (action === HABIT_FORM_ACTIONS.edit && habitId) {
       editHabitMutation.mutate(
         { habitId, data: habitData },
         {
           onSuccess: () => {
-            handleModalClose();
-            toast.success(`${input} habit updated successfully`, {
+            onClose();
+            toast.success(`${title} habit updated successfully`, {
               position: isMobile ? "bottom-center" : "bottom-right",
             });
           },
           onError: () => {
-            handleModalClose();
+            onClose();
             toast.error("Something went wrong updating the habit");
           },
         }
@@ -60,8 +53,8 @@ const HabitForm = ({ onClose, action, initialValues }) => {
     } else {
       newHabitMutation.mutate(habitData, {
         onSuccess: () => {
-          handleModalClose();
-          toast.success(`${input} habit created successfully`, {
+          onClose();
+          toast.success(`${title} habit created successfully`, {
             position: isMobile ? "bottom-center" : "bottom-right",
           });
         },
@@ -69,7 +62,7 @@ const HabitForm = ({ onClose, action, initialValues }) => {
     }
   };
 
-  const isInputLengthInvalid = input.length > 30;
+  const isTitleLengthInvalid = title.length > 30;
   const isPending = newHabitMutation.isPending || editHabitMutation.isPending;
   const pendingMessage =
     action === HABIT_FORM_ACTIONS.edit ? "updating habit" : "creating habit";
@@ -85,10 +78,10 @@ const HabitForm = ({ onClose, action, initialValues }) => {
           <span
             className={clsx(
               `text-sm font-semibold mt-1 mr-1 block w-4 text-right`,
-              isInputLengthInvalid ? "text-red-400" : " text-zinc-400"
+              isTitleLengthInvalid ? "text-red-400" : " text-zinc-400"
             )}
           >
-            {30 - input.length}
+            {30 - title.length}
           </span>
         </div>
 
@@ -96,12 +89,12 @@ const HabitForm = ({ onClose, action, initialValues }) => {
           className="h-12 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 outline-none w-full focus:border-emerald-800"
           type="text"
           id="habit"
-          value={input}
+          value={title}
           autoFocus
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => handleInputChange("title", e.target.value)}
         />
         <AnimatePresence>
-          {isInputLengthInvalid && (
+          {isTitleLengthInvalid && (
             <motion.span
               animate={{ opacity: 1, x: [-2, 2, 0] }}
               initial={{ opacity: 0 }}
@@ -125,7 +118,7 @@ const HabitForm = ({ onClose, action, initialValues }) => {
           placeholder="Give a short description if wanted"
           className="resize-none h-28 rounded-md border-2 border-zinc-800 bg-zinc-900 text-neutral-200 px-4 py-2 outline-none w-full focus:border-emerald-800"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => handleInputChange("description", e.target.value)}
         />
       </div>
 
@@ -138,7 +131,7 @@ const HabitForm = ({ onClose, action, initialValues }) => {
             "animate-pulse duration-200": isPending,
           }
         )}
-        disabled={isInputLengthInvalid || isPending}
+        disabled={isTitleLengthInvalid || isPending}
       >
         {isPending
           ? pendingMessage

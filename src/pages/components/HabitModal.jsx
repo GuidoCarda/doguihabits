@@ -1,16 +1,41 @@
 import { AnimatePresence } from "framer-motion";
 import Modal from "../../components/Modal";
 import HabitForm from "./HabitForm";
+import { useState } from "react";
 
 const HabitModal = ({ isOpen, onClose, title, action, initialValues }) => {
+  const [formValues, setFormValues] = useState({
+    title: initialValues?.title ?? "",
+    description: initialValues?.description ?? "",
+  });
+
+  const handleInputChange = (fieldName, value) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+
+  const handleExitComplete = () => {
+    setFormValues({
+      title: "",
+      description: "",
+    });
+  };
+
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence
+      mode="wait"
+      initial={false}
+      onExitComplete={handleExitComplete}
+    >
       {isOpen && (
-        <Modal key={`${action}_habit_modal`} onClose={onClose} title={title}>
+        <Modal key={`${action}-habit-modal`} onClose={onClose} title={title}>
           <HabitForm
+            handleInputChange={handleInputChange}
             action={action}
             onClose={onClose}
-            initialValues={initialValues}
+            formValues={formValues}
           />
         </Modal>
       )}
