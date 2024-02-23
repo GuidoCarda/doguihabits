@@ -17,6 +17,7 @@ import { Toaster } from "react-hot-toast";
 
 // Auth
 import { useAuth } from "./context/AuthContext";
+import Landing from "./pages/Landing";
 
 const toastOptions = {
   style: {
@@ -34,6 +35,7 @@ function App() {
       <Toaster toastOptions={toastOptions} key={"toasts"} />
 
       <Routes>
+        <Route path="/landing" element={<Landing />} />
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Habits />} />
           <Route path="/habits/:id" element={<HabitDetail />} />
