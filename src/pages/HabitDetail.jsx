@@ -23,7 +23,11 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import { HABIT_FORM_ACTIONS, HABIT_MILESTONES } from "../constants";
+import {
+  ENTRY_STATE,
+  HABIT_FORM_ACTIONS,
+  HABIT_MILESTONES,
+} from "../constants";
 
 import useKeyPress from "../hooks/useKeyPress";
 import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
@@ -34,11 +38,19 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import {
   cn,
+  getAllDaysInMonth,
+  getDatesInRange,
+  getFirstDayOfMonth,
   getHabitStreak,
+  getMonthDatesInRange,
+  getMonthsDifference,
   getTotal,
   isPast,
+  isSameDay,
   isThisMonth,
   nextState,
+  startOfDay,
+  startOfMonth,
 } from "../utils";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
@@ -84,12 +96,12 @@ const HabitDetail = () => {
     });
   };
 
-  const toggleHabitDay = (dayId, state) => {
+  const toggleHabitDay = (entryDate) => {
     updateHabitEntryMutation.mutate(
       {
         habitId: id,
-        dayId,
-        newState: nextState(state),
+        entryDate,
+        entries: habitQuery?.data?.entries,
       },
       {
         onError: () => {
@@ -213,7 +225,7 @@ const HabitDetail = () => {
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
             {HABIT_MILESTONES.map((milestone) => (
-              <li>
+              <li key={milestone}>
                 <MilestoneBadge
                   milestone={milestone}
                   isCompleted={habitQuery.data?.badges?.includes(milestone)}
@@ -244,19 +256,32 @@ export const MilestoneBadge = ({ milestone, isCompleted }) => {
   );
 };
 
-const HabitEntriesInLineView = ({ entries }) => {
+const HabitEntriesInLineView = () => {
   const today = new Date();
   const { id } = useParams();
+  const habitQuery = useHabit(id);
 
   const updateHabitEntryMutation = useUpdateHabitEntry(id);
 
-  const toggleHabitDay = (entryId, state) => {
+  const toggleHabitDay = (entryDate) => {
     updateHabitEntryMutation.mutate({
       habitId: id,
-      dayId: entryId,
-      newState: nextState(state),
+      entryDate,
+      entries,
     });
   };
+
+  const createdAt = habitQuery?.data.createdAt;
+
+  const entries = getDatesInRange(getFirstDayOfMonth(createdAt), today).map(
+    (date) =>
+      habitQuery?.data?.entries?.find((entry) =>
+        isSameDay(entry.date, date)
+      ) || {
+        date,
+        state: ENTRY_STATE.pending,
+      }
+  );
 
   return (
     <div>
@@ -274,13 +299,13 @@ const HabitEntriesInLineView = ({ entries }) => {
             }
 
             return (
-              <li key={day.id} className="aspect-square h-10 w-10">
+              <li key={idx} className="aspect-square h-10 w-10">
                 <button
                   disabled={
                     isCurrentMonth && day.date.getDate() > today.getDate()
                   }
                   aria-label="toggle habit state"
-                  onClick={() => toggleHabitDay(day.id, day.state)}
+                  onClick={() => toggleHabitDay(day.date)}
                   className={clsx(
                     "w-full h-full rounded-md border-2 border-transparent text-white font-semibold transition-colors",
                     {
@@ -336,17 +361,25 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
   // this implemetation doesn't take into consideration the year of the entry
   // so if the habit is tracked for more than a year the entries will be grouped
   // TODO: take into consideration the year of the entry to group the entries
-  const months = habit?.entries?.reduce((acc, entry) => {
-    const month = new Date(entry.date).getMonth();
-    acc[month] = acc[month] ? [...acc[month], entry] : [entry];
-    return acc;
-  }, []);
+  // const months = habit?.entries?.reduce((acc, entry) => {
+  //   const month = new Date(entry.date).getMonth();
+  //   acc[month] = acc[month] ? [...acc[month], entry] : [entry];
+  //   return acc;
+  // }, []);
+  const today = startOfDay(new Date());
+  const createdAt = habit.createdAt;
+
+  const months = getMonthDatesInRange(createdAt, today).sort((a, b) => b - a);
 
   return (
     <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-      {months.map((month, idx) => (
+      {months.map((startingDate, idx) => (
         <li key={`${habit.id}-${idx}`}>
-          <HabitMonthlyView month={month} toggleHabitDay={toggleHabitDay} />
+          <HabitMonthlyView
+            entries={habit.entries}
+            date={startingDate}
+            toggleHabitDay={toggleHabitDay}
+          />
         </li>
       ))}
     </ul>

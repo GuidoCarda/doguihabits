@@ -6,6 +6,7 @@ import {
   getPast7DaysEntries,
   getTotal,
   getWeekDayString,
+  isSameDay,
   nextState,
   startOfDay,
 } from "../../utils";
@@ -34,6 +35,7 @@ import { useAuth } from "../../context/AuthContext";
 //Api hooks
 import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
 import useDeleteHabit from "../../hooks/api/useDeleteHabit";
+import { ENTRY_STATE } from "../../constants";
 
 const HabitsWeekView = ({ habit }) => {
   const dialog = useDialog();
@@ -67,20 +69,42 @@ const HabitsWeekView = ({ habit }) => {
     return <HabitWeekViewSkeleton title={habit.title} />;
   }
 
-  const currentDate = startOfDay(new Date());
-  const lastWeek = getPast7DaysEntries(habit.entries, currentDate);
+  console.log(habit.entries);
 
-  const getCompletionPercentage = (habit) => {
+  const currentDate = startOfDay(new Date());
+  // const lastWeek = getPast7DaysEntries(habit.entries, currentDate);
+
+  console.log(habit.entries);
+
+  const lastWeek = getPast7Days(currentDate)
+    .sort((a, b) => a - b)
+    .map((date) => {
+      const entry = habit.entries.find((entry) => {
+        return isSameDay(entry.date, date);
+      });
+
+      return {
+        id: entry?.id,
+        date: date,
+        state: entry?.state || ENTRY_STATE.pending,
+      };
+    });
+
+  const getCompletionPercentage = (entries) => {
     const daysStateCount = {
-      completed: getTotal(habit.entries, "completed"),
-      failed: getTotal(habit.entries, "failed"),
+      completed: getTotal(entries, ENTRY_STATE.completed),
+      failed: getTotal(entries, ENTRY_STATE.failed),
     };
     const totalCount = daysStateCount.completed + daysStateCount.failed;
     return totalCount ? (daysStateCount.completed * 100) / totalCount : 0;
   };
 
+  // console.log(lastWeek);
+
   const currentStreak = getHabitStreak(habit.entries);
-  const completionPercentage = getCompletionPercentage(habit).toFixed(0);
+  const completionPercentage = getCompletionPercentage(habit.entries).toFixed(
+    0
+  );
 
   return (
     <motion.div
@@ -121,7 +145,7 @@ const HabitsWeekView = ({ habit }) => {
           const [day] = getDayMonthYear(date);
           return (
             <div
-              key={`day-${id}`}
+              key={`day-${day}`}
               className={clsx("grid place-content-center")}
             >
               <span
@@ -134,15 +158,19 @@ const HabitsWeekView = ({ habit }) => {
               <button
                 aria-label="toggle habit state"
                 disabled={
-                  startOfDay(date).getMonth() <
-                  startOfDay(habit.createdAt).getMonth()
+                  startOfDay(date).getFullYear() <
+                    startOfDay(habit.createdAt).getFullYear() ||
+                  (startOfDay(date).getMonth() <
+                    startOfDay(habit.createdAt).getMonth() &&
+                    startOfDay(date).getFullYear() ===
+                      startOfDay(habit.createdAt).getFullYear())
                 }
                 onClick={() =>
                   mutation.mutate(
                     {
                       habitId: habit.id,
-                      dayId: id,
-                      newState: nextState(state),
+                      entryDate: date,
+                      entries: habit.entries,
                     },
                     {
                       onError: () => {
@@ -156,9 +184,11 @@ const HabitsWeekView = ({ habit }) => {
                 className={clsx(
                   "rounded-md h-10 w-10 font-semibold border-2 border-transparent transition-colors duration-300",
                   {
-                    "bg-success": state === "completed",
-                    "bg-failed": state === "failed",
-                    "bg-zinc-700": state !== "failed" && state !== "completed",
+                    "bg-success": state === ENTRY_STATE.completed,
+                    "bg-failed": state === ENTRY_STATE.failed,
+                    "bg-zinc-700":
+                      state !== ENTRY_STATE.failed &&
+                      state !== ENTRY_STATE.completed,
                   },
                   "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20",
                   "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent"
