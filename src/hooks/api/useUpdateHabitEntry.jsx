@@ -1,9 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { useRef } from "react";
-import { addBadges, updateHabitEntry } from "../../services/habits";
+import { addBadges, addEntry, updateHabitEntry } from "../../services/habits";
 import toast from "react-hot-toast";
-import { checkForNewMilestones, getHabitStreak } from "../../utils";
+import {
+  checkForNewMilestones,
+  getHabitStreak,
+  isSameDay,
+  nextState,
+} from "../../utils";
+import { ENTRY_STATE } from "../../constants";
 
 function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
@@ -13,9 +19,19 @@ function useUpdateHabitEntry() {
 
   return useMutation({
     mutationKey: ["habits", user.uid, "update"],
-    mutationFn: ({ habitId, dayId, newState }) =>
-      updateHabitEntry(habitId, dayId, newState),
-    onMutate: async ({ habitId, dayId, newState }) => {
+    mutationFn: ({ habitId, entryDate, entries }) => {
+      const entry = entries.find((entry) => isSameDay(entry.date, entryDate));
+
+      if (entries.length === 0 || !entry) {
+        return addEntry(habitId, {
+          date: entryDate,
+          state: ENTRY_STATE.completed,
+        });
+      }
+
+      updateHabitEntry(habitId, entryDate, entries);
+    },
+    onMutate: async ({ habitId, entryDate, entries }) => {
       await queryClient.cancelQueries(["habits", user.uid]);
       ongoingMutations.current++;
       // Snapshot the current data for rollback on error
@@ -24,13 +40,28 @@ function useUpdateHabitEntry() {
       // Optimistically update the UI
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
         // Update the relevant data optimistically
-        const updatedData = oldData.map((habit) => {
+        const updatedData = oldData?.map((habit) => {
           if (habit.id === habitId) {
+            const entry = entries.find((entry) =>
+              isSameDay(entry.date, entryDate)
+            );
+            if (entry) {
+              return {
+                ...habit,
+                entries: entries.map((entry) =>
+                  isSameDay(entry.date, entryDate)
+                    ? { ...entry, state: nextState(entry.state) }
+                    : entry
+                ),
+              };
+            }
+
             return {
               ...habit,
-              entries: habit.entries.map((entry) =>
-                entry.id === dayId ? { ...entry, state: newState } : entry
-              ),
+              entries: habit?.entries?.concat({
+                date: entryDate,
+                state: nextState("pending"),
+              }),
             };
           }
           return habit;
@@ -81,6 +112,7 @@ export function useAddBadge() {
     mutationKey: ["habits", "addBadge"],
     mutationFn: ({ habitId, newBadges }) => addBadges(habitId, newBadges),
     onMutate: ({ habitId, newBadges }) => {
+      queryClient.cancelQueries(["habits", user.uid]);
       queryClient.setQueryData(["habits", user.uid], (oldData) => {
         return oldData.map((habit) => {
           if (habit.id === habitId) {
@@ -92,6 +124,7 @@ export function useAddBadge() {
     },
     onError: (error, variables, rollback) => {
       console.error(error);
+      queryClient.invalidateQueries(["habits", user.uid]);
     },
     onSuccess: (data) => {
       const lastReachedMilestone = data.at(data.length > 1 ? -1 : 0);
@@ -104,7 +137,7 @@ export function useAddBadge() {
       );
     },
     onSettled: () => {
-      queryClient.invalidateQueries(["habits", user.uid]);
+      // queryClient.invalidateQueries(["habits", user.uid]);
     },
   });
 }
