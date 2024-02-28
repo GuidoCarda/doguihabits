@@ -6,3 +6,9 @@ export const HABIT_FORM_ACTIONS = {
 } as const;
 
 export const HABITS_LIMIT = 5 as const;
+
+export const ENTRY_STATE = {
+  pending: "pending",
+  completed: "completed",
+  failed: "failed",
+} as const;

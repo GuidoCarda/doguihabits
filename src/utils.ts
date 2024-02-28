@@ -1,6 +1,6 @@
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { HABIT_MILESTONES } from "./constants";
+import { ENTRY_STATE, HABIT_MILESTONES } from "./constants";
 
 const MONTHS = [
   "January",
@@ -96,6 +96,34 @@ export const startOfDay = (dirtyDate: Date | string | number): Date => {
   return date;
 };
 
+// returns a date with the first date of the month
+export const startOfMonth = (dirtyDate: Date | string | number) => {
+  const date = startOfDay(dirtyDate);
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
+// get the first date for each month in the range
+export const getMonthDatesInRange = (
+  dirtyStartDate: Date | string,
+  dirtyEndDate: Date | string
+) => {
+  const startDate = startOfDay(dirtyStartDate);
+  const endDate = startOfDay(dirtyEndDate);
+
+  const dates = [] as Date[];
+
+  while (
+    startDate.getFullYear() < endDate.getFullYear() ||
+    (startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() <= endDate.getMonth())
+  ) {
+    dates.push(startOfMonth(startDate));
+    startDate.setMonth(startDate.getMonth() + 1);
+  }
+
+  return dates;
+};
+
 // Check if the received dates are in the same month & year
 export const isSameMonth = (
   dirtyDateLeft: Date | string | number,
@@ -166,30 +194,52 @@ export function cn(...inputs: ClassValue[]) {
  * @param entries - An array of entries containing the id, date and state.
  * @returns streak - The current streak for the habit.
  */
-export const getHabitStreak = (entries: any[]) => {
-  const today = new Date();
+export const getHabitStreak = (entries: Record<string, any>[]) => {
   let streak = 0;
 
-  const lastMonth = entries.at(-1).date;
+  if (entries.length === 0) {
+    return streak;
+  }
 
-  const reversedEntries = entries
-    .flat()
-    .reverse()
-    .slice(daysInCurrentMonth() - today.getDate());
+  const sortedEntries = entries.slice().sort((a, b) => b.date - a.date);
 
-  for (let entry of reversedEntries) {
-    if (entry.state !== "completed") {
+  for (let i = 0; i < sortedEntries.length; i++) {
+    const currentEntry = sortedEntries[i];
+
+    if (
+      (i === 0 && !isToday(currentEntry.date)) ||
+      currentEntry.state !== ENTRY_STATE.completed
+    ) {
       break;
     }
+
+    if (i > 0) {
+      const prevEntry = sortedEntries[i - 1];
+      if (!isPreviousDay(prevEntry.date, currentEntry.date)) {
+        break;
+      }
+    }
+
     streak += 1;
   }
+
   return streak;
+};
+
+/**
+ * Check if a date is the previous day of another date.
+ * @param prevDate
+ * @param currentDate
+ * @returns Boolean
+ */
+export const isPreviousDay = (prevDate, currentDate) => {
+  return Math.abs(currentDate.getTime() - prevDate.getTime()) <= 86400000;
 };
 
 export const generatePendingHabitEntries = (datesArray) => {
   return datesArray.map((date) => ({
     date,
-    state: "pending",
+    state: ENTRY_STATE.pending,
   }));
 };
 
@@ -260,4 +310,46 @@ export const getPast7DaysEntries = (entries, currentDate) => {
   }
 
   return lastWeek;
+};
+
+export const getDatesInRange = (
+  dirtyDateStart: Date | string | number,
+  dirtyDateEnd: Date | string | number
+) => {
+  const dateStart = startOfDay(dirtyDateStart);
+  const dateEnd = startOfDay(dirtyDateEnd);
+
+  const dates = [] as Date[];
+
+  while (dateStart <= dateEnd) {
+    dates.push(new Date(dateStart));
+    dateStart.setDate(dateStart.getDate() + 1);
+  }
+
+  return dates;
+};
+
+export const getFirstDayOfMonth = (dirtyDate: Date | string | number) => {
+  const date = new Date(dirtyDate);
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
+export const getLastDayOfMonth = (dirtyDate: Date | string | number) => {
+  const date = new Date(dirtyDate);
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+};
+
+export const getMonthsDifference = (
+  dirtyDateLeft: Date | string | number,
+  dirtyDateRight: Date | string | number
+) => {
+  const leftDate = startOfDay(dirtyDateLeft);
+  const rightDate = startOfDay(dirtyDateRight);
+
+  return (
+    rightDate.getMonth() -
+    leftDate.getMonth() +
+    12 * (rightDate.getFullYear() - leftDate.getFullYear()) +
+    1
+  );
 };
