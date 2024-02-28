@@ -14,10 +14,10 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import {
-  generatePendingHabitEntries,
-  getAllDaysInMonth,
   getNextMonthPendingHabitEntries,
+  isSameDay,
   isSameMonth,
+  nextState,
   shouldAddNextMonth,
   startOfDay,
 } from "../utils";
@@ -30,6 +30,7 @@ import {
  * @throws An error if something goes wrong in the creation proccess
  * @returns The id of the habit just created
  */
+
 export const createHabit = async (formData) => {
   const { title, description } = formData;
   const date = new Date();
@@ -42,32 +43,21 @@ export const createHabit = async (formData) => {
       badges: [],
       currentStreak: 0,
       description: description ?? "",
+      entries: [],
     };
 
     const habitsCollection = collection(db, "habits");
     const habitRef = await addDoc(habitsCollection, newHabit);
     const habitId = habitRef.id;
-    const entriesCollection = collection(habitsCollection, habitId, "entries");
 
-    const entries = generatePendingHabitEntries(
-      getAllDaysInMonth(date.getFullYear(), date.getMonth())
-    );
+    console.log(`habitID ${habitId} created`);
 
-    const entriesBatch = writeBatch(db);
-    for (const entry of entries) {
-      entriesBatch.set(doc(entriesCollection), entry);
-    }
-    await entriesBatch.commit();
-
-    console.log(
-      `habitID ${habitId} created, Entries added for the whole month`
-    );
-
-    return { id: habitId, ...newHabit, entries };
+    return { id: habitId, ...newHabit };
   } catch (err) {
     console.error(err);
   }
 };
+
 /**
  * Create the entries for a given habit by its ID
  * @param {string} habitId
@@ -121,7 +111,6 @@ export const getHabitsIds = async (userId) => {
  * @returns The habits array with its corresponding entries
  */
 export const getHabitsWithEntries = async (userId) => {
-  console.log("getHabitWithEntries called");
   try {
     const habitsCollection = collection(db, "habits");
     const habitsQuery = query(habitsCollection, where("uid", "==", userId));
@@ -133,15 +122,15 @@ export const getHabitsWithEntries = async (userId) => {
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt.toDate(),
+        entries: doc
+          .data()
+          .entries.map((entry) => ({
+            ...entry,
+            date: entry.date.toDate(),
+          }))
+          .sort((a, b) => b.date - a.date),
       });
     });
-
-    for (const habit of habits) {
-      const entries = await getHabitEntries(habit.id);
-      habit.entries = entries;
-    }
-
-    await checkAndUpdateHabits(habits);
 
     return habits;
   } catch (error) {
@@ -191,9 +180,7 @@ export const getHabitById = async (habitId) => {
     const habitRef = doc(habitsCollection, habitId);
     const habitSnapshot = await getDoc(habitRef);
 
-    const entries = await getHabitEntries(habitId);
-
-    const habit = { ...habitSnapshot.data(), entries };
+    const habit = { ...habitSnapshot.data() };
     return habit;
   } catch (error) {
     console.log(error);
@@ -208,16 +195,51 @@ export const getHabitById = async (habitId) => {
  * @param {string} state - The new state of the entry
  * @throws An error if the habit could not be updated
  */
-export const updateHabitEntry = async (habitId, entryId, state) => {
+
+export const updateHabitEntry = async (habitId, entryDate, entries) => {
+  const updatedEntries = entries.map((entry) => {
+    if (isSameDay(entry.date, entryDate)) {
+      return {
+        ...entry,
+        state: nextState(entry.state),
+      };
+    }
+    return entry;
+  });
+
   try {
-    const entriesCollection = collection(db, "habits", habitId, "entries");
-    const entryRef = doc(entriesCollection, entryId);
-    await updateDoc(entryRef, { state });
+    const habitsCollection = collection(db, "habits");
+    const habitRef = doc(habitsCollection, habitId);
+
+    await updateDoc(habitRef, { entries: updatedEntries });
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
+
+export const addEntry = async (habitId, entry) => {
+  // console.log("addEntry called", habitId, entry);
+  const habitsCollection = collection(db, "habits");
+  const habitRef = doc(habitsCollection, habitId);
+
+  await updateDoc(habitRef, {
+    entries: arrayUnion(entry),
+  });
+
+  return entry;
+};
+
+// export const updateHabitEntry = async (habitId, entryId, state) => {
+//   try {
+//     const entriesCollection = collection(db, "habits", habitId, "entries");
+//     const entryRef = doc(entriesCollection, entryId);
+//     await updateDoc(entryRef, { state });
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+// };
 
 /**
  * Delete a given habit by its ID.
