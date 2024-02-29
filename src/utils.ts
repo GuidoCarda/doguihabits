@@ -353,3 +353,23 @@ export const getMonthsDifference = (
     1
   );
 };
+
+export const getPrevMonthPlaceholderDates = (
+  monthDate: Date,
+  length: number
+) => {
+  const prevMonthLastDate = new Date(
+    monthDate.getFullYear(),
+    monthDate.getMonth(),
+    0
+  );
+
+  const dates = [] as Date[];
+
+  while (dates.length < length) {
+    dates.push(new Date(prevMonthLastDate));
+    prevMonthLastDate.setDate(prevMonthLastDate.getDate() - 1);
+  }
+
+  return dates;
+};
