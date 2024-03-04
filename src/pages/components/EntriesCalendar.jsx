@@ -12,7 +12,7 @@ import {
 import { ENTRY_STATE } from "../../constants";
 import { AnimatePresence, motion } from "framer-motion";
 
-export const HabitCalendarView = (props) => {
+const EntriesCalendar = (props) => {
   const { date, entries, onDateClick } = props;
 
   const firstDayOfMonth = date.getDay();
@@ -92,4 +92,4 @@ export const HabitCalendarView = (props) => {
   );
 };
 
-export default HabitCalendarView;
+export default EntriesCalendar;

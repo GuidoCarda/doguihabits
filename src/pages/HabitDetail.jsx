@@ -38,23 +38,21 @@ import { toast } from "react-hot-toast";
 import { IconTextButton } from "../components/Buttons";
 import {
   cn,
-  getAllDaysInMonth,
   getDatesInRange,
   getFirstDayOfMonth,
   getHabitStreak,
   getMonthDatesInRange,
-  getMonthsDifference,
   getTotal,
   isPast,
   isSameDay,
   isThisMonth,
-  nextState,
   startOfDay,
-  startOfMonth,
 } from "../utils";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
+import { HabitCalendarView } from "./Test";
+import EntriesCalendar from "./components/EntriesCalendar";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -372,17 +370,19 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
   const months = getMonthDatesInRange(createdAt, today).sort((a, b) => b - a);
 
   return (
-    <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-      {months.map((startingDate, idx) => (
-        <li key={`${habit.id}-${idx}`}>
-          <HabitMonthlyView
-            entries={habit.entries}
-            date={startingDate}
-            toggleHabitDay={toggleHabitDay}
-          />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
+        {months.map((startingDate, idx) => (
+          <li key={`${habit.id}-${idx}`}>
+            <HabitMonthlyView
+              entries={habit.entries}
+              date={startingDate}
+              toggleHabitDay={toggleHabitDay}
+            />
+          </li>
+        ))}
+      </ul>
+    </>
   );
 };
 

@@ -1,16 +1,19 @@
 import { useState } from "react";
-import Layout from "../components/Layout";
-import { getDayMonthYear, startOfMonth } from "../utils";
 import { IconButton } from "../components/Buttons";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useHabits } from "../hooks/api/useHabits";
+import { useHabit } from "../hooks/api/useHabits";
 import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
-import HabitCalendarView from "./components/HabitCalendarView";
+import EntriesCalendar from "./components/EntriesCalendar";
+import { startOfMonth } from "../utils";
 
-const Test = () => {
+const Test = ({ habitId }) => {
+  return <HabitCalendarView habitId={habitId} />;
+};
+
+export const HabitCalendarView = ({ habitId }) => {
   const [date, setDate] = useState(startOfMonth(new Date()));
 
-  const habitsQuery = useHabits();
+  const habitsQuery = useHabit(habitId);
   const updateEntryMutation = useUpdateHabitEntry();
 
   const getNextMonthDate = (dirtyDate) => {
@@ -38,39 +41,39 @@ const Test = () => {
 
   if (habitsQuery.isPending) return <div>Loading...</div>;
 
-  const habit = habitsQuery.data[1];
-
   const onDateClick = (date) => {
     updateEntryMutation.mutate({
-      habitId: habit.id,
+      habitId: habitId,
       entryDate: date,
-      entries: habit.entries,
+      entries: habitsQuery?.data.entries,
     });
   };
 
   return (
-    <div>
-      <Layout className={"grid"}>
-        <h1 className="text-white text-3xl">CalendarView</h1>
-        <div className="max-w-md mx-auto mt-10">
-          <span className="text-zinc-400 font-medium block mb-2">
-            {getDayMonthYear(date).join("-")}
-          </span>
-          <div className="flex justify-between items-center">
-            <IconButton onClick={onPrevClick}>
-              <ArrowLeftIcon className="h-5 w-5 text-white" />
-            </IconButton>
-            <IconButton onClick={onNextClick}>
-              <ArrowRightIcon className="h-5 w-5 text-white" />
-            </IconButton>
-          </div>
-          <HabitCalendarView
-            date={date}
-            entries={habit.entries}
-            onDateClick={onDateClick}
-          />
-        </div>
-      </Layout>
+    <div className="max-w-sm mx-auto mt-10">
+      <div className="flex justify-between items-center mb-2">
+        <IconButton
+          onClick={onPrevClick}
+          className={
+            "text-zinc-400 hover:text-white transition-colors duration-150 "
+          }
+        >
+          <ArrowLeftIcon className="h-5 w-5" strokeWidth={2} />
+        </IconButton>
+        <IconButton
+          onClick={onNextClick}
+          className={
+            "text-zinc-400 hover:text-white transition-colors duration-150"
+          }
+        >
+          <ArrowRightIcon className="h-5 w-5" strokeWidth={2} />
+        </IconButton>
+      </div>
+      <EntriesCalendar
+        date={date}
+        entries={habitsQuery?.data.entries}
+        onDateClick={onDateClick}
+      />
     </div>
   );
 };
