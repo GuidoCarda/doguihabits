@@ -4,8 +4,6 @@ import {
   getAllDaysInMonth,
   getDayMonthYear,
   getMonthString,
-  getPrevMonthPlaceholderDates,
-  getWeekDayString,
   isPast,
   isSameDay,
   isThisMonth,

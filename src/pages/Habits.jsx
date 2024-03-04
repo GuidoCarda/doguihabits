@@ -140,7 +140,7 @@ const HabitsProgressBar = () => {
     .filter((state) => state === "completed").length;
 
   return (
-    <div className="mt-12">
+    <div className="mt-8">
       <div className="mb-6">
         <h2 className="font-semibold text-2xl">Current State</h2>
         <span className="text-zinc-400">

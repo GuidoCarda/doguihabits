@@ -30,7 +30,7 @@ const EntriesCalendar = (props) => {
   const [, monthNumber, year] = getDayMonthYear(date);
 
   return (
-    <div className="bg-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden ">
+    <div className="border-2 bg-zinc-800 border-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden h-full ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-emerald-500 text-zinc-899">
           {getMonthString(monthNumber - 1)}
@@ -42,7 +42,7 @@ const EntriesCalendar = (props) => {
         <div>
           <div className="grid grid-cols-7 gap-2 place-items-center text-zinc-400 mb-2">
             {[...Array(7).keys()].map((day) => (
-              <span>{getWeekDayString(day).slice(0, 3)}</span>
+              <span key={day}>{getWeekDayString(day).slice(0, 3)}</span>
             ))}
           </div>
           <motion.ul
@@ -58,7 +58,7 @@ const EntriesCalendar = (props) => {
                 (day.date.getFullYear() === date.getFullYear() &&
                   day.date.getMonth() < date.getMonth())
               ) {
-                return <span />;
+                return <span key={idx} />;
               }
 
               return (

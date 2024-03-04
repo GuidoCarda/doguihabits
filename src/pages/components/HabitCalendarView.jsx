@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { IconButton } from "../components/Buttons";
+import { IconButton } from "../../components/Buttons";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useHabit } from "../hooks/api/useHabits";
-import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
-import EntriesCalendar from "./components/EntriesCalendar";
-import { startOfMonth } from "../utils";
+import EntriesCalendar from "./EntriesCalendar";
+import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
+import { useHabit } from "../../hooks/api/useHabits";
+import { startOfMonth } from "../../utils";
 
-const Test = ({ habitId }) => {
-  return <HabitCalendarView habitId={habitId} />;
-};
-
-export const HabitCalendarView = ({ habitId }) => {
+const HabitCalendarView = ({ habitId }) => {
   const [date, setDate] = useState(startOfMonth(new Date()));
 
   const habitsQuery = useHabit(habitId);
@@ -28,13 +24,11 @@ export const HabitCalendarView = ({ habitId }) => {
   };
 
   const onNextClick = () => {
-    console.log(date, getNextMonthDate(date));
     const nextMonth = getNextMonthDate(date);
     setDate(nextMonth);
   };
 
   const onPrevClick = () => {
-    console.log(date, getPrevMonthDate(date));
     const prevMonth = getPrevMonthDate(date);
     setDate(prevMonth);
   };
@@ -78,4 +72,4 @@ export const HabitCalendarView = ({ habitId }) => {
   );
 };
 
-export default Test;
+export default HabitCalendarView;

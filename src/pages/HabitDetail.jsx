@@ -51,8 +51,8 @@ import {
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
-import { HabitCalendarView } from "./Test";
 import EntriesCalendar from "./components/EntriesCalendar";
+import HabitCalendarView from "./components/HabitCalendarView";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -217,8 +217,6 @@ const HabitDetail = () => {
           toggleHabitDay={toggleHabitDay}
         />
 
-        <HabitEntriesInLineView entries={habitQuery.data.entries} />
-
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
@@ -355,15 +353,6 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
 };
 
 const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
-  // Divide the entries array on subarray's of months based on the entry date
-  // this implemetation doesn't take into consideration the year of the entry
-  // so if the habit is tracked for more than a year the entries will be grouped
-  // TODO: take into consideration the year of the entry to group the entries
-  // const months = habit?.entries?.reduce((acc, entry) => {
-  //   const month = new Date(entry.date).getMonth();
-  //   acc[month] = acc[month] ? [...acc[month], entry] : [entry];
-  //   return acc;
-  // }, []);
   const today = startOfDay(new Date());
   const createdAt = habit.createdAt;
 
@@ -374,10 +363,10 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
       <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
         {months.map((startingDate, idx) => (
           <li key={`${habit.id}-${idx}`}>
-            <HabitMonthlyView
+            <EntriesCalendar
               entries={habit.entries}
               date={startingDate}
-              toggleHabitDay={toggleHabitDay}
+              onDateClick={toggleHabitDay}
             />
           </li>
         ))}
