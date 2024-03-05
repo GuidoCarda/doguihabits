@@ -4,7 +4,7 @@ import { cn } from "../utils";
 
 const Landing = () => {
   return (
-    <main className="max-w-7xl mx-auto px-4">
+    <main className="scroll-smooth max-w-7xl mx-auto px-4">
       <Header />
       <Hero />
       <Features />
@@ -82,7 +82,37 @@ const Hero = () => {
 };
 
 const Features = () => {
-  return <section id="features"></section>;
+  return (
+    <section id="features" className="py-20">
+      <h2 className="text-4xl font-bold text-white  mb-12">Key features</h2>
+      <div className="grid grid-cols-3 gap-10">
+        <div className="border-l-2 border-zinc-800 pl-4">
+          <h3 className="text-white text-xl font-bold mb-2">
+            Effortless Habit Tracking:{" "}
+          </h3>
+          <p className="text-zinc-300 text-lg font-medium">
+            Create, update, and delete habits with ease.
+          </p>
+        </div>
+        <div className="border-l-2 border-zinc-800 pl-4">
+          <h3 className="text-white text-xl font-bold mb-2">
+            Visual Summary:{" "}
+          </h3>
+          <p className="text-zinc-300 text-lg font-medium">
+            See your habits at a glance with a clean and intuitive interface.
+          </p>
+        </div>
+        <div className="border-l-2 border-zinc-800 pl-4">
+          <h3 className="text-white text-xl font-bold mb-2">
+            Milestones and Badges
+          </h3>
+          <p className="text-zinc-300 text-lg font-medium">
+            Achieve milestones and earn badges for your dedication.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 const Layout = () => {
@@ -90,11 +120,68 @@ const Layout = () => {
 };
 
 const HowItWorks = () => {
-  return <section></section>;
+  return (
+    <section id="how-it-works" className="py-20">
+      <h2 className="text-4xl font-bold text-white text-center mb-12">
+        How it works?
+      </h2>
+      <div className="select-none flex flex-col mx-auto gap-8 max-w-lg">
+        <div className="group flex gap-2 ">
+          <h3 className="group-hover:text-emerald-600 transition-colors text-5xl mb-4 text-zinc-400 font-bold  h-20 w-20 flex-shrink-0 grid place-content-center">
+            1
+          </h3>
+          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
+            <p className="text-zinc-300 text-lg font-medium">
+              Create Your Habits: Input your habit details and start tracking
+              from day one
+            </p>
+          </div>
+        </div>
+        <div className="group flex gap-2">
+          <h3 className="group-hover:text-emerald-600 text-5xl mb-4 text-zinc-400 font-bold  h-20 w-20 flex-shrink-0 grid place-content-center">
+            2
+          </h3>
+          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
+            <p className="text-zinc-300 text-lg font-medium">
+              Visualize Your Progress: Use the summary component for a quick
+              overview and the calendar-like view for detailed history.
+            </p>
+          </div>
+        </div>
+        <div className="group flex gap-2 ">
+          <h3 className="group-hover:text-emerald-600 text-5xl mb-4 text-zinc-400 font-bold h-20 w-20 flex-shrink-0 grid place-content-center">
+            3
+          </h3>
+          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
+            <p className="text-zinc-300 text-lg font-medium">
+              Celebrate Achievements: Reach milestones, earn badges and keep the
+              motivation high.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 const GetStarted = () => {
-  return <section></section>;
+  return (
+    <section
+      id="get-started"
+      className="text-center flex items-center flex-col py-10 mb-20 "
+    >
+      <h2 className="text-4xl font-bold text-white mb-6">Get Started Today!</h2>
+      <p className="text-zinc-300 text-lg font-medium max-w-[60ch]">
+        Ready to embark on your habit transformation journey? Join DoguiHabits
+        now and take the first step towards a more disciplined, healthier, and
+        happier you.
+      </p>
+
+      <Button className={"bg-emerald-600 font-medium text-white mt-10"}>
+        Sign Up Now
+      </Button>
+    </section>
+  );
 };
 
 const footerLinks = [
