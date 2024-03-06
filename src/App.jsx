@@ -36,9 +36,9 @@ function App() {
       <Toaster toastOptions={toastOptions} key={"toasts"} />
 
       <Routes>
-        <Route path="/landing" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
         <Route element={<ProtectedRoutes />}>
-          <Route path="/" element={<Habits />} />
+          <Route path="/habits" element={<Habits />} />
           <Route path="/habits/:id" element={<HabitDetail />} />
         </Route>
         <Route path="/contact" element={<Contact />} />

@@ -1,10 +1,11 @@
 import { ChevronDownIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { cn } from "../utils";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Landing = () => {
   return (
-    <main className="scroll-smooth max-w-7xl mx-auto px-4 ">
+    <main className="scroll-smooth max-w-7xl mx-auto px-4">
       <Header />
       <Hero />
       <Features />
@@ -31,16 +32,20 @@ const navItems = [
 ];
 
 const Header = () => {
-  return (
-    <header className="flex h-20 justify-between items-center">
-      <span className="font-bold text-xl text-zinc-100">Doguihabits</span>
+  const { user, isLoading } = useAuth();
 
-      <ul className="hidden sm:flex sm:gap-4">
+  return (
+    <header className="flex h-20  items-center">
+      <span className="font-bold leading-none text-xl text-zinc-100">
+        Doguihabits
+      </span>
+
+      <ul className="hidden sm:ml-10 sm:flex sm:justify-self-center sm:gap-4">
         {navItems.map((item) => {
           return (
             <li key={item.name}>
               <a
-                className="active:text-white font-medium text-zinc-400"
+                className="active:text-white leading-none font-medium text-zinc-400 hover:text-white transition-color duration-150"
                 href={item.href}
               >
                 {item.name}
@@ -50,14 +55,16 @@ const Header = () => {
         })}
       </ul>
 
-      <Link
-        className={
-          "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
-        }
-        to={"/login"}
-      >
-        Sign Up Now
-      </Link>
+      {!isLoading && (
+        <Link
+          className={
+            "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white ml-auto"
+          }
+          to={user ? "/habits" : "/login"}
+        >
+          {user ? "My Habits" : "Sign Up Now"}
+        </Link>
+      )}
     </header>
   );
 };

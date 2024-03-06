@@ -50,7 +50,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/", { state: { from }, replace: true });
+      navigate("/habits", { state: { from }, replace: true });
     }
   }, [user]);
 
