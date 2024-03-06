@@ -142,7 +142,7 @@ const HabitDetail = () => {
         !habitQuery.isPending,
         !isMutating,
       ],
-      callback: () => navigate("/"),
+      callback: () => navigate(-1),
     },
   ];
 
@@ -331,7 +331,7 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
   const { id, title } = habit;
   return (
     <div className="mb-10 flex items-center">
-      <Link to={"/"} aria-label="back to home">
+      <Link to={-1} aria-label="back to home">
         <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
       </Link>
       <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>

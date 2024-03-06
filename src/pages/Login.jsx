@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { cn } from "../utils";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const ACTIONS = {
   SIGN_IN: "Sign In",
@@ -56,11 +57,6 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!email || !password) {
-      return alert("algo salio mal");
-    }
-
     mutation.mutate({ email, password });
   };
 
@@ -80,14 +76,17 @@ const Login = () => {
       key={"login_page"}
     >
       <Layout className={"min-h-screen grid place-items-center "}>
-        <form className="relative max-w-md w-full" onSubmit={handleSubmit}>
+        <form
+          className="relative max-w-lg w-full  rounded-md"
+          onSubmit={handleSubmit}
+        >
           <AnimatePresence>
             {mutation.isError && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute -top-24 w-full py-4 border-2 mb-6 px-4 rounded-md bg-red-500/10 text-white border-red-500/20"
+                className="absolute -top-28 w-full py-4 border-2 mb-6 px-4 rounded-md bg-red-500/10 text-white border-red-500/20"
               >
                 {mutation.error.message}
               </motion.div>
@@ -96,7 +95,6 @@ const Login = () => {
           <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
             {action}
           </h1>
-
           <label htmlFor="email" className="text-zinc-300 block mb-2">
             Email
           </label>
@@ -106,7 +104,7 @@ const Login = () => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-10 mb-6 w-full bg-zinc-800 border-[2px] border-zinc-400 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80 disabled:cursor-not-allowed "
+            className="h-10 mb-6 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:ring-1 focus:ring-emerald-700 focus-within:ring-1 focus-within:ring-emerald-700 focus:outline-none disabled:cursor-not-allowed "
             name="email"
           />
           <label htmlFor="password" className="text-zinc-300 block mb-2">
@@ -118,37 +116,52 @@ const Login = () => {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-10 mb-10 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:outline  focus:outline-green-400/80 disabled:cursor-not-allowed "
+            className="h-10 mb-6 w-full bg-zinc-800 border-[1px] border-zinc-700 rounded-md text-zinc-200 pl-3 focus:ring-1 focus:ring-emerald-700 focus-within:ring-1 focus-within:ring-emerald-700 focus:outline-none disabled:cursor-not-allowed "
             name="password"
           />
           <Button
             disabled={mutation.isPending}
-            className={clsx("bg-emerald-600 w-full text-zinc-100 font-bold")}
+            className={cn(
+              "bg-emerald-600 w-full flex flex-row items-center justify-center gap-2 text-zinc-100 font-bold transition-colors duration-200 hover:bg-emerald-700",
+              { "cursor-not-allowed bg-gray-300": mutation.isPending }
+            )}
           >
-            {action}
-          </Button>
-          {
-            <div className="flex gap-2 justify-center mt-4">
-              <p className="text-zinc-400">
-                {action === ACTIONS.SIGN_UP
-                  ? "Already have an account?"
-                  : "You dont have an account?"}
-              </p>
-              <button
-                disabled={mutation.isPending}
-                type="button"
-                className={clsx("text-emerald-600")}
-                onClick={() => {
-                  mutation.reset();
-                  setAction((prev) =>
-                    prev === ACTIONS.SIGN_IN ? ACTIONS.SIGN_UP : ACTIONS.SIGN_IN
-                  );
-                }}
+            {mutation.isPending && (
+              <motion.span
+                key={"loading_spinner"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               >
-                {action === ACTIONS.SIGN_UP ? "Sign in" : "Sign up"}
-              </button>
-            </div>
-          }
+                <ArrowPathIcon
+                  className="animate-spin h-5 w-5"
+                  strokeWidth={2}
+                />
+              </motion.span>
+            )}
+            <span>{action}</span>
+          </Button>
+
+          <div className="flex gap-2 justify-center mt-4">
+            <p className="text-zinc-400">
+              {action === ACTIONS.SIGN_UP
+                ? "Already have an account?"
+                : "You dont have an account?"}
+            </p>
+            <button
+              disabled={mutation.isPending}
+              type="button"
+              className={"text-emerald-600"}
+              onClick={() => {
+                mutation.reset();
+                setAction((prev) =>
+                  prev === ACTIONS.SIGN_IN ? ACTIONS.SIGN_UP : ACTIONS.SIGN_IN
+                );
+              }}
+            >
+              {action === ACTIONS.SIGN_UP ? "Sign in" : "Sign up"}
+            </button>
+          </div>
           <div className="flex items-center gap-4 mt-10">
             <div className="w-full h-[1px] bg-zinc-500"></div>
             <span className="text-zinc-400 flex-shrink-0">
@@ -160,9 +173,9 @@ const Login = () => {
           <Button
             disabled={mutation.isPending}
             text="Google"
-            onClick={() => signInWithGoogle()}
+            onClick={signInWithGoogle}
             className={cn(
-              "bg-white w-full flex items-center justify-center font-semibold gap-2 mt-6",
+              "bg-white w-full flex items-center justify-center font-semibold gap-2 mt-6 ",
               mutation.isPending && "bg-gray-300 cursor-not-allowed"
             )}
           >
@@ -196,5 +209,18 @@ const Login = () => {
     </motion.section>
   );
 };
+
+function Alert({ message }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute -top-28 w-full py-4 border-2 mb-6 px-4 rounded-md bg-red-500/10 text-white border-red-500/20"
+    >
+      {message}
+    </motion.div>
+  );
+}
 
 export default Login;
