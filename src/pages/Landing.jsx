@@ -1,10 +1,10 @@
 import { ChevronDownIcon, HeartIcon } from "@heroicons/react/24/outline";
-import { Button } from "../components/Buttons";
 import { cn } from "../utils";
+import { Link } from "react-router-dom";
 
 const Landing = () => {
   return (
-    <main className="scroll-smooth max-w-7xl mx-auto px-4">
+    <main className="scroll-smooth max-w-7xl mx-auto px-4 ">
       <Header />
       <Hero />
       <Features />
@@ -35,7 +35,7 @@ const Header = () => {
     <header className="flex h-20 justify-between items-center">
       <span className="font-bold text-xl text-zinc-100">Doguihabits</span>
 
-      <ul className="flex gap-4">
+      <ul className="hidden sm:flex sm:gap-4">
         {navItems.map((item) => {
           return (
             <li key={item.name}>
@@ -50,16 +50,21 @@ const Header = () => {
         })}
       </ul>
 
-      <Button className={cn("bg-emerald-600 font-medium text-white")}>
-        Sign Up
-      </Button>
+      <Link
+        className={
+          "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
+        }
+        to={"/login"}
+      >
+        Sign Up Now
+      </Link>
     </header>
   );
 };
 
 const Hero = () => {
   return (
-    <section className="relative py-40">
+    <section className="relative py-36 md:py-40">
       <span className="uppercase tracking-widest block  text-emerald-500">
         doguihabits
       </span>
@@ -71,10 +76,22 @@ const Hero = () => {
         to empower your journey towards personal growth and transformation.
       </p>
       <div className="flex gap-4 items-center mt-12">
-        <Button className={"bg-emerald-600 text-white font-medium"}>
-          Sign up
-        </Button>
-        <Button className={"text-white font-medium"}>Contact us</Button>
+        <Link
+          className={
+            "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
+          }
+          to={"/login"}
+        >
+          Sign Up
+        </Link>
+        <Link
+          className={
+            "font-medium h-10 px-6 grid place-content-center rounded-md text-white "
+          }
+          to={"/contact"}
+        >
+          Contact us
+        </Link>
       </div>
       <ChevronDownIcon className="animate-bounce absolute left-0 right-0 mx-auto bottom-0 h-10 w-10 text-zinc-50" />
     </section>
@@ -83,9 +100,9 @@ const Hero = () => {
 
 const Features = () => {
   return (
-    <section id="features" className="py-20">
+    <section id="features" className="py-10 md:py-20">
       <h2 className="text-4xl font-bold text-white  mb-12">Key features</h2>
-      <div className="grid grid-cols-3 gap-10">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
         <div className="border-l-2 border-zinc-800 pl-4">
           <h3 className="text-white text-xl font-bold mb-2">
             Effortless Habit Tracking:{" "}
@@ -119,46 +136,52 @@ const Layout = () => {
   return <div></div>;
 };
 
+const howItWorks = [
+  {
+    title: "Create Your Habits",
+    description: "Input your habit details and start tracking from day one",
+  },
+  {
+    title: "Visualize Your Progress",
+    description:
+      "Use the summary view for a quick overview and the calendar-like view for detailed history.",
+  },
+  {
+    title: "Celebrate Achievements",
+    description: "Reach milestones, earn badges and keep the motivation high.",
+  },
+];
+
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-20">
-      <h2 className="text-4xl font-bold text-white text-center mb-12">
+    <section id="how-it-works" className="py-10 md:py-20">
+      <h2 className="text-4xl font-bold text-white text-center mb-12 ">
         How it works?
       </h2>
-      <div className="select-none flex flex-col mx-auto gap-8 max-w-lg">
-        <div className="group flex gap-2 ">
-          <h3 className="group-hover:text-emerald-600 transition-colors text-5xl mb-4 text-zinc-400 font-bold  h-20 w-20 flex-shrink-0 grid place-content-center">
-            1
-          </h3>
-          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
-            <p className="text-zinc-300 text-lg font-medium">
-              Create Your Habits: Input your habit details and start tracking
-              from day one
-            </p>
-          </div>
-        </div>
-        <div className="group flex gap-2">
-          <h3 className="group-hover:text-emerald-600 text-5xl mb-4 text-zinc-400 font-bold  h-20 w-20 flex-shrink-0 grid place-content-center">
-            2
-          </h3>
-          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
-            <p className="text-zinc-300 text-lg font-medium">
-              Visualize Your Progress: Use the summary component for a quick
-              overview and the calendar-like view for detailed history.
-            </p>
-          </div>
-        </div>
-        <div className="group flex gap-2 ">
-          <h3 className="group-hover:text-emerald-600 text-5xl mb-4 text-zinc-400 font-bold h-20 w-20 flex-shrink-0 grid place-content-center">
-            3
-          </h3>
-          <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
-            <p className="text-zinc-300 text-lg font-medium">
-              Celebrate Achievements: Reach milestones, earn badges and keep the
-              motivation high.
-            </p>
-          </div>
-        </div>
+      <div className="select-none flex flex-col max-w-4xl mx-auto gap-10">
+        {howItWorks.map((item, index) => {
+          return (
+            <div
+              className={cn(
+                `group md:flex md:items-center md:gap-10  max-w-lg`,
+                {
+                  "self-center": index === 1,
+                  "self-end": index === 2,
+                }
+              )}
+            >
+              <h3 className="group-hover:text-emerald-600 transition-colors text-5xl mb-4 text-zinc-400 font-bold  md:h-20 md:w-20 flex-shrink-0 md:grid md:place-content-center">
+                {index + 1}
+              </h3>
+              <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
+                <p className="text-white mb-1 text-lg font-medium ">
+                  {item.title}
+                </p>
+                <p className="text-zinc-400  font-medium">{item.description}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -168,7 +191,7 @@ const GetStarted = () => {
   return (
     <section
       id="get-started"
-      className="text-center flex items-center flex-col py-10 mb-20 "
+      className="text-center flex items-center flex-col my-10  md:my-20 "
     >
       <h2 className="text-4xl font-bold text-white mb-6">Get Started Today!</h2>
       <p className="text-zinc-300 text-lg font-medium max-w-[60ch]">
@@ -177,9 +200,14 @@ const GetStarted = () => {
         happier you.
       </p>
 
-      <Button className={"bg-emerald-600 font-medium text-white mt-10"}>
+      <Link
+        className={
+          "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white mt-10"
+        }
+        to={"/login"}
+      >
         Sign Up Now
-      </Button>
+      </Link>
     </section>
   );
 };

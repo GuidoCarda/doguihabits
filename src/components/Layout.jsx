@@ -5,7 +5,7 @@ import useDialogStore from "../store/useDialogStore";
 
 //Components
 import ConfirmationDialog from "./ConfirmationDialog";
-import clsx from "clsx";
+import { cn } from "../utils";
 
 const Layout = ({ className, children }) => {
   const { open, state, handleClose, handleSubmit } = useDialogStore();
@@ -18,7 +18,9 @@ const Layout = ({ className, children }) => {
   }, [open]);
 
   return (
-    <section className={clsx("max-w-screen-xl px-3 mx-auto py-12", className)}>
+    <section
+      className={cn("max-w-screen-xl px-3 mx-auto py-10  md:py-16", className)}
+    >
       {children}
       <ConfirmationDialog
         ref={cancelBtnRef}
