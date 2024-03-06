@@ -18,6 +18,7 @@ import { Toaster } from "react-hot-toast";
 // Auth
 import { useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
+import Contact from "./pages/components/Contact";
 
 const toastOptions = {
   style: {
@@ -40,6 +41,7 @@ function App() {
           <Route path="/" element={<Habits />} />
           <Route path="/habits/:id" element={<HabitDetail />} />
         </Route>
+        <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<Login />} />
       </Routes>
