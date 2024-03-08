@@ -6,9 +6,16 @@ import useDialogStore from "../store/useDialogStore";
 //Components
 import ConfirmationDialog from "./ConfirmationDialog";
 import { cn } from "../utils";
+import MilestoneDialog from "./MilestoneDialog";
+import useMilestoneDialogStore, {
+  useMilestoneActions,
+} from "../store/useMilestoneDialogStore";
+import { AnimatePresence } from "framer-motion";
 
 const Layout = ({ className, children }) => {
   const { open, state, handleClose, handleSubmit } = useDialogStore();
+  const isMilestoneDialogOpen = useMilestoneDialogStore((state) => state.open);
+  const { closeDialog: closeMilestoneDialog } = useMilestoneActions();
 
   const cancelBtnRef = useRef(null);
 
@@ -28,7 +35,14 @@ const Layout = ({ className, children }) => {
         options={state}
         onClose={handleClose}
         onSubmit={handleSubmit}
-      ></ConfirmationDialog>
+      />
+      <AnimatePresence>
+        <MilestoneDialog
+          open={isMilestoneDialogOpen}
+          milestone={7}
+          onClose={closeMilestoneDialog}
+        />
+      </AnimatePresence>
     </section>
   );
 };

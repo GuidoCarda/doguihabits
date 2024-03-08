@@ -10,6 +10,7 @@ import {
   nextState,
 } from "../../utils";
 import { ENTRY_STATE } from "../../constants";
+import { useMilestoneActions } from "../../store/useMilestoneDialogStore";
 
 function useUpdateHabitEntry() {
   const queryClient = useQueryClient();
@@ -107,6 +108,7 @@ function useUpdateHabitEntry() {
 export function useAddBadge() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { openDialog: openMilestoneDialog } = useMilestoneActions();
 
   return useMutation({
     mutationKey: ["habits", "addBadge"],
@@ -129,12 +131,7 @@ export function useAddBadge() {
     onSuccess: (data) => {
       const lastReachedMilestone = data.at(data.length > 1 ? -1 : 0);
 
-      toast.success(
-        `Congratulations! You reached the ${lastReachedMilestone} days milestone`,
-        {
-          icon: "🎉",
-        }
-      );
+      openMilestoneDialog(lastReachedMilestone);
     },
     onSettled: () => {
       // queryClient.invalidateQueries(["habits", user.uid]);

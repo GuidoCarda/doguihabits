@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 //Components
 import Layout from "../components/Layout";
@@ -30,11 +30,13 @@ import { useDeleteAllHabits } from "../hooks/api/useDeleteHabit";
 import { toast } from "react-hot-toast";
 import { cn, isSameDay } from "../utils";
 import { HABITS_LIMIT, HABIT_FORM_ACTIONS } from "../constants";
+import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("latest");
   const { handleSignOut } = useAuth();
+  const isMilestoneDialogOpen = useMilestoneDialogStore((state) => state.open);
 
   const habitsQuery = useHabits(sortCriteria);
   const isMutating = Boolean(
@@ -64,7 +66,12 @@ const Habits = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "n"],
-      conditionals: [!isOpen, !habitsLimitReached, !isMutating],
+      conditionals: [
+        !isOpen,
+        !habitsLimitReached,
+        !isMutating,
+        !isMilestoneDialogOpen,
+      ],
       callback: (e) => {
         e.preventDefault();
         handleShowToggle();
@@ -110,12 +117,14 @@ const Habits = () => {
             sortCriteria={sortCriteria}
           />
         )}
+
         <HabitModal
           isOpen={isOpen}
           onClose={handleClose}
           title={"New Habit"}
           action={HABIT_FORM_ACTIONS.create}
         />
+
         {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
         {!habitsQuery.isPending && !hasHabits && (
           <EmptyState onClick={handleShowToggle} />
@@ -369,7 +378,7 @@ const SettingsModal = () => {
                     <p className="text-zinc-400">Remove all habits</p>
                     <IconTextButton
                       aria-label="remove all habits"
-                      className=" group rounded-md bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
+                      className=" group rounded-md  bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
                       onClick={handleDelete}
                       text="delete"
                       disabled={!hasHabits}

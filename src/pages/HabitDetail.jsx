@@ -53,6 +53,7 @@ import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
 import HabitCalendarView from "./components/HabitCalendarView";
+import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -63,6 +64,7 @@ const HabitDetail = () => {
   const dialog = useDialog();
   const isDialogOpen = useDialogStore((state) => state.open);
   const handleDialogClose = useDialogStore((state) => state.handleClose);
+  const isMilestoneDialogOpen = useMilestoneDialogStore((state) => state.open);
 
   const habitQuery = useHabit(id);
   const updateHabitEntryMutation = useUpdateHabitEntry(id);
@@ -112,12 +114,23 @@ const HabitDetail = () => {
   const keysToAction = [
     {
       keys: ["shiftKey", "d"],
-      conditionals: [habitQuery.data, !isEditing, !isMutating],
+      conditionals: [
+        habitQuery.data,
+        !isEditing,
+        !isMutating,
+        !isMilestoneDialogOpen,
+      ],
       callback: () => handleDelete(id),
     },
     {
       keys: ["shiftKey", "e"],
-      conditionals: [habitQuery.data, !isDialogOpen, !isEditing, !isMutating],
+      conditionals: [
+        habitQuery.data,
+        !isDialogOpen,
+        !isEditing,
+        !isMutating,
+        !isMilestoneDialogOpen,
+      ],
       callback: (e) => {
         //prevent the habit form of getting the 'e' shortcut keypress as input
         e.preventDefault();
@@ -141,6 +154,7 @@ const HabitDetail = () => {
         !isEditing,
         !habitQuery.isPending,
         !isMutating,
+        !isMilestoneDialogOpen,
       ],
       callback: () => navigate(-1),
     },
