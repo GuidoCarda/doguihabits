@@ -3,11 +3,9 @@ import {
   getDayMonthYear,
   getHabitStreak,
   getPast7Days,
-  getPast7DaysEntries,
   getTotal,
   getWeekDayString,
   isSameDay,
-  nextState,
   startOfDay,
 } from "../../utils";
 import { useDialog } from "../../store/useDialogStore";
@@ -69,12 +67,7 @@ const HabitsWeekView = ({ habit }) => {
     return <HabitWeekViewSkeleton title={habit.title} />;
   }
 
-  console.log(habit.entries);
-
   const currentDate = startOfDay(new Date());
-  // const lastWeek = getPast7DaysEntries(habit.entries, currentDate);
-
-  console.log(habit.entries);
 
   const lastWeek = getPast7Days(currentDate)
     .sort((a, b) => a - b)
@@ -98,8 +91,6 @@ const HabitsWeekView = ({ habit }) => {
     const totalCount = daysStateCount.completed + daysStateCount.failed;
     return totalCount ? (daysStateCount.completed * 100) / totalCount : 0;
   };
-
-  // console.log(lastWeek);
 
   const currentStreak = getHabitStreak(habit.entries);
   const completionPercentage = getCompletionPercentage(habit.entries).toFixed(

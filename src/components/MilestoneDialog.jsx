@@ -6,8 +6,11 @@ import { MilestoneBadge } from "../pages/HabitDetail";
 import { cn } from "../utils";
 
 import { motion } from "framer-motion";
+import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 
-const MilestoneDialog = ({ open, milestone, onClose }, ref) => {
+const MilestoneDialog = ({ open, onClose }, ref) => {
+  const milestone = useMilestoneDialogStore((state) => state.milestone);
+
   if (!open) return;
 
   return ReactDom.createPortal(

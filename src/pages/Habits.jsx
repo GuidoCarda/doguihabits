@@ -207,7 +207,7 @@ const HabitsGrid = ({ habits }) => {
   return (
     <motion.div className={cn("flex gap-4 flex-wrap justify-start")}>
       {habits.map((habit) => (
-        <HabitsWeekView key={habit.id} habit={habit} />
+        <HabitsWeekView key={habit.createdAt} habit={habit} />
       ))}
     </motion.div>
   );

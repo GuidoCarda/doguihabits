@@ -39,7 +39,6 @@ const Layout = ({ className, children }) => {
       <AnimatePresence>
         <MilestoneDialog
           open={isMilestoneDialogOpen}
-          milestone={7}
           onClose={closeMilestoneDialog}
         />
       </AnimatePresence>
