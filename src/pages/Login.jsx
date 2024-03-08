@@ -123,7 +123,7 @@ const Login = () => {
             disabled={mutation.isPending}
             className={cn(
               "bg-emerald-600 w-full flex flex-row items-center justify-center gap-2 text-zinc-100 font-bold transition-colors duration-200 hover:bg-emerald-700",
-              { "cursor-not-allowed bg-gray-300": mutation.isPending }
+              { "cursor-not-allowed bg-emerald-600/40": mutation.isPending }
             )}
           >
             {mutation.isPending && (

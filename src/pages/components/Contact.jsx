@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { Button } from "../../components/Buttons";
+import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 
 function Contact() {
   return (
@@ -7,6 +9,13 @@ function Contact() {
         "px-4 md:px-0 max-w-xl mx-auto py-20 grid  place-content-start md:place-content-center min-h-screen h-full"
       }
     >
+      <Link
+        to={-1}
+        className="group text-zinc-500 mb-2 flex gap-1 items-center hover:text-zinc-400 transition-colors duration-150"
+      >
+        <ChevronLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <span>Go back</span>
+      </Link>
       <h1 className="text-white text-4xl font-bold mb-4">Contact us</h1>
       <p className="max-w-[50ch] text-lg text-zinc-400 font-medium ">
         If you have any questions or feedback, feel free to reach out leaving a

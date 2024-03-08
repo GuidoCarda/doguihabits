@@ -2,6 +2,7 @@ import { ChevronDownIcon, HeartIcon } from "@heroicons/react/24/outline";
 import { cn } from "../utils";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
 
 const Landing = () => {
   return (
@@ -108,7 +109,9 @@ const Hero = () => {
 const Features = () => {
   return (
     <section id="features" className="py-10 md:py-20">
-      <h2 className="text-4xl font-bold text-white  mb-12">Key features</h2>
+      <h2 className="text-4xl font-bold text-white  text-center mb-12">
+        Key features
+      </h2>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
         <div className="border-l-2 border-zinc-800 pl-4">
           <h3 className="text-white text-xl font-bold mb-2">
@@ -168,7 +171,10 @@ const HowItWorks = () => {
       <div className="select-none flex flex-col max-w-4xl mx-auto gap-10">
         {howItWorks.map((item, index) => {
           return (
-            <div
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: "all" }}
               className={cn(
                 `group md:flex md:items-center md:gap-10  max-w-lg`,
                 {
@@ -186,7 +192,7 @@ const HowItWorks = () => {
                 </p>
                 <p className="text-zinc-400  font-medium">{item.description}</p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
