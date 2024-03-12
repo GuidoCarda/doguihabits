@@ -52,7 +52,6 @@ import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
-import HabitCalendarView from "./components/HabitCalendarView";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 
 const HabitDetail = () => {
@@ -191,7 +190,7 @@ const HabitDetail = () => {
   }
 
   if (!habitQuery.data) {
-    return <Navigate to={-1} />;
+    return <Navigate to={"/habits"} />;
   }
 
   return (
@@ -213,19 +212,16 @@ const HabitDetail = () => {
             description: habitQuery.data.description,
           }}
         />
-
         <HabitDetailHeader
           habit={habitQuery.data}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
-
         <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
           {habitInfo.map((info) => (
             <DashboardDetail key={info.title} {...info} />
           ))}
         </div>
-
         <HabitMontlyViewGrid
           habit={habitQuery.data}
           toggleHabitDay={toggleHabitDay}

@@ -229,12 +229,12 @@ const footerLinks = [
   {
     name: "Github",
     href: "https://github.com/GuidoCarda/doguihabits",
-    iconSrc: "../public/github.svg",
+    iconSrc: "/github.svg",
   },
   {
     name: "LinkedIn",
     href: "https://www.linkedin.com/in/guido-cardarelli/",
-    iconSrc: "../public/linkedin.svg",
+    iconSrc: "/linkedin.svg",
   },
 ];
 
