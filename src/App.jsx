@@ -8,6 +8,7 @@ import HabitDetail from "./pages/HabitDetail";
 import Habits from "./pages/Habits";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Landing from "./pages/Landing";
 
 // Animations
 import { AnimatePresence } from "framer-motion";
@@ -17,8 +18,7 @@ import { Toaster } from "react-hot-toast";
 
 // Auth
 import { useAuth } from "./context/AuthContext";
-import Landing from "./pages/Landing";
-import Contact from "./pages/components/Contact";
+import Contact from "./pages/Contact";
 
 const toastOptions = {
   style: {

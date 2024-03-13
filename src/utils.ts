@@ -2,7 +2,7 @@ import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ENTRY_STATE, HABIT_MILESTONES } from "./constants";
 
-const MONTHS = [
+export const MONTHS = [
   "January",
   "February",
   "March",
@@ -17,7 +17,7 @@ const MONTHS = [
   "December",
 ];
 
-const WEEK_DAYS = [
+export const WEEK_DAYS = [
   "Sunday",
   "Monday",
   "Tuesday",
@@ -316,8 +316,8 @@ export const getDatesInRange = (
   dirtyDateStart: Date | string | number,
   dirtyDateEnd: Date | string | number
 ) => {
-  const dateStart = startOfDay(dirtyDateStart);
-  const dateEnd = startOfDay(dirtyDateEnd);
+  const dateStart = new Date(dirtyDateStart);
+  const dateEnd = new Date(dirtyDateEnd);
 
   const dates = [] as Date[];
 
