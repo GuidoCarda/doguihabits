@@ -138,6 +138,35 @@ export const getHabitsWithEntries = async (userId) => {
   }
 };
 
+export const restartHabitProgress = async (id) => {
+  try {
+    const habitsCollection = collection(db, "habits");
+    const habitRef = doc(habitsCollection, id);
+
+    await updateDoc(habitRef, { entries: [], badges: [] });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const restartAllHabitProgress = async (habitIds) => {
+  try {
+    const habitsCollection = collection(db, "haits");
+    const batch = writeBatch(db);
+
+    for (const habitId of habitIds) {
+      const habitRef = doc(habitsCollection, habitId);
+      batch.update(habitRef, { entries: [], badges: [] });
+    }
+
+    await batch.commit();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 /**
  * Get all the entries from a habit
  * @param habitId - The id of the habit to query the entries from
