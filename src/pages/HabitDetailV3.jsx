@@ -53,12 +53,16 @@ import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
+import useMediaQuery from "../hooks/useMediaQuery";
+import HabitCalendarView from "./components/HabitCalendarView";
+import { HeatMapWithSVG } from "./components/HabitEntriesHeatmap";
 
-const HabitDetail = () => {
+const HabitDetailV2 = () => {
   let { id } = useParams();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 638px)");
 
   const dialog = useDialog();
   const isDialogOpen = useDialogStore((state) => state.open);
@@ -163,7 +167,7 @@ const HabitDetail = () => {
 
   const habitInfo = [
     {
-      title: "streak",
+      title: "current streak",
       data: habitQuery?.data?.entries
         ? getHabitStreak(habitQuery.data.entries)
         : 0,
@@ -202,12 +206,12 @@ const HabitDetail = () => {
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
       <Button
-        onClick={() => navigate("/habits/" + id + "/v2")}
+        onClick={() => navigate("/habits/" + id)}
         className={
           "absolute top-2 left-2 border-2 text-zinc-400 border-zinc-600"
         }
       >
-        See v2
+        See v1
       </Button>
       <Layout>
         <HabitModal
@@ -225,16 +229,40 @@ const HabitDetail = () => {
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
-        <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {habitInfo.map((info) => (
-            <DashboardDetail key={info.title} {...info} />
-          ))}
+        <div className="mb-4">
+          <h3 className="text-3xl font-bold">{habitQuery.data?.title}</h3>
+          <p className="text-zinc-400 max-w-[50ch] text-pretty  h-14">
+            {habitQuery.data?.description.length > 0
+              ? habitQuery.data?.description
+              : "No description provided"}
+          </p>
         </div>
-        <HabitMontlyViewGrid
-          habit={habitQuery.data}
-          toggleHabitDay={toggleHabitDay}
-        />
-
+        <div className="grid md:grid-cols-2 gap-10 md:h-[500px] my-10">
+          <div className="md:place-self-end md:self-start">
+            <HabitCalendarView habitId={id} />
+          </div>
+          <div className=" space-y-10 w-full md:mt-16">
+            {habitInfo.map((info) => (
+              <DashboardDetail key={info.title} {...info} />
+            ))}
+          </div>
+        </div>
+        {/* {isMobile ? (
+          <HabitCalendarView habitId={id} />
+        ) : (
+          <HabitMontlyViewGrid
+            habit={habitQuery.data}
+            toggleHabitDay={toggleHabitDay}
+          />
+        )} */}
+        {/* <div className="py-6">
+          <h2 className="text-2xl font-bold mb-2">Inline full history </h2>
+          <HeatMapWithSVG
+            id={id}
+            entries={habitQuery.data.entries}
+            year={2024}
+          />
+        </div> */}
         <div className="mt-10  pb-4">
           <h2 className="text-2xl font-bold mb-6">Milestones</h2>
           <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
@@ -352,7 +380,7 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
       <Link to={-1} aria-label="back to home">
         <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
       </Link>
-      <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>
+      <h2 className="text-zinc-500 select-none ml-2 truncate">Return home</h2>
 
       <IconTextButton
         onClick={() => handleDelete(id)}
@@ -395,16 +423,16 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
 
 const DashboardDetail = ({ title, data, icon }) => {
   return (
-    <div className="p-4 w-full bg-zinc-800  rounded-2xl flex items-center justify-around gap-6 ">
-      <div className="text-center -space-y-1">
-        <h4 className="font-semibold text-zinc-400">{title}</h4>
-        <h2 className="text-3xl font-bold">{data}</h2>
-      </div>
-      <span className=" grid place-content-center h-20 w-20 rounded-full bg-zinc-900">
-        {icon == "FireIcon" && <FireIcon className="h-12 text-red-500" />}
-        {icon == "XMarkIcon" && <XMarkIcon className="h-12 text-rose-500" />}
-        {icon == "CheckIcon" && <CheckIcon className="h-12 text-green-500" />}
+    <div className="w-full flex items-center  gap-4 mb-4">
+      <span className=" grid bg-zinc-800  place-content-center h-14 w-14 rounded-full ">
+        {icon == "FireIcon" && <FireIcon className="h-8 text-red-500" />}
+        {icon == "XMarkIcon" && <XMarkIcon className="h-8 text-rose-500" />}
+        {icon == "CheckIcon" && <CheckIcon className="h-8 text-green-500" />}
       </span>
+      <div className="">
+        <h2 className="text-4xl font-bold">{data}</h2>
+        <h4 className="font-semibold text-zinc-400">{title}</h4>
+      </div>
     </div>
   );
 };
@@ -431,4 +459,4 @@ const HabitNotFound = () => {
   );
 };
 
-export default HabitDetail;
+export default HabitDetailV2;

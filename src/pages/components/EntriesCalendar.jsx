@@ -30,7 +30,7 @@ const EntriesCalendar = (props) => {
   const [, monthNumber, year] = getDayMonthYear(date);
 
   return (
-    <div className="border-2 bg-zinc-800 border-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden h-full ">
+    <div className="border-2  border-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden h-full ">
       <header className="flex justify-between items-center mb-6">
         <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-emerald-500 text-zinc-899">
           {getMonthString(monthNumber - 1)}

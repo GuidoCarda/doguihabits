@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { sendContactMessage } from "../services/contact";
 import { useMutation } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
+import { motion } from "framer-motion";
 
 const useSendContactMessage = () => {
   return useMutation({
@@ -54,7 +55,11 @@ function Contact() {
   };
 
   return (
-    <main
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      key={"habit_detail_page"}
       className={
         "px-4 md:px-0 max-w-xl mx-auto py-20 grid  place-content-start md:place-content-center min-h-screen h-full"
       }
@@ -131,7 +136,7 @@ function Contact() {
           {isSendingMessage ? "Sending..." : "Send"}
         </Button>
       </form>
-    </main>
+    </motion.main>
   );
 }
 

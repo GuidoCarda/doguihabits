@@ -44,7 +44,7 @@ const HabitCalendarView = ({ habitId }) => {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10">
+    <div className="max-w-sm">
       <div className="flex justify-between items-center mb-2">
         <IconButton
           onClick={onPrevClick}

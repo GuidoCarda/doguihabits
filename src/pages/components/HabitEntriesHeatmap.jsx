@@ -189,7 +189,7 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
   });
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       <svg
         width={numCols * (cellSize + gapSize) + 20 - gapSize + leftLabelWidht}
         height={numRows * (cellSize + gapSize) + 20 - gapSize + topLabelHeight}
