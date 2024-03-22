@@ -9,6 +9,9 @@ module.exports = {
         success: "#10B981",
         failed: "#EF4444",
       },
+      gridTemplateRows: {
+        7: "repeat(7, minmax(0, 1fr))",
+      },
     },
   },
   plugins: [

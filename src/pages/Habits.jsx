@@ -17,6 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 //Icons
 import {
   ArrowLeftOnRectangleIcon,
+  BackwardIcon,
   Cog6ToothIcon,
   PlusIcon,
   TrashIcon,
@@ -31,6 +32,8 @@ import { toast } from "react-hot-toast";
 import { cn, isSameDay } from "../utils";
 import { HABITS_LIMIT, HABIT_FORM_ACTIONS } from "../constants";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
+import { Link } from "react-router-dom";
+import { useRestartAllHabitProgress } from "../hooks/api/useRestartHabit";
 
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -190,6 +193,14 @@ const PageHeader = ({
             icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
           />
         )}
+        {habitsLimitReached && (
+          <span className="text-sm items-center text-zinc-400 flex gap-2">
+            Habits limit reached.
+            <Link className="text-zinc-300 hover:text-emerald-500 transition-colors">
+              See why
+            </Link>
+          </span>
+        )}
         <SettingsModal />
 
         <IconButton onClick={handleSignOut} className={"group bg-zinc-800"}>
@@ -272,9 +283,38 @@ const SettingsModal = () => {
   const hasHabits = habitsQuery?.data?.length > 0;
 
   const deleteAllHabitsMutation = useDeleteAllHabits();
+  const restartAllHabitProgressMutation = useRestartAllHabitProgress();
 
   const onClose = () => {
     setIsOpen(false);
+  };
+
+  const handleRestart = () => {
+    const habitsIds = habitsQuery?.data?.map((habit) => habit.id);
+    dialog({
+      title: "Warning!",
+      description:
+        "Are you sure you want to restart all habits progress? This action cannot be undone.",
+      catchOnCancel: false,
+      submitText: "Confirm",
+      isPending: restartAllHabitProgressMutation.isPending,
+      pendingText: "Restarting...",
+      onConfirm: () =>
+        restartAllHabitProgressMutation.mutateAsync(habitsIds, {
+          onError: (err, variables, context) => {
+            toast.error(
+              "An error occurred while restarting the habits progress \n\n If the error persist don't hesitate to contact us",
+              {
+                duration: 5000,
+              }
+            );
+          },
+          onSuccess: () => {
+            toast.success("All habits progress restarted successfuly");
+            onClose();
+          },
+        }),
+    });
   };
 
   const handleDelete = () => {
@@ -354,13 +394,13 @@ const SettingsModal = () => {
                 <h2 className="text-xl text-white mb-4">Shortcuts</h2>
                 <div className="flex flex-col gap-6">
                   {shortcutCatalog.map(({ page, bindings }) => (
-                    <div>
+                    <div key={`${page}-page-shortcuts`}>
                       <h3 className="text-lg text-zinc-400 mb-2">
                         {page} Page
                       </h3>
                       <div className="space-y-2">
-                        {bindings.map(({ keys, label }) => (
-                          <Shortcut keys={keys} label={label} />
+                        {bindings.map(({ keys, label }, idx) => (
+                          <Shortcut key={idx} keys={keys} label={label} />
                         ))}
                       </div>
                     </div>
@@ -378,7 +418,7 @@ const SettingsModal = () => {
                     <p className="text-zinc-400">Remove all habits</p>
                     <IconTextButton
                       aria-label="remove all habits"
-                      className=" group rounded-md  bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
+                      className=" group rounded-md md:w-40  bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
                       onClick={handleDelete}
                       text="delete"
                       disabled={!hasHabits}
@@ -391,6 +431,22 @@ const SettingsModal = () => {
                     />
                   </div>
                 </Tooltip>
+                <div className="flex items-center justify-between ">
+                  <p className="text-zinc-400">Restart all habits progress</p>
+                  <IconTextButton
+                    aria-label="remove all habits"
+                    className=" group rounded-md md:w-40 bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-zinc-300 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:grayscale"
+                    onClick={handleRestart}
+                    text="restart"
+                    disabled={!hasHabits}
+                    icon={
+                      <BackwardIcon
+                        className="transition-colors group-hover:text-zinc-50 h-5 w-5"
+                        strokeWidth={2}
+                      />
+                    }
+                  />
+                </div>
               </div>
             </div>
           </Modal>

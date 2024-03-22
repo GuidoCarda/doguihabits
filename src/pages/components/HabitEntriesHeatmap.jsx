@@ -11,9 +11,11 @@ import {
   isPast,
   isSameDay,
   isToday,
+  nextState,
 } from "../../utils";
 import { ENTRY_STATE } from "../../constants";
 import { Tooltip } from "../Habits";
+import { AnimatePresence, motion } from "framer-motion";
 
 const colors = [
   "fill-red-600",
@@ -92,17 +94,30 @@ const HabitEntriesHeatmap = ({ year, id, entries }) => {
 
 export default HabitEntriesHeatmap;
 
+// Disclaimer: I don't know what the fuck I'm doing here and is painfull :D
 export const HeatMapWithSVG = ({ year, id, entries }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
 
+  if (!entries || !id) {
+    return null;
+  }
+
+  const updateHabitEntryMutation = useUpdateHabitEntry(id);
+
+  // Heatmap config
   const cellSize = 18;
   const numRows = 7;
   const numCols = Math.ceil(366 / numRows);
   const gapSize = 5;
-  const leftLabelWidht = 32;
+  const leftLabelWidth = 32;
   const topLabelHeight = 32;
 
-  const updateHabitEntryMutation = useUpdateHabitEntry(id);
+  const dates = getDatesInRange(`${year}-01-02`, `${year + 1}-1-1`).map(
+    (date) => {
+      const entry = entries?.find((entry) => isSameDay(entry.date, date));
+      return entry || { date, state: ENTRY_STATE.pending };
+    }
+  );
 
   const toggleHabitDay = (entryDate) => {
     updateHabitEntryMutation.mutate({
@@ -112,33 +127,43 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
     });
   };
 
-  const dates = getDatesInRange(`${year}-01-02`, `${year + 1}-1-1`).map(
-    (date) => {
-      const entry = entries?.find((entry) => isSameDay(entry.date, date));
-      return entry || { date, state: ENTRY_STATE.pending };
-    }
-  );
+  const handleSetHoveredCell = (event, cellData) => {
+    const cellBCR = event.target.getBoundingClientRect();
+    const tooltipWidth = 144;
+    const padding = 20;
 
-  const allRects = dates.map((date, idx) => {
+    let adjustedX = cellData.xPos;
+
+    if (cellBCR.right + tooltipWidth + 5 >= window.innerWidth) {
+      adjustedX = cellBCR.left - tooltipWidth - padding;
+    }
+
+    setHoveredCell({ ...cellData, xPos: adjustedX });
+  };
+
+  const allRects = dates.map((entry, idx) => {
     const rowIndex = idx % numRows;
     const colIndex = Math.floor(idx / numRows);
 
     const cell = [];
 
-    if (date.date.getDate() === 1) {
+    if (entry.date.getDate() === 1) {
+      const month = MONTHS[entry.date.getMonth()].slice(0, 3);
+
       cell.push(
         <text
           key={`month-${colIndex}-label`}
-          x={colIndex * (cellSize + gapSize) + leftLabelWidht + 10}
+          x={colIndex * (cellSize + gapSize) + leftLabelWidth + 10}
           y={35}
           className="fill-zinc-500 select-none"
         >
-          {MONTHS[date.date.getMonth()].slice(0, 3)}
+          {month}
         </text>
       );
     }
 
     if (rowIndex % 2 !== 0) {
+      const day = WEEK_DAYS[rowIndex].slice(0, 3);
       cell.push(
         <text
           key={`week-day-${rowIndex}-label`}
@@ -146,7 +171,7 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
           y={rowIndex * (cellSize + gapSize) + 25 + topLabelHeight}
           className="fill-zinc-500 select-none"
         >
-          {WEEK_DAYS[rowIndex].slice(0, 3)}
+          {day}
         </text>
       );
     }
@@ -154,31 +179,42 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
     cell.push(
       <rect
         key={idx}
-        x={colIndex * (cellSize + gapSize) + 10 + leftLabelWidht}
+        x={colIndex * (cellSize + gapSize) + 10 + leftLabelWidth}
         y={rowIndex * (cellSize + gapSize) + 10 + 32}
         width={cellSize}
         height={cellSize}
         opacity={1}
         onClick={
-          !isPast(date.date) ? () => {} : () => toggleHabitDay(date.date)
+          isPast(entry.date)
+            ? (e) => {
+                toggleHabitDay(entry.date);
+                handleSetHoveredCell(e, {
+                  date: getDayMonthYear(entry.date).join("/"),
+                  state: nextState(entry.state),
+                  xPos:
+                    colIndex * (cellSize + gapSize) + 10 + leftLabelWidth + 25,
+                  yPos: rowIndex * (cellSize + gapSize) + 10 + 32,
+                });
+              }
+            : null
         }
         rx={4}
         onMouseEnter={(e) => {
-          setHoveredCell({
-            date: getDayMonthYear(date.date).join("/"),
-            state: date.state,
-            xPos: colIndex * (cellSize + gapSize) + 10 + leftLabelWidht + 25,
+          handleSetHoveredCell(e, {
+            date: getDayMonthYear(entry.date).join("/"),
+            state: entry.state,
+            xPos: colIndex * (cellSize + gapSize) + 10 + leftLabelWidth + 25,
             yPos: rowIndex * (cellSize + gapSize) + 10 + 32,
           });
         }}
         onMouseLeave={() => setHoveredCell(null)}
         className={cn(
           "stroke-white/5 cursor-pointer ",
-          date.state === ENTRY_STATE.completed && "fill-emerald-500",
-          date.state === ENTRY_STATE.failed && "fill-red-500",
-          date.state === ENTRY_STATE.pending && "fill-zinc-800",
-          isToday(date.date) && "stroke-zinc-600",
-          !isPast(date.date)
+          entry.state === ENTRY_STATE.completed && "fill-emerald-500",
+          entry.state === ENTRY_STATE.failed && "fill-red-500",
+          entry.state === ENTRY_STATE.pending && "fill-zinc-800",
+          isToday(entry.date) && "stroke-zinc-600",
+          !isPast(entry.date)
             ? "cursor-not-allowed fill-zinc-800/30 stroke-zinc-800/30"
             : "hover:stroke-zinc-700"
         )}
@@ -188,19 +224,25 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
     return cell;
   });
 
+  const heatmapWidth =
+    numCols * (cellSize + gapSize) + 20 - gapSize + leftLabelWidth;
+  const heatmapHeight =
+    numRows * (cellSize + gapSize) + 20 - gapSize + topLabelHeight;
+
   return (
-    <div className="relative">
-      <svg
-        width={numCols * (cellSize + gapSize) + 20 - gapSize + leftLabelWidht}
-        height={numRows * (cellSize + gapSize) + 20 - gapSize + topLabelHeight}
-      >
-        {allRects}
-      </svg>
-      <HeatmapTooltip
-        interactionData={hoveredCell}
-        width={numCols * (cellSize + gapSize) + 20 - gapSize + leftLabelWidht}
-        height={numRows * (cellSize + gapSize) + 20 - gapSize + topLabelHeight}
-      />
+    <div className="relative ">
+      <div className="overflow-x-scroll 2xl:overflow-visible scrollbar-thin ">
+        <svg width={heatmapWidth} height={heatmapHeight}>
+          {allRects}
+        </svg>
+      </div>
+      <AnimatePresence>
+        <HeatmapTooltip
+          interactionData={hoveredCell}
+          width={heatmapWidth}
+          height={heatmapHeight}
+        />
+      </AnimatePresence>
     </div>
   );
 };
@@ -212,12 +254,16 @@ const HeatmapTooltip = ({ interactionData, width, height }) => {
 
   return (
     // The container area for the tooltip
-    <div
-      className={`bg-white top-0 left-0 absolute h-[${height}] w-[${width}] pointer-events-none`}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className={`top-0 left-0 absolute pointer-events-none`}
+      style={{ height, width }}
     >
       {/* The actual tooltip rendered */}
       <div
-        className="bg-zinc-800/90 w-max border border-white/5 rounded-md p-2 absolute z-20"
+        className="bg-zinc-800/90 w-36 border border-white/5 rounded-md p-2 absolute z-20"
         style={{
           left: interactionData.xPos,
           top: interactionData.yPos,
@@ -226,7 +272,7 @@ const HeatmapTooltip = ({ interactionData, width, height }) => {
         <TooltipRow label={"date"} value={interactionData.date} />
         <TooltipRow label={"state"} value={interactionData.state} />
       </div>
-    </div>
+    </motion.div>
   );
 };
 
