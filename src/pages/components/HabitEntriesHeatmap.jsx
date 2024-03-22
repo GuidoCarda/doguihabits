@@ -230,8 +230,8 @@ export const HeatMapWithSVG = ({ year, id, entries }) => {
     numRows * (cellSize + gapSize) + 20 - gapSize + topLabelHeight;
 
   return (
-    <div className="relative">
-      <div className="overflow-x-scroll lg:overflow-visible py-4 scrollbar-thin">
+    <div className="relative ">
+      <div className="overflow-x-scroll 2xl:overflow-visible scrollbar-thin ">
         <svg width={heatmapWidth} height={heatmapHeight}>
           {allRects}
         </svg>
