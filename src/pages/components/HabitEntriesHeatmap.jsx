@@ -6,96 +6,63 @@ import {
   cn,
   getDatesInRange,
   getDayMonthYear,
-  getMonthDatesInRange,
-  getMonthString,
   isPast,
   isSameDay,
   isToday,
   nextState,
 } from "../../utils";
 import { ENTRY_STATE } from "../../constants";
-import { Tooltip } from "../Habits";
 import { AnimatePresence, motion } from "framer-motion";
+import { IconButton } from "../../components/Buttons";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { useHabit } from "../../hooks/api/useHabits";
 
-const colors = [
-  "fill-red-600",
-  "fill-green-500",
-  "fill-blue-500",
-  "fill-yellow-500",
-  "fill-pink-500",
-  "fill-indigo-500",
-  "fill-purple-500",
-  "fill-cyan-500",
-  "fill-rose-500",
-  "fill-emerald-500",
-  "fill-fuchsia-500",
-  "fill-lime-500",
-];
+const HabitEntriesHeatmap = ({ id }) => {
+  const [year, setYear] = useState(new Date().getFullYear());
 
-const HabitEntriesHeatmap = ({ year, id, entries }) => {
-  const dates = getDatesInRange(`${year}-01-02`, `${year + 1}-1-1`).map(
-    (date) => {
-      const entry = entries?.find((entry) => isSameDay(entry.date, date));
-      // console.log(entry);
-      return entry || { date, state: ENTRY_STATE.pending };
-    }
-  );
-
-  const updateEntryMutation = useUpdateHabitEntry();
-
-  const toggleEntryState = (entryDate) => {
-    updateEntryMutation.mutate({
-      habitId: id,
-      entryDate,
-      entries,
-    });
+  const onNextClick = () => {
+    setYear(year + 1);
   };
 
-  // console.log(dates);
+  const onPrevClick = () => {
+    setYear(year - 1);
+  };
+
+  const habitQuery = useHabit(id);
+
   return (
-    <div className="mt-10 w-full  ">
-      <h2 className="h-10 px-10 rounded-md border border-white/10 border-emerald-600 w-max flex items-center mb-4">
-        {year}
-      </h2>
-      <div className="grid grid-cols-12 gap-1 text-zinc-400  ml-10">
-        {getMonthDatesInRange("2023-01-02", "2023-12-31").map((monthDate) => (
-          <span key={monthDate.toString()} className="block">
-            {getMonthString(monthDate.getMonth()).slice(0, 3)}
-          </span>
-        ))}
+    <>
+      <div className="flex justify-between items-center ">
+        <IconButton
+          onClick={onPrevClick}
+          className={
+            "text-zinc-400 hover:text-white transition-colors duration-150 "
+          }
+        >
+          <ArrowLeftIcon className="h-5 w-5" strokeWidth={2} />
+        </IconButton>
+        <span className="block text-sm py-1 px-2 rounded-md text-zinc-500">
+          {year}
+        </span>
+        <IconButton
+          onClick={onNextClick}
+          disabled={year === new Date().getFullYear()}
+          className={cn(
+            "text-zinc-400 hover:text-white transition-colors duration-150",
+            "disabled:text-zinc-600 disabled:cursor-not-allowed disabled:hover:text-zinc-600 "
+          )}
+        >
+          <ArrowRightIcon className="h-5 w-5" strokeWidth={2} />
+        </IconButton>
       </div>
-      <div className="flex gap-2">
-        <div className="grid grid-rows-7 w-max text-zinc-400">
-          <span className="row-start-2 row-span-1 block">mon</span>
-          <span className="row-start-4 row-span-1 block">tue</span>
-          <span className="row-start-6 row-span-1 block">fri</span>
-        </div>
-        <div className="flex-1  min-w-full overflow-hidden grid grid-rows-7 grid-flow-col-dense gap-1 cursor-pointer">
-          {dates.map(({ date, state }, idx) => (
-            <Tooltip label={getDayMonthYear(date).join("/")} key={idx}>
-              <button
-                disabled={!isPast(date)}
-                onClick={() => toggleEntryState(date)}
-                className={cn(
-                  "block h-5 w-5 aspect-square rounded-sm bg-zinc-800",
-                  "disabled:bg-zinc-800/30 disabled:cursor-not-allowed",
-                  state === ENTRY_STATE.completed && "bg-emerald-500",
-                  state === ENTRY_STATE.failed && "bg-red-500",
-                  isToday(date) && "ring-1 ring-zinc-600 hover:ring-emerald-500"
-                )}
-              />
-            </Tooltip>
-          ))}
-        </div>
-      </div>
-    </div>
+      <SVGHeatmap year={year} id={id} entries={habitQuery?.data?.entries} />
+    </>
   );
 };
 
 export default HabitEntriesHeatmap;
 
-// Disclaimer: I don't know what the fuck I'm doing here and is painfull :D
-export const HeatMapWithSVG = ({ year, id, entries }) => {
+export const SVGHeatmap = ({ year, id, entries }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
 
   if (!entries || !id) {

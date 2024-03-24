@@ -9,8 +9,6 @@ import Habits from "./pages/Habits";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
-import HabitDetailV2 from "./pages/HabitDetailV2";
-import HabitDetailV3 from "./pages/HabitDetailV3";
 import Contact from "./pages/Contact";
 
 // Animations
@@ -21,7 +19,6 @@ import { Toaster } from "react-hot-toast";
 
 // Auth
 import { useAuth } from "./context/AuthContext";
-import HabitDetailV4 from "./pages/HabitDetailV4";
 
 const toastOptions = {
   style: {
@@ -43,9 +40,6 @@ function App() {
         <Route element={<ProtectedRoutes />}>
           <Route path="/habits" element={<Habits />} />
           <Route path="/habits/:id" element={<HabitDetail />} />
-          <Route path="/habits/:id/v2" element={<HabitDetailV2 />} />
-          <Route path="/habits/:id/v3" element={<HabitDetailV3 />} />
-          <Route path="/habits/:id/v4" element={<HabitDetailV4 />} />
         </Route>
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />

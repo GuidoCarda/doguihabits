@@ -27,17 +27,8 @@ const EntriesCalendar = (props) => {
     })
   );
 
-  const [, monthNumber, year] = getDayMonthYear(date);
-
   return (
-    <div className="border-2  border-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden h-full ">
-      <header className="flex justify-between items-center mb-6">
-        <span className="block ml-auto text-sm py-1 px-2 rounded-md bg-emerald-500 text-zinc-899">
-          {getMonthString(monthNumber - 1)}
-          <span className="ml-2">{year}</span>
-        </span>
-      </header>
-
+    <div className="border-2 border-zinc-800 p-4 md:px-6 rounded-xl overflow-hidden h-[350px] ">
       <AnimatePresence mode="popLayout" initial={false}>
         <div>
           <div className="grid grid-cols-7 gap-2 place-items-center text-zinc-400 mb-2">
@@ -62,7 +53,7 @@ const EntriesCalendar = (props) => {
               }
 
               return (
-                <li key={idx} className="aspect-square md:h-10 md:w-10">
+                <li key={idx} className="aspect-square h-10 w-10">
                   <button
                     disabled={!isPast(day.date)}
                     aria-label="toggle habit state"

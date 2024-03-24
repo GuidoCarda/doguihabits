@@ -34,7 +34,6 @@ import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
 import useDeleteHabit from "../hooks/api/useDeleteHabit";
 
 import { motion } from "framer-motion";
-import { toast } from "react-hot-toast";
 import { Button, IconTextButton } from "../components/Buttons";
 import {
   cn,
@@ -53,6 +52,9 @@ import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
+import useMediaQuery from "../hooks/useMediaQuery";
+import HabitCalendarView from "./components/HabitCalendarView";
+import HabitEntriesHeatmap from "./components/HabitEntriesHeatmap";
 
 const HabitDetail = () => {
   let { id } = useParams();
@@ -66,7 +68,6 @@ const HabitDetail = () => {
   const isMilestoneDialogOpen = useMilestoneDialogStore((state) => state.open);
 
   const habitQuery = useHabit(id);
-  const updateHabitEntryMutation = useUpdateHabitEntry(id);
   const habitDeleteMutation = useDeleteHabit(id);
 
   const isMutating = Boolean(
@@ -93,21 +94,6 @@ const HabitDetail = () => {
       pendingText: "Deleting...",
       onConfirm: () => habitDeleteMutation.mutateAsync(id),
     });
-  };
-
-  const toggleHabitDay = (entryDate) => {
-    updateHabitEntryMutation.mutate(
-      {
-        habitId: id,
-        entryDate,
-        entries: habitQuery?.data?.entries,
-      },
-      {
-        onError: () => {
-          toast.error("An error occurred while updating the habit entries");
-        },
-      }
-    );
   };
 
   const keysToAction = [
@@ -163,7 +149,7 @@ const HabitDetail = () => {
 
   const habitInfo = [
     {
-      title: "streak",
+      title: "current streak",
       data: habitQuery?.data?.entries
         ? getHabitStreak(habitQuery.data.entries)
         : 0,
@@ -201,14 +187,6 @@ const HabitDetail = () => {
       key={"habit_detail_page"}
       className=" text-neutral-100  max-h-screen overflow-auto scrollbar-none md:scrollbar-thin md:scrollbar-thumb-zinc-500 md:scrollbar-thumb-rounded-xl"
     >
-      <Button
-        onClick={() => navigate("/habits/" + id + "/v2")}
-        className={
-          "absolute top-2 left-2 border-2 text-zinc-400 border-zinc-600"
-        }
-      >
-        See v2
-      </Button>
       <Layout>
         <HabitModal
           isOpen={isEditing}
@@ -225,47 +203,82 @@ const HabitDetail = () => {
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
-        <div className="mb-4 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {habitInfo.map((info) => (
-            <DashboardDetail key={info.title} {...info} />
-          ))}
+        <div className="mb-4">
+          <h3 className="text-3xl font-bold">{habitQuery.data?.title}</h3>
+          <p className="text-zinc-400 max-w-[50ch] mt-2 text-pretty  h-14">
+            {habitQuery.data?.description.length > 0
+              ? habitQuery.data?.description
+              : "No description provided"}
+          </p>
         </div>
-        <HabitMontlyViewGrid
-          habit={habitQuery.data}
-          toggleHabitDay={toggleHabitDay}
-        />
 
-        <div className="mt-10  pb-4">
-          <h2 className="text-2xl font-bold mb-6">Milestones</h2>
-          <ul className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
-            {HABIT_MILESTONES.map((milestone) => (
-              <li key={milestone}>
-                <MilestoneBadge
-                  milestone={milestone}
-                  isCompleted={habitQuery.data?.badges?.includes(milestone)}
-                />
-              </li>
-            ))}
-          </ul>
+        <div className="flex flex-col md:flex-row gap-10  justify-between border md:bg-green-500/0 lg:bg-red-500/0 border-white/0 ">
+          <HabitCalendarView
+            habitId={id}
+            className={
+              "place-self-center md:place-self-start min-w-max border border-red-500/0"
+            }
+          />
+          <div className="border border-green-500/0 md:border-l md:border-l-white/5 md:pl-10 flex flex-col overflow-hidden justify-center">
+            <h2 className="text-2xl mb-4">Current Stats</h2>
+            <div className="mb-10 flex flex-wrap gap-4 lg:gap-10">
+              {habitInfo.map((info) => (
+                <DashboardDetail key={info.title} {...info} />
+              ))}
+            </div>
+
+            <h2 className="text-2xl mb-4">Milestones</h2>
+            <div className="relative ">
+              <div className="block xl:hidden  absolute h-full w-10 bg-gradient-to-l from-zinc-900 to-transparent right-0 top-0 " />
+              <ul className=" flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-full pb-4">
+                {HABIT_MILESTONES.map((milestone) => (
+                  <li key={milestone}>
+                    <MilestoneBadge
+                      milestone={milestone}
+                      isCompleted={habitQuery.data?.badges?.includes(milestone)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="mt-10">
+          <h2 className="text-2xl mb-2">Habit history</h2>
+          <p className="text-zinc-400 max-w-[60ch] mb-6">
+            Here you can see the full history of your habit entries. If you
+            want, click on the day cell to toggle the state of the habit
+          </p>
+          <HabitEntriesHeatmap id={id} />
         </div>
       </Layout>
     </motion.main>
   );
 };
 
-export const MilestoneBadge = ({ milestone, isCompleted }) => {
+export const MilestoneBadge = ({ className, milestone, isCompleted }) => {
   return (
     <div
       key={`${milestone}-days-badge`}
       className={cn(
-        !isCompleted && "grayscale",
-        "text-center bg-zinc-800 h-24 w-24 rounded-lg  grid content-center transition-color duration-500 flex-shrink-0"
+        "text-center bg-zinc-800 h-[90px] w-[90px] rounded-lg  grid content-center transition-color duration-500 flex-shrink-0",
+        !isCompleted && "bg-transparent border border-white/5",
+        className
       )}
     >
-      <span className="block text-4xl font-bold text-emerald-500">
+      <span
+        className={cn(
+          "block text-4xl font-bold text-emerald-500",
+          !isCompleted && "text-zinc-600"
+        )}
+      >
         {milestone}
       </span>
-      <span className="block text-zinc-400">days</span>
+      <span
+        className={cn("block text-zinc-400", !isCompleted && "text-zinc-700")}
+      >
+        days
+      </span>
     </div>
   );
 };
@@ -352,7 +365,7 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
       <Link to={-1} aria-label="back to home">
         <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
       </Link>
-      <h2 className="text-3xl font-bold ml-4 truncate">{title}</h2>
+      <h2 className="text-zinc-500 select-none ml-2 truncate">Return home</h2>
 
       <IconTextButton
         onClick={() => handleDelete(id)}
@@ -395,16 +408,16 @@ const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
 
 const DashboardDetail = ({ title, data, icon }) => {
   return (
-    <div className="p-4 w-full bg-zinc-800  rounded-2xl flex items-center justify-around gap-6 ">
-      <div className="text-center -space-y-1">
-        <h4 className="font-semibold text-zinc-400">{title}</h4>
-        <h2 className="text-3xl font-bold">{data}</h2>
-      </div>
-      <span className=" grid place-content-center h-20 w-20 rounded-full bg-zinc-900">
-        {icon == "FireIcon" && <FireIcon className="h-12 text-red-500" />}
-        {icon == "XMarkIcon" && <XMarkIcon className="h-12 text-rose-500" />}
-        {icon == "CheckIcon" && <CheckIcon className="h-12 text-green-500" />}
+    <div className="border border-white/0 flex items-center  gap-4">
+      <span className=" grid bg-zinc-800  place-content-center h-14 w-14 rounded-full ">
+        {icon == "FireIcon" && <FireIcon className="h-8 text-red-500" />}
+        {icon == "XMarkIcon" && <XMarkIcon className="h-8 text-rose-500" />}
+        {icon == "CheckIcon" && <CheckIcon className="h-8 text-green-500" />}
       </span>
+      <div className="">
+        <h2 className="text-3xl lg:text-4xl font-bold">{data}</h2>
+        <h4 className="font-semibold text-zinc-400">{title}</h4>
+      </div>
     </div>
   );
 };

@@ -4,9 +4,9 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import EntriesCalendar from "./EntriesCalendar";
 import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
 import { useHabit } from "../../hooks/api/useHabits";
-import { startOfMonth } from "../../utils";
+import { cn, getMonthString, startOfMonth } from "../../utils";
 
-const HabitCalendarView = ({ habitId }) => {
+const HabitCalendarView = ({ habitId, className }) => {
   const [date, setDate] = useState(startOfMonth(new Date()));
 
   const habitsQuery = useHabit(habitId);
@@ -44,7 +44,7 @@ const HabitCalendarView = ({ habitId }) => {
   };
 
   return (
-    <div className="max-w-sm">
+    <div className={cn("max-w-sm", className)}>
       <div className="flex justify-between items-center mb-2">
         <IconButton
           onClick={onPrevClick}
@@ -54,6 +54,11 @@ const HabitCalendarView = ({ habitId }) => {
         >
           <ArrowLeftIcon className="h-5 w-5" strokeWidth={2} />
         </IconButton>
+
+        <span className="block text-sm py-1 px-2 rounded-md text-zinc-500">
+          {getMonthString(date.getMonth())}
+          <span className="ml-2">{date.getFullYear()}</span>
+        </span>
         <IconButton
           onClick={onNextClick}
           className={
