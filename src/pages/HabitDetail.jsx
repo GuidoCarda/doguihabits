@@ -52,7 +52,6 @@ import { useHabit } from "../hooks/api/useHabits";
 import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
-import useMediaQuery from "../hooks/useMediaQuery";
 import HabitCalendarView from "./components/HabitCalendarView";
 import HabitEntriesHeatmap from "./components/HabitEntriesHeatmap";
 

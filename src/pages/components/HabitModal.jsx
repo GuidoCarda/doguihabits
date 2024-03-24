@@ -2,6 +2,7 @@ import { AnimatePresence } from "framer-motion";
 import Modal from "../../components/Modal";
 import HabitForm from "./HabitForm";
 import { useState } from "react";
+import { HABIT_FORM_ACTIONS } from "../../constants";
 
 const HabitModal = ({ isOpen, onClose, title, action, initialValues }) => {
   const [formValues, setFormValues] = useState({
@@ -17,6 +18,10 @@ const HabitModal = ({ isOpen, onClose, title, action, initialValues }) => {
   };
 
   const handleExitComplete = () => {
+    if (action === HABIT_FORM_ACTIONS.edit) {
+      return;
+    }
+
     setFormValues({
       title: "",
       description: "",
