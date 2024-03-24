@@ -48,7 +48,8 @@ export function useRestartAllHabitProgress() {
     },
     onError: (error, variables, rollback) => {
       console.error(error);
-      console.log(rollback);
+      console.log();
+      rollback();
     },
   });
 }

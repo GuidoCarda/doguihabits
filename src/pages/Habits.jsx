@@ -303,7 +303,7 @@ const SettingsModal = () => {
         restartAllHabitProgressMutation.mutateAsync(habitsIds, {
           onError: (err, variables, context) => {
             toast.error(
-              "An error occurred while restarting the habits progress \n\n If the error persist don't hesitate to contact us",
+              "An error occurred while restarting the habits progress",
               {
                 duration: 5000,
               }

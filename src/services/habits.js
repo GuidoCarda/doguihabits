@@ -152,7 +152,7 @@ export const restartHabitProgress = async (id) => {
 
 export const restartAllHabitProgress = async (habitIds) => {
   try {
-    const habitsCollection = collection(db, "haits");
+    const habitsCollection = collection(db, "habits");
     const batch = writeBatch(db);
 
     for (const habitId of habitIds) {
