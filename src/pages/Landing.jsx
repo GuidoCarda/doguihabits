@@ -1,5 +1,6 @@
 import {
   CheckBadgeIcon,
+  CheckIcon,
   ChevronDownIcon,
   FireIcon,
   HeartIcon,
@@ -48,9 +49,9 @@ const Header = () => {
 
   return (
     <header className="flex h-20  items-center">
-      <span className="font-bold leading-none text-xl text-zinc-100">
+      <Link to={"/"} className="font-bold leading-none text-xl text-zinc-100">
         Doguihabits
-      </span>
+      </Link>
 
       <ul className="hidden sm:ml-10 sm:flex sm:justify-self-center sm:gap-4">
         {navItems.map((item) => {
@@ -83,36 +84,146 @@ const Header = () => {
 
 const Hero = () => {
   return (
-    <section className="relative py-36 md:py-40">
-      <span className="uppercase tracking-widest block  text-emerald-500">
-        doguihabits
-      </span>
-      <h1 className="text-5xl font-bold text-white max-w-[20ch] leading-tight">
-        Your Personal Habit Transformation Journey
-      </h1>
-      <p className="text-lg text-zinc-400 font-medium mt-10 max-w-[60ch]">
-        Welcome to doguihabits, the simple yet powerful habit tracker designed
-        to empower your journey towards personal growth and transformation.
-      </p>
-      <div className="flex gap-4 items-center mt-12">
-        <Link
-          className={
-            "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
-          }
-          to={"/login"}
-        >
-          Sign Up
-        </Link>
-        <Link
-          className={
-            "font-medium h-10 px-6 grid place-content-center rounded-md text-white "
-          }
-          to={"/contact"}
-        >
-          Contact us
-        </Link>
+    <section className="relative py-36 md:py-40  flex lg:gap-10 overflow-visible">
+      <div className="min-w-fit ">
+        <span className="uppercase tracking-widest block  text-emerald-500">
+          doguihabits
+        </span>
+        <h1 className="text-4xl md:text-5xl font-bold text-white max-w-[18ch] leading-tight">
+          Your Personal Habit Transformation Journey
+        </h1>
+        <p className="md:text-lg text-zinc-400 font-medium mt-6 md:mt-10 max-w-[50ch]">
+          Welcome to doguihabits, the simple yet powerful habit tracker designed
+          to empower your journey towards personal growth and transformation.
+        </p>
+        <div className="flex gap-4 items-center mt-12">
+          <Link
+            className={
+              "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
+            }
+            to={"/login"}
+          >
+            Sign Up
+          </Link>
+          <Link
+            className={
+              "font-medium h-10 px-6 grid place-content-center rounded-md text-white "
+            }
+            to={"/contact"}
+          >
+            Contact us
+          </Link>
+        </div>
       </div>
-      <ChevronDownIcon className="animate-bounce absolute left-0 right-0 mx-auto bottom-0 h-10 w-10 text-zinc-50" />
+
+      <div className="relative  hidden lg:block self-center md:w-full">
+        <div className="flex flex-col gap-6">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-max"
+          >
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-zinc-50 mb-2 text-sm"
+            >
+              Code everyday
+            </motion.p>
+            <motion.ul className="flex gap-2">
+              {Array.from({ length: 7 }).map((_, index) => {
+                return (
+                  <motion.li
+                    animate={{
+                      backgroundColor:
+                        Math.random() < 0.9 ? "#10B981" : "#EF4444",
+                    }}
+                    transition={{ delay: index * 0.4 }}
+                    key={index}
+                    className={cn(
+                      "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
+                    )}
+                  ></motion.li>
+                );
+              })}
+            </motion.ul>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              delay: 0.5,
+            }}
+            className="w-max self-center"
+          >
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-zinc-50 mb-2 text-sm"
+            >
+              Code everyday
+            </motion.p>
+            <ul className="flex gap-2">
+              {Array.from({ length: 7 }).map((_, index) => {
+                return (
+                  <motion.li
+                    animate={{
+                      backgroundColor:
+                        Math.random() < 0.9 ? "#10B981" : "#EF4444",
+                    }}
+                    transition={{ delay: index * 0.4 }}
+                    key={index}
+                    className={cn(
+                      "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
+                    )}
+                  ></motion.li>
+                );
+              })}
+            </ul>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              delay: 1,
+            }}
+            className="w-max self-end"
+          >
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-zinc-50 mb-2 text-sm"
+            >
+              Code everyday
+            </motion.p>
+            <motion.ul className="flex gap-2">
+              {Array.from({ length: 7 }).map((_, index) => {
+                return (
+                  <motion.li
+                    animate={{
+                      backgroundColor:
+                        Math.random() < 0.9 ? "#10B981" : "#EF4444",
+                    }}
+                    transition={{ delay: index * 0.4 }}
+                    key={index}
+                    className={cn(
+                      "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
+                    )}
+                  ></motion.li>
+                );
+              })}
+            </motion.ul>
+          </motion.div>
+        </div>
+      </div>
+      <div>
+        <div className="h-4 w-32 block absolute -bottom-2 left-0 bg-gradient-to-r from-zinc-900 z-10"></div>
+        <div className="h-4 w-32 block absolute -bottom-2 right-0 bg-gradient-to-l from-zinc-900 z-10 "></div>
+        <span className="border-t absolute left-0  right-0 w-full bottom-0 border-white/10 block" />
+      </div>
     </section>
   );
 };
@@ -169,7 +280,7 @@ const Features = () => {
             Visual Summary:{" "}
           </h3>
           <p className="text-zinc-300 z-10 text-lg font-medium">
-            See your habits at a glance with a clean and intuitive interface.
+            See your habits at a glance with a clean and interactive interface.
           </p>
           <div className="absolute h-full w-full z-10 inset-0 bg-gradient-to-tl  pointer-events-none transtion-all duration-500 from-zinc-900 to-transparent group-hover:opacity-0"></div>
           <div
