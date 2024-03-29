@@ -63,6 +63,7 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
   };
 
   const isTitleLengthInvalid = title.length > 30;
+  const isDescriptionLengthInvalid = description.length > 100;
   const isPending = newHabitMutation.isPending || editHabitMutation.isPending;
   const pendingMessage =
     action === HABIT_FORM_ACTIONS.edit ? "updating habit" : "creating habit";
@@ -72,12 +73,12 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
       <div className="relative w-full">
         <div className="flex justify-between">
           <label htmlFor="habit" className="text-neutral-400 mb-1 block">
-            habit title
+            title
           </label>
 
           <span
             className={clsx(
-              `text-sm font-semibold mt-1 mr-1 block w-4 text-right`,
+              `text-sm font-semibold mt-1  tabular-nums block `,
               isTitleLengthInvalid ? "text-red-400" : " text-zinc-400"
             )}
           >
@@ -107,10 +108,21 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
         </AnimatePresence>
       </div>
 
-      <div className="mt-10">
-        <label htmlFor="description" className="text-neutral-400 mb-1 block">
-          description
-        </label>
+      <div className="relative mt-10">
+        <div className="flex justify-between">
+          <label htmlFor="habit" className="text-neutral-400 mb-1 block">
+            description
+          </label>
+
+          <span
+            className={clsx(
+              `text-sm font-semibold mt-1  tabular-nums block `,
+              isDescriptionLengthInvalid ? "text-red-400" : " text-zinc-400"
+            )}
+          >
+            {100 - description.length}
+          </span>
+        </div>
 
         <textarea
           name="description"
@@ -120,6 +132,19 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
           value={description}
           onChange={(e) => handleInputChange("description", e.target.value)}
         />
+
+        <AnimatePresence>
+          {isDescriptionLengthInvalid && (
+            <motion.span
+              animate={{ opacity: 1, x: [-2, 2, 0] }}
+              initial={{ opacity: 0 }}
+              exit={{ x: -2, opacity: 0, transition: { duration: 0.2 } }}
+              className="text-sm text-red-400 block absolute -bottom-6"
+            >
+              The description is too long
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
       <Button
@@ -131,7 +156,9 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
             "animate-pulse duration-200": isPending,
           }
         )}
-        disabled={isTitleLengthInvalid || isPending}
+        disabled={
+          isTitleLengthInvalid || isDescriptionLengthInvalid || isPending
+        }
       >
         {isPending
           ? pendingMessage
