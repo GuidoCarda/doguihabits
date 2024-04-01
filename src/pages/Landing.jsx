@@ -2,6 +2,7 @@ import {
   CheckBadgeIcon,
   CheckIcon,
   ChevronDownIcon,
+  ChevronUpIcon,
   FireIcon,
   HeartIcon,
   PencilIcon,
@@ -9,14 +10,20 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { cn, getPast7Days, getWeekDayString, nextState } from "../utils";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { IconButton } from "../components/Buttons";
-import { useState } from "react";
-import { ENTRY_STATE, HABIT_MILESTONES } from "../constants";
+import { useEffect, useState } from "react";
+import { ENTRY_STATE } from "../constants";
 
 const Landing = () => {
+  const { user } = useAuth();
+
+  if (user) {
+    return <Navigate to={"/habits"} />;
+  }
+
   return (
     <main className="scroll-smooth max-w-7xl mx-auto px-4">
       <Header />
@@ -25,7 +32,51 @@ const Landing = () => {
       <HowItWorks />
       <GetStarted />
       <Footer />
+      <ScrollToTop />
     </main>
+  );
+};
+
+const ScrollToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsVisible(window.scrollY > 200);
+    };
+
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  const scrollUp = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0, y: 10 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            y: 0,
+          }}
+          whileHover={{ scale: 1.05 }}
+          exit={{ opacity: 0, scale: 0, y: 10 }}
+          onClick={scrollUp}
+          className={
+            "fixed border bg-zinc-900 z-10 h-10 w-10 rouded-md grid place-content-center hover:border-white/20 border-white/10 rounded-md bottom-10 right-10 hover:text-white group transition-colors duration-200"
+          }
+        >
+          <ChevronUpIcon className="h-5 w-10 text-zinc-400 transition-colors duration-200 group-hover:text-white group-hover:scale-105" />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -57,12 +108,17 @@ const Header = () => {
         {navItems.map((item) => {
           return (
             <li key={item.name}>
-              <a
+              <button
+                onClick={() => {
+                  document
+                    .querySelector(item.href)
+                    .scrollIntoView({ behavior: "smooth" });
+                }}
                 className="active:text-white leading-none font-medium text-zinc-400 hover:text-white transition-color duration-150"
                 href={item.href}
               >
                 {item.name}
-              </a>
+              </button>
             </li>
           );
         })}
@@ -343,13 +399,13 @@ const Hero = () => {
 
 const Features = () => {
   return (
-    <>
+    <section id="features" className="py-10 md:py-20">
       <h2 className="text-4xl font-bold text-white mt-20  text-center mb-12">
         Key features
       </h2>
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 grid-rows-3 mb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 grid-rows-3">
         {/* Feature card 1 */}
-        <div className="relative group md:row-span-2 w-full h-80 md:h-full p-6 hover:border-white/20 transition-colors duration-200 border border-white/10  rounded-md ">
+        <div className="relative group md:row-span-2 w-full h-80 md:h-full p-6 hover:border-white/20 transition-colors duration-200 border border-white/10  rounded-md">
           <h3 className="text-white text-xl font-bold mb-2">
             Effortless Habit Tracking:{" "}
           </h3>
@@ -450,8 +506,8 @@ const Features = () => {
             />
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 
@@ -648,7 +704,7 @@ const GetStarted = () => {
   return (
     <section
       id="get-started"
-      className="text-center flex items-center flex-col my-10  md:my-20 "
+      className="text-center flex items-center flex-col py-10 md:py-20 "
     >
       <h2 className="text-4xl font-bold text-white mb-6">Get Started Today!</h2>
       <p className="text-zinc-300 text-lg font-medium max-w-[60ch]">

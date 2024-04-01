@@ -42,8 +42,8 @@ function App() {
           <Route path="/habits/:id" element={<HabitDetail />} />
         </Route>
         <Route path="/contact" element={<Contact />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );
