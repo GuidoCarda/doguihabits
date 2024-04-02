@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { Button, IconTextButton } from "../components/Buttons";
 import Layout from "../components/Layout";
 import { signIn, signInWithGoogle, signUp } from "../services/auth";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { cn } from "../utils";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
 const ACTIONS = {
   SIGN_IN: "Sign In",
@@ -74,12 +74,20 @@ const Login = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       key={"login_page"}
+      className="relative"
     >
       <Layout className={"min-h-screen grid place-items-center "}>
         <form
           className="relative max-w-lg w-full  rounded-md"
           onSubmit={handleSubmit}
         >
+          <Link
+            to={"/"}
+            className="group text-zinc-500 mb-2 flex gap-1 items-center hover:text-zinc-400 transition-colors duration-150"
+          >
+            <ChevronLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span>Go back</span>
+          </Link>
           <AnimatePresence>
             {mutation.isError && (
               <motion.div
@@ -173,6 +181,7 @@ const Login = () => {
           <Button
             disabled={mutation.isPending}
             text="Google"
+            type="button"
             onClick={signInWithGoogle}
             className={cn(
               "bg-white w-full flex items-center justify-center font-semibold gap-2 mt-6 ",
