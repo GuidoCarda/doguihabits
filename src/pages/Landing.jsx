@@ -1,7 +1,5 @@
 import {
   CheckBadgeIcon,
-  CheckIcon,
-  ChevronDownIcon,
   ChevronUpIcon,
   FireIcon,
   HeartIcon,
@@ -141,7 +139,7 @@ const Header = () => {
 const Hero = () => {
   return (
     <section className="relative min-h-[calc(100vh-_5rem)] py-36 md:py-40 flex flex-col items-center">
-      <div className="min-w-fit text-center">
+      <div className="min-w-fit text-center z-10">
         <span className="uppercase tracking-widest block  text-emerald-500">
           doguihabits
         </span>
@@ -172,55 +170,20 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 flex items-end justify-center overflow-hidden h-full border-green-600/5 w-full">
-        <motion.div
-          initial={{ y: 100, scale: 0.1, x: 380, opacity: 0, rotate: 0 }}
-          animate={{ y: -125, x: 385, scale: 0.7, opacity: 1, rotate: -20 }}
-          transition={{ duration: 1.2 }}
-          className="h-20 place-content-center text-center grid w-20 border justify-self-center rounded-md"
-        >
-          <span className="text-zinc-400 text-2xl font-bold">14</span>
-          <span className="text-zinc-400">days</span>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 80, scale: 0.1, x: -320, opacity: 0, rotate: -5 }}
-          animate={{ y: -100, x: -320, scale: 0.7, opacity: 1, rotate: 25 }}
-          transition={{ duration: 1.7 }}
-          className="h-20 place-content-center text-center grid w-20 border justify-self-center rounded-md"
-        >
-          <span className="text-zinc-400 text-2xl font-bold">30</span>
-          <span className="text-zinc-400">days</span>
-        </motion.div>
-        {/* <motion.div
-          initial={{ y: 0, x: -50, opacity: 0, rotate: 0 }}
-          animate={{ y: -120, x: -400, opacity: 1, rotate: 40 }}
-          transition={{ duration: 1.5 }}
-          className="h-20 w-20 border justify-self-center border-white rounded-md"
-        /> */}
-        <motion.span
-          initial={{ y: 50, x: -20, opacity: 0, rotate: 0 }}
-          animate={{ y: -45, x: -20, opacity: 1, rotate: -40 }}
-          transition={{ duration: 1 }}
-          className="h-10 w-10 rounded-md bg-emerald-500 block"
+      <div className="absolute bottom-0 overflow-hidden  border-green-600/5 w-full">
+        <motion.img
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          src={"/herov2.svg"}
+          className="hidden sm:block mx-auto select-none pointer-events-none"
         />
-        <motion.span
-          initial={{ y: 50, x: -300, opacity: 0, rotate: 0 }}
-          animate={{ y: -80, x: -300, opacity: 1, rotate: 40 }}
-          transition={{ duration: 1 }}
-          className="h-10 w-10 rounded-md bg-emerald-500 block"
-        />
-        <motion.span
-          initial={{ y: 50, x: 300, opacity: 0, rotate: 0 }}
-          animate={{ y: -30, x: 300, opacity: 1, rotate: 20 }}
-          transition={{ duration: 1 }}
-          className="h-10 w-10 rounded-md bg-emerald-500 block"
-        />
-        <motion.span
-          initial={{ y: 50, x: 25, opacity: 0, rotate: 0 }}
-          animate={{ y: -75, x: 25, opacity: 1, rotate: -35 }}
-          transition={{ duration: 1 }}
-          className="h-10 w-10 rounded-md bg-red-500 block"
+        <motion.img
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          src={"/herov2mobile.svg"}
+          className="block md:hidden mx-auto select-none pointer-events-none"
         />
       </div>
 
@@ -232,170 +195,6 @@ const Hero = () => {
     </section>
   );
 };
-
-// const Hero = () => {
-//   return (
-//     <section className="relative py-36 md:py-40  flex lg:gap-10 overflow-visible">
-//       <div className="min-w-fit ">
-//         <span className="uppercase tracking-widest block  text-emerald-500">
-//           doguihabits
-//         </span>
-//         <h1 className="text-4xl md:text-5xl font-bold text-white max-w-[18ch] leading-tight">
-//           Your Personal Habit Transformation Journey
-//         </h1>
-//         <p className="md:text-lg text-zinc-400 font-medium mt-6 md:mt-10 max-w-[50ch]">
-//           Welcome to doguihabits, the simple yet powerful habit tracker designed
-//           to empower your journey towards personal growth and transformation.
-//         </p>
-//         <div className="flex gap-4 items-center mt-12">
-//           <Link
-//             className={
-//               "bg-emerald-600 font-medium h-10 px-6 grid place-content-center rounded-md text-white "
-//             }
-//             to={"/login"}
-//           >
-//             Sign Up
-//           </Link>
-//           <Link
-//             className={
-//               "font-medium h-10 px-6 grid place-content-center rounded-md text-white "
-//             }
-//             to={"/contact"}
-//           >
-//             Contact us
-//           </Link>
-//         </div>
-//       </div>
-
-//       <div className="relative  hidden lg:block self-center md:w-full">
-//         <div className="flex flex-col gap-6">
-//           <motion.div
-//             initial={{ opacity: 0, x: -30 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             className="w-max"
-//           >
-//             <motion.p
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               transition={{ delay: 0.2 }}
-//               className="text-zinc-50 mb-2 text-sm"
-//             >
-//               Code everyday
-//             </motion.p>
-//             <motion.ul className="flex gap-2">
-//               {Array.from({ length: 7 }).map((_, index) => {
-//                 return (
-//                   <motion.li
-//                     animate={{
-//                       backgroundColor:
-//                         Math.random() < 0.9 ? "#10B981" : "#EF4444",
-//                     }}
-//                     transition={{ delay: index * 0.4 }}
-//                     key={index}
-//                     className={cn(
-//                       "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
-//                     )}
-//                   ></motion.li>
-//                 );
-//               })}
-//             </motion.ul>
-//           </motion.div>
-//           <motion.div
-//             initial={{ opacity: 0, x: -20 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             transition={{
-//               delay: 0.5,
-//             }}
-//             className="w-max self-center"
-//           >
-//             <motion.p
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               transition={{ delay: 0.2 }}
-//               className="text-zinc-50 mb-2 text-sm"
-//             >
-//               Code everyday
-//             </motion.p>
-//             <ul className="flex gap-2">
-//               {Array.from({ length: 7 }).map((_, index) => {
-//                 return (
-//                   <motion.li
-//                     animate={{
-//                       backgroundColor:
-//                         Math.random() < 0.9 ? "#10B981" : "#EF4444",
-//                     }}
-//                     transition={{ delay: index * 0.4 }}
-//                     key={index}
-//                     className={cn(
-//                       "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
-//                     )}
-//                   ></motion.li>
-//                 );
-//               })}
-//             </ul>
-//           </motion.div>
-//           <motion.div
-//             initial={{ opacity: 0, x: -20 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             transition={{
-//               delay: 1,
-//             }}
-//             className="w-max self-end"
-//           >
-//             <motion.p
-//               initial={{ opacity: 0 }}
-//               animate={{ opacity: 1 }}
-//               transition={{ delay: 0.2 }}
-//               className="text-zinc-50 mb-2 text-sm"
-//             >
-//               Code everyday
-//             </motion.p>
-//             <motion.ul className="flex gap-2">
-//               {Array.from({ length: 7 }).map((_, index) => {
-//                 return (
-//                   <motion.li
-//                     animate={{
-//                       backgroundColor:
-//                         Math.random() < 0.9 ? "#10B981" : "#EF4444",
-//                     }}
-//                     transition={{ delay: index * 0.4 }}
-//                     key={index}
-//                     className={cn(
-//                       "h-10 w-10 grid place-content-center border border-white/5 rounded-md"
-//                     )}
-//                   ></motion.li>
-//                 );
-//               })}
-//             </motion.ul>
-//           </motion.div>
-//         </div>
-//         <Badge
-//           motionConfig={{
-//             initial: { opacity: 0, y: -10, scale: 0 },
-//             animate: { opacity: 1, y: 0, scale: 0.5 },
-//             transition: { delay: 1.5 },
-//           }}
-//           milestone={7}
-//           className={"absolute rotate-12 top-0 right-0"}
-//         />
-//         <Badge
-//           motionConfig={{
-//             initial: { opacity: 0, y: -10, scale: 0 },
-//             animate: { opacity: 1, y: 0, rotate: -20, scale: 0.7 },
-//             transition: { delay: 1.5 },
-//           }}
-//           milestone={30}
-//           className={"absolute  -rotate-6 bottom-0 left-0"}
-//         />
-//       </div>
-//       <div>
-//         <div className="h-4 w-32 block absolute -bottom-2 left-0 bg-gradient-to-r from-zinc-900 z-10"></div>
-//         <div className="h-4 w-32 block absolute -bottom-2 right-0 bg-gradient-to-l from-zinc-900 z-10 "></div>
-//         <span className="border-t absolute left-0  right-0 w-full bottom-0 border-white/10 block" />
-//       </div>
-//     </section>
-//   );
-// };
 
 const Features = () => {
   return (
@@ -676,7 +475,7 @@ const HowItWorks = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: "all" }}
               className={cn(
-                `group md:flex md:items-center md:gap-10  max-w-lg`,
+                `group  md:flex md:items-center md:gap-10  max-w-lg  `,
                 {
                   "self-center": index === 1,
                   "self-end": index === 2,
@@ -686,7 +485,7 @@ const HowItWorks = () => {
               <h3 className="group-hover:text-emerald-600 transition-colors text-5xl mb-4 text-zinc-400 font-bold  md:h-20 md:w-20 flex-shrink-0 md:grid md:place-content-center">
                 {index + 1}
               </h3>
-              <div className="p-4 rounded-lg bg-zinc-800 border-[1px] border-zinc-600">
+              <div className="relative p-4 rounded-lg bg-gradient-to-tr from-white/5  border-[1px] border-white/10 before:h-full before:absolute  before:z-10 before:w-full before:bg-[url('/noise.svg')] before:content-[' '] before:block before:left-0 before:top-0 before:opacity-10">
                 <p className="text-white mb-1 text-lg font-medium ">
                   {item.title}
                 </p>
