@@ -86,8 +86,6 @@ export const SVGHeatmap = ({ year, id, entries }) => {
     }
   );
 
-  console.log(dates);
-
   const toggleHabitDay = (entryDate) => {
     updateHabitEntryMutation.mutate({
       habitId: id,

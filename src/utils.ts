@@ -319,6 +319,8 @@ export const getPast7DaysEntries = (entries, currentDate) => {
 /*
   Bear in mind the following special cases when using the new Date api
   https://stackoverflow.com/a/31732581
+
+  for example using Year-Month-Day might be one day off depending on current timezone
 */
 export const getDatesInRange = (
   dirtyDateStart: Date | string | number,

@@ -32,7 +32,7 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
       return toast.error("The title is too long");
     }
 
-    const habitData = { title, description };
+    const habitData = { title, description: description?.trim() };
 
     if (action === HABIT_FORM_ACTIONS.edit && habitId) {
       editHabitMutation.mutate(
