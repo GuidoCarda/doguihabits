@@ -7,6 +7,7 @@ import { cn } from "../utils";
 
 import { motion } from "framer-motion";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
+import { HABIT_MILESTONES_MESSAGES } from "../constants";
 
 const MilestoneDialog = ({ open, onClose }, ref) => {
   const milestone = useMilestoneDialogStore((state) => state.milestone);
@@ -34,7 +35,7 @@ const MilestoneDialog = ({ open, onClose }, ref) => {
         <div className="flex items-center flex-col mb-10">
           <MilestoneBadge milestone={milestone} isCompleted={true} />
           <p className="text-zinc-300 mt-4 max-w-[30ch]">
-            Keep up the good work!
+            {HABIT_MILESTONES_MESSAGES[milestone]}
           </p>
         </div>
 
