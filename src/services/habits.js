@@ -13,14 +13,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import {
-  getNextMonthPendingHabitEntries,
-  isSameDay,
-  isSameMonth,
-  nextState,
-  shouldAddNextMonth,
-  startOfDay,
-} from "../utils";
+import { isSameDay, nextState } from "../utils";
 
 /**
  * Creates a new habit with entries and the formData.
@@ -30,7 +23,6 @@ import {
  * @throws An error if something goes wrong in the creation proccess
  * @returns The id of the habit just created
  */
-
 export const createHabit = async (formData) => {
   const { title, description } = formData;
   const date = new Date();
@@ -61,7 +53,7 @@ export const createHabit = async (formData) => {
 /**
  * Create the entries for a given habit by its ID
  * @param {string} habitId
- * @param {Array} entries
+ * @param {object[]} entries
  * @returns null if everything goes well
  * @throws An error if something goes wrong in the creation proccess
  */
@@ -138,6 +130,12 @@ export const getHabitsWithEntries = async (userId) => {
   }
 };
 
+/**
+ * Restart a single habit progress. Currently entries & badges are restarted
+ * @param {string} id
+ * @returns null if everything goes well
+ * @throws An error if something goes wrong in the restarting proccess
+ */
 export const restartHabitProgress = async (id) => {
   try {
     const habitsCollection = collection(db, "habits");
@@ -150,6 +148,12 @@ export const restartHabitProgress = async (id) => {
   }
 };
 
+/**
+ * Restart all habits progress. Currently entries & badges are restarted
+ * @param {string[]} habitIds - The id's of the habits to reset
+ * @returns null if everything goes well
+ * @throws An error if something goes wrong in the restarting proccess
+ */
 export const restartAllHabitProgress = async (habitIds) => {
   try {
     const habitsCollection = collection(db, "habits");
@@ -169,7 +173,7 @@ export const restartAllHabitProgress = async (habitIds) => {
 
 /**
  * Get all the entries from a habit
- * @param habitId - The id of the habit to query the entries from
+ * @param {string} habitId - The id of the habit to query the entries from
  * @throws An error if something goes wrong with the request
  * @returns The entries array for corresponding the habitId
  */
@@ -199,7 +203,7 @@ export const getHabitEntries = async (habitId) => {
 
 /**
  * Get a given habit by its ID.
- * @param habitId - The id of the habit to get
+ * @param {string} habitId - The id of the habit to get
  * @throws An error if the habit could not be found or something else went wrong
  * @returns The habit object
  */
@@ -220,11 +224,10 @@ export const getHabitById = async (habitId) => {
 /**
  * Update a given habit entry by its ID.
  * @param {string} habitId - The id of the habit to update
- * @param {string} entryId - The id of the entry to update
- * @param {string} state - The new state of the entry
+ * @param {string} entryDate - The date of the entry to update
+ * @param {object[]} entries - The entries array of that habit
  * @throws An error if the habit could not be updated
  */
-
 export const updateHabitEntry = async (habitId, entryDate, entries) => {
   const updatedEntries = entries.map((entry) => {
     if (isSameDay(entry.date, entryDate)) {
@@ -247,8 +250,14 @@ export const updateHabitEntry = async (habitId, entryDate, entries) => {
   }
 };
 
+/**
+ * Add a new habit entry.
+ * @param {string} habitId - The id of the habit to add the entry to
+ * @param {object} entry - The entry to be added
+ * @returns the added entry
+ * @throws An error if the entry could not be added
+ */
 export const addEntry = async (habitId, entry) => {
-  // console.log("addEntry called", habitId, entry);
   const habitsCollection = collection(db, "habits");
   const habitRef = doc(habitsCollection, habitId);
 
@@ -258,17 +267,6 @@ export const addEntry = async (habitId, entry) => {
 
   return entry;
 };
-
-// export const updateHabitEntry = async (habitId, entryId, state) => {
-//   try {
-//     const entriesCollection = collection(db, "habits", habitId, "entries");
-//     const entryRef = doc(entriesCollection, entryId);
-//     await updateDoc(entryRef, { state });
-//   } catch (error) {
-//     console.error(error);
-//     throw error;
-//   }
-// };
 
 /**
  * Delete a given habit by its ID.
@@ -316,38 +314,6 @@ export const deleteAllHabits = async (habitsIds) => {
   }
 };
 
-export const checkAndUpdateHabits = async (habits) => {
-  const currentDate = startOfDay(new Date());
-
-  for (const habit of habits) {
-    // I purposelly chose the -7nth entry because a weird behaviour with js
-    // dates that happens when you add a month to a date and its on the 31th day
-    // in some cases js will return a date 2 months later.
-    // -> https://stackoverflow.com/a/56388408
-    const lastMonthRecordedDate = startOfDay(habit.entries.at(-7).date);
-    const monthsToAdd = [];
-    let prevMonthAdded = lastMonthRecordedDate;
-
-    // if the habit contains the current month, returns
-    if (isSameMonth(currentDate, prevMonthAdded)) {
-      return;
-    }
-
-    // Calculate the months that are missing and add them to the habit object.
-    while (shouldAddNextMonth(currentDate, prevMonthAdded)) {
-      monthsToAdd.push(getNextMonthPendingHabitEntries(prevMonthAdded));
-      prevMonthAdded = new Date(
-        prevMonthAdded.getFullYear(),
-        prevMonthAdded.getMonth() + 1
-      );
-    }
-
-    await createHabitEntries(habit.id, monthsToAdd.flat());
-  }
-
-  return;
-};
-
 /**
  * Add completion badge to habit document
  * @param {string} habitId - The id of the habit to add the badge
@@ -367,6 +333,13 @@ export const addBadges = async (habitId, badges) => {
   return badges;
 };
 
+/**
+ * Edit habit document data
+ * @param {string} habitId - The id of the habit to edit
+ * @param {object} data - The data to update in the habit
+ * @returns null if everithing goes well
+ * @throws An error if the habit could not be updated
+ */
 export const editHabit = async (habitId, data) => {
   const habitsCollection = collection(db, "habits");
   const habitRef = doc(habitsCollection, habitId);

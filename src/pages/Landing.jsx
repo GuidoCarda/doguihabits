@@ -176,7 +176,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
           src={"/herov2.svg"}
-          className="hidden sm:block mx-auto select-none pointer-events-none"
+          className="hidden md:block mx-auto select-none pointer-events-none"
         />
         <motion.img
           initial={{ opacity: 0, y: 10 }}
@@ -507,7 +507,7 @@ const GetStarted = () => {
       className="text-center flex items-center flex-col py-10 md:py-20 "
     >
       <h2 className="text-4xl font-bold text-white mb-6">Get Started Today!</h2>
-      <p className="text-zinc-300 text-lg font-medium max-w-[60ch]">
+      <p className="text-zinc-300 text-lg font-medium max-w-[50ch]">
         Ready to embark on your habit transformation journey? Join DoguiHabits
         now and take the first step towards a more disciplined, healthier, and
         happier you.
