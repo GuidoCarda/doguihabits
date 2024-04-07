@@ -10,7 +10,6 @@ import { useIsMutating } from "@tanstack/react-query";
 
 //Components
 import Layout from "../components/Layout";
-import HabitMonthlyView from "./components/HabitMonthlyView";
 import HabitModal from "./components/HabitModal";
 
 //Icons
@@ -23,33 +22,22 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import {
-  ENTRY_STATE,
-  HABIT_FORM_ACTIONS,
-  HABIT_MILESTONES,
-} from "../constants";
+import { HABIT_FORM_ACTIONS, HABIT_MILESTONES } from "../constants";
 
 import useKeyPress from "../hooks/useKeyPress";
-import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
 import useDeleteHabit from "../hooks/api/useDeleteHabit";
 
 import { motion } from "framer-motion";
 import { IconTextButton } from "../components/Buttons";
 import {
   cn,
-  getDatesInRange,
-  getFirstDayOfMonth,
   getHabitStreak,
   getMonthDatesInRange,
   getTotal,
-  isPast,
-  isSameDay,
-  isThisMonth,
   startOfDay,
 } from "../utils";
 import { PageLoading } from "./Habits";
 import { useHabit } from "../hooks/api/useHabits";
-import clsx from "clsx";
 import EntriesCalendar from "./components/EntriesCalendar";
 import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 import HabitCalendarView from "./components/HabitCalendarView";
@@ -202,14 +190,6 @@ const HabitDetail = () => {
           handleDelete={handleDelete}
           handleEdit={handleEdit}
         />
-        <div className="mb-4">
-          <h3 className="text-3xl font-bold">{habitQuery.data?.title}</h3>
-          <p className="text-zinc-400 max-w-[50ch] mt-2 text-pretty  h-14">
-            {habitQuery.data?.description.length > 0
-              ? habitQuery.data?.description
-              : "No description provided"}
-          </p>
-        </div>
 
         <div className="flex flex-col md:flex-row gap-10  justify-between border md:bg-green-500/0 lg:bg-red-500/0 border-white/0 ">
           <HabitCalendarView
@@ -260,21 +240,21 @@ export const MilestoneBadge = ({ className, milestone, isCompleted }) => {
     <div
       key={`${milestone}-days-badge`}
       className={cn(
-        "text-center bg-zinc-800 h-[90px] w-[90px] rounded-lg  grid content-center transition-color duration-500 flex-shrink-0",
-        !isCompleted && "bg-transparent border border-white/5",
+        "text-center bg-transparent border-white/5  border  h-[90px] w-[90px] rounded-lg  grid content-center transition-color duration-500 flex-shrink-0",
+        isCompleted && "bg-zinc-800 border-transparent",
         className
       )}
     >
       <span
         className={cn(
-          "block text-4xl font-bold text-emerald-500",
-          !isCompleted && "text-zinc-600"
+          "block text-4xl font-bold text-zinc-600",
+          isCompleted && "text-emerald-500"
         )}
       >
         {milestone}
       </span>
       <span
-        className={cn("block text-zinc-400", !isCompleted && "text-zinc-700")}
+        className={cn("block  text-zinc-700", isCompleted && "text-zinc-400")}
       >
         days
       </span>
@@ -282,125 +262,35 @@ export const MilestoneBadge = ({ className, milestone, isCompleted }) => {
   );
 };
 
-const HabitEntriesInLineView = () => {
-  const today = new Date();
-  const { id } = useParams();
-  const habitQuery = useHabit(id);
-
-  const updateHabitEntryMutation = useUpdateHabitEntry(id);
-
-  const toggleHabitDay = (entryDate) => {
-    updateHabitEntryMutation.mutate({
-      habitId: id,
-      entryDate,
-      entries,
-    });
-  };
-
-  const createdAt = habitQuery?.data.createdAt;
-
-  const entries = getDatesInRange(getFirstDayOfMonth(createdAt), today).map(
-    (date) =>
-      habitQuery?.data?.entries?.find((entry) =>
-        isSameDay(entry.date, date)
-      ) || {
-        date,
-        state: ENTRY_STATE.pending,
-      }
-  );
-
-  return (
-    <div>
-      <h2 className="text-md  uppercase tracking-wider text-zinc-500 mb-1 ml-2 mt-10 hover:text-white max-w-max select-none">
-        Inline full history
-      </h2>
-      <div className="bg-zinc-800 p-2  rounded-xl ">
-        <ul className="flex flex-wrap gap-2">
-          {entries.map((day, idx) => {
-            const isCurrentMonth = isThisMonth(day.date);
-            const entryDate = day.date.getDate();
-
-            if (isCurrentMonth && entryDate > today.getDate()) {
-              return null;
-            }
-
-            return (
-              <li key={idx} className="aspect-square h-10 w-10">
-                <button
-                  disabled={
-                    isCurrentMonth && day.date.getDate() > today.getDate()
-                  }
-                  aria-label="toggle habit state"
-                  onClick={() => toggleHabitDay(day.date)}
-                  className={clsx(
-                    "w-full h-full rounded-md border-2 border-transparent text-white font-semibold transition-colors",
-                    {
-                      "bg-success": day.state === "completed",
-                      "bg-failed": day.state === "failed",
-                      "bg-zinc-700":
-                        isPast(day.date) &&
-                        day.state !== "failed" &&
-                        day.state !== "completed",
-                    },
-                    "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent",
-                    "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20"
-                  )}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
 const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
-  const { id, title } = habit;
-  return (
-    <div className="mb-10 flex items-center">
-      <Link to={-1} aria-label="back to home">
-        <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
-      </Link>
-      <h2 className="text-zinc-500 select-none ml-2 truncate">Return home</h2>
-
-      <IconTextButton
-        onClick={() => handleDelete(id)}
-        text="Delete Habit"
-        icon={<TrashIcon className="block h-4 w-4" />}
-        className="ml-auto bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-white font-bold rounded-md"
-      />
-      <IconTextButton
-        onClick={() => handleEdit(id)}
-        text="Edit Habit"
-        icon={<PencilIcon className="block h-4 w-4" />}
-        className="ml-4 bg-emerald-700/10 border-2 border-emerald-900 hover:shadow-lg hover:shadow-emerald-900/30 text-white font-bold rounded-md"
-      />
-    </div>
-  );
-};
-
-const HabitMontlyViewGrid = ({ habit, toggleHabitDay }) => {
-  const today = startOfDay(new Date());
-  const createdAt = habit.createdAt;
-
-  const months = getMonthDatesInRange(createdAt, today).sort((a, b) => b - a);
-
+  const { id, title, description } = habit;
   return (
     <>
-      <ul className="text-neutral-100  flex flex-col gap-4 sm:grid md:grid-cols-2 xl:grid-cols-3 ">
-        {months.map((startingDate, idx) => (
-          <li key={`${habit.id}-${idx}`}>
-            <EntriesCalendar
-              entries={habit.entries}
-              date={startingDate}
-              onDateClick={toggleHabitDay}
-            />
-          </li>
-        ))}
-      </ul>
+      <div className="mb-10 flex items-center">
+        <Link to={-1} aria-label="back to home">
+          <ArrowLeftCircleIcon className="h-10 w-10 text-neutral-500 hover:text-neutral-400 transition-colors" />
+        </Link>
+        <h2 className="text-zinc-500 select-none ml-2 truncate">Return home</h2>
+
+        <IconTextButton
+          onClick={() => handleDelete(id)}
+          text="Delete Habit"
+          icon={<TrashIcon className="block h-4 w-4" />}
+          className="ml-auto bg-red-700/10 border-2 border-red-900 hover:shadow-lg hover:shadow-red-900/30 text-white font-bold rounded-md"
+        />
+        <IconTextButton
+          onClick={() => handleEdit(id)}
+          text="Edit Habit"
+          icon={<PencilIcon className="block h-4 w-4" />}
+          className="ml-4 bg-emerald-700/10 border-2 border-emerald-900 hover:shadow-lg hover:shadow-emerald-900/30 text-white font-bold rounded-md"
+        />
+      </div>
+      <div className="mb-4">
+        <h3 className="text-3xl font-bold">{title}</h3>
+        <p className="text-zinc-400 max-w-[50ch] mt-2 text-pretty  h-14">
+          {description?.length > 0 ? description : "No description provided"}
+        </p>
+      </div>
     </>
   );
 };

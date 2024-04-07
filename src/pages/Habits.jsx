@@ -105,21 +105,11 @@ const Habits = () => {
       className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        {habitsQuery.isPending && (
-          <PageLoading message={"Getting your habits..."} />
-        )}
-        <PageHeader
-          hasHabits={hasHabits}
-          habitsLimitReached={habitsLimitReached}
-          handleShowToggle={handleShowToggle}
-          handleSignOut={handleSignOut}
-        />
-        {habitsCount > 1 && (
-          <HabitsSorting
-            onClick={handleSortChange}
-            sortCriteria={sortCriteria}
-          />
-        )}
+        <AnimatePresence>
+          {habitsQuery.isPending && (
+            <PageLoading message={"Getting your habits..."} />
+          )}
+        </AnimatePresence>
 
         <HabitModal
           isOpen={isOpen}
@@ -128,11 +118,27 @@ const Habits = () => {
           action={HABIT_FORM_ACTIONS.create}
         />
 
-        {hasHabits && <HabitsGrid habits={habitsQuery.data} />}
-        {!habitsQuery.isPending && !hasHabits && (
-          <EmptyState onClick={handleShowToggle} />
+        <PageHeader
+          habitsLimitReached={habitsLimitReached}
+          showHabitModal={handleShowToggle}
+          signOut={handleSignOut}
+        />
+
+        {!hasHabits && <EmptyState onClick={handleShowToggle} />}
+
+        {habitsCount > 1 && (
+          <HabitsSorting
+            onClick={handleSortChange}
+            sortCriteria={sortCriteria}
+          />
         )}
-        {hasHabits && <HabitsProgressBar />}
+
+        {hasHabits && (
+          <>
+            <HabitsGrid habits={habitsQuery.data} />
+            <HabitsProgressBar />
+          </>
+        )}
       </Layout>
     </motion.main>
   );
@@ -175,19 +181,14 @@ const HabitsProgressBar = () => {
   );
 };
 
-const PageHeader = ({
-  hasHabits,
-  habitsLimitReached,
-  handleShowToggle,
-  handleSignOut,
-}) => {
+const PageHeader = ({ habitsLimitReached, showHabitModal, signOut }) => {
   return (
     <div className="flex items-center justify-between mb-10">
       <h1 className="text-3xl font-semibold">My Habits</h1>
       <div className="flex gap-3">
         {!habitsLimitReached && (
           <IconTextButton
-            onClick={handleShowToggle}
+            onClick={showHabitModal}
             text="new habit"
             className="bg-emerald-600 font-bold"
             icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
@@ -203,7 +204,7 @@ const PageHeader = ({
         )}
         <SettingsModal />
 
-        <IconButton onClick={handleSignOut} className={"group bg-zinc-800"}>
+        <IconButton onClick={signOut} className={"group bg-zinc-800"}>
           <ArrowLeftOnRectangleIcon
             className=" transition-colors h-5 w-5 text-zinc-300 group-hover:text-zinc-50"
             strokeWidth={2}
@@ -226,7 +227,12 @@ const HabitsGrid = ({ habits }) => {
 
 export const PageLoading = ({ message }) => {
   return (
-    <div className="absolute inset-0 z-10 h-screen w-full grid place-content-center bg-zinc-900">
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      key={"page_loading"}
+      className="absolute inset-0 z-10 h-screen w-full grid place-content-center bg-zinc-900"
+    >
       <div className="grid grid-flow-col-dense gap-2 mb-6">
         <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_0s_infinite] rounded-md" />
         <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_.25s_infinite] rounded-md" />
@@ -236,7 +242,7 @@ export const PageLoading = ({ message }) => {
         <span className="bg-zinc-700 h-10 w-10 animate-[bounce_2s_ease-in-out_1.25s_infinite] rounded-md" />
       </div>
       <h3 className="animate-pulse text-center text-zinc-400">{message}</h3>
-    </div>
+    </motion.div>
   );
 };
 
@@ -245,7 +251,7 @@ const EmptyState = ({ onClick }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: 0.5 } }}
-      className="  my-40 grid place-content-center justify-items-center gap-4 "
+      className="grid min-h-[calc(100dvh-14rem)] place-content-center justify-items-center gap-4 "
     >
       <div className="p-5 md:p-0 rounded-lg">
         <img className="h-full w-full" src="EmptyState.png" alt="" />

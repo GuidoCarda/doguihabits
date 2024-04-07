@@ -1,5 +1,3 @@
-import "./App.css";
-
 // Routing
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 
@@ -8,7 +6,6 @@ import HabitDetail from "./pages/HabitDetail";
 import Habits from "./pages/Habits";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import Landing from "./pages/Landing";
 import Contact from "./pages/Contact";
 
 // Animations
@@ -19,6 +16,7 @@ import { Toaster } from "react-hot-toast";
 
 // Auth
 import { useAuth } from "./context/AuthContext";
+import Landing from "./pages/Landing/Landing";
 
 const toastOptions = {
   style: {
