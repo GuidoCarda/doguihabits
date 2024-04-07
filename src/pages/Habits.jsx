@@ -35,6 +35,10 @@ import useMilestoneDialogStore from "../store/useMilestoneDialogStore";
 import { Link } from "react-router-dom";
 import { useRestartAllHabitProgress } from "../hooks/api/useRestartHabit";
 
+import BarbellIcon from "../assets/icons/barbell.svg?react";
+import BookIcon from "../assets/icons/book.svg?react";
+import TargetArrowIcon from "../assets/icons/target-arrow.svg?react";
+
 const Habits = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("latest");
@@ -105,7 +109,7 @@ const Habits = () => {
       className=" text-neutral-100 max-h-screen overflow-auto scrollbar-none sm:scrollbar-thin sm:scrollbar-thumb-zinc-500 sm:scrollbar-thumb-rounded-xl"
     >
       <Layout>
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {habitsQuery.isPending && (
             <PageLoading message={"Getting your habits..."} />
           )}
@@ -250,11 +254,47 @@ const EmptyState = ({ onClick }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { duration: 0.5 } }}
+      animate={{
+        opacity: 1,
+        transition: { duration: 0.5, when: "beforeChildren" },
+      }}
+      key={"empty_state"}
       className="grid min-h-[calc(100dvh-14rem)] place-content-center justify-items-center gap-4 "
     >
-      <div className="p-5 md:p-0 rounded-lg">
-        <img className="h-full w-full" src="EmptyState.png" alt="" />
+      <div className="p-5 md:p-0 rounded-lg flex gap-4 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5 },
+          }}
+          className="h-20 w-20 grid place-content-center bg-zinc-800 rounded-md"
+        >
+          <BarbellIcon className="h-12 w-12 stroke-1 text-white" />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5 },
+          }}
+          className="h-20 w-20 relative bottom-8 grid place-content-center bg-zinc-800 rounded-md"
+        >
+          <TargetArrowIcon className="h-12 w-12 stroke-1 text-white" />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5 },
+          }}
+          className="h-20 w-20 grid place-content-center bg-zinc-800 rounded-md"
+        >
+          <BookIcon className="h-12 w-12 stroke-1 text-white" />
+        </motion.div>
       </div>
       <h2 className="text-3xl font-semibold mb-2">Start by creating a habit</h2>
 
