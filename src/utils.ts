@@ -202,7 +202,6 @@ export const getHabitStreak = (entries: Record<string, any>[]) => {
   }
 
   const sortedEntries = entries.slice().sort((a, b) => b.date - a.date);
-
   for (let i = 0; i < sortedEntries.length; i++) {
     const currentEntry = sortedEntries[i];
 
@@ -215,7 +214,12 @@ export const getHabitStreak = (entries: Record<string, any>[]) => {
 
     if (i > 0) {
       const prevEntry = sortedEntries[i - 1];
-      if (!isPreviousDay(prevEntry.date, currentEntry.date)) {
+      if (
+        !isPreviousDay(
+          startOfDay(prevEntry.date),
+          startOfDay(currentEntry.date)
+        )
+      ) {
         break;
       }
     }
@@ -312,6 +316,10 @@ export const getPast7DaysEntries = (entries, currentDate) => {
   return lastWeek;
 };
 
+/*
+  Bear in mind the following special cases when using the new Date api
+  https://stackoverflow.com/a/31732581
+*/
 export const getDatesInRange = (
   dirtyDateStart: Date | string | number,
   dirtyDateEnd: Date | string | number

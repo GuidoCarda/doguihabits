@@ -34,7 +34,7 @@ import useUpdateHabitEntry from "../hooks/api/useUpdateHabitEntry";
 import useDeleteHabit from "../hooks/api/useDeleteHabit";
 
 import { motion } from "framer-motion";
-import { Button, IconTextButton } from "../components/Buttons";
+import { IconTextButton } from "../components/Buttons";
 import {
   cn,
   getDatesInRange,

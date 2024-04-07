@@ -22,7 +22,6 @@ function useUpdateHabitEntry() {
     mutationKey: ["habits", user.uid, "update"],
     mutationFn: ({ habitId, entryDate, entries }) => {
       const entry = entries.find((entry) => isSameDay(entry.date, entryDate));
-
       if (entries.length === 0 || !entry) {
         return addEntry(habitId, {
           date: entryDate,

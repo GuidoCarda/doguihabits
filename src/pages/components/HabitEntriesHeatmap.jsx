@@ -79,12 +79,14 @@ export const SVGHeatmap = ({ year, id, entries }) => {
   const leftLabelWidth = 32;
   const topLabelHeight = 32;
 
-  const dates = getDatesInRange(`${year}-01-02`, `${year + 1}-1-1`).map(
+  const dates = getDatesInRange(`01-01-${year}`, `12-31-${year}`).map(
     (date) => {
       const entry = entries?.find((entry) => isSameDay(entry.date, date));
       return entry || { date, state: ENTRY_STATE.pending };
     }
   );
+
+  console.log(dates);
 
   const toggleHabitDay = (entryDate) => {
     updateHabitEntryMutation.mutate({
@@ -96,12 +98,12 @@ export const SVGHeatmap = ({ year, id, entries }) => {
 
   const handleSetHoveredCell = (event, cellData) => {
     const cellBCR = event.target.getBoundingClientRect();
-    const tooltipWidth = 144;
+    const tooltipWidth = 160;
     const padding = 20;
 
     let adjustedX = cellData.xPos;
 
-    if (cellBCR.right + tooltipWidth + 5 >= window.innerWidth) {
+    if (cellBCR.right + tooltipWidth + 10 >= window.innerWidth) {
       adjustedX = cellBCR.left - tooltipWidth - padding;
     }
 
@@ -230,7 +232,7 @@ const HeatmapTooltip = ({ interactionData, width, height }) => {
     >
       {/* The actual tooltip rendered */}
       <div
-        className="bg-zinc-800/90 w-36 border border-white/5 rounded-md p-2 absolute z-20"
+        className="bg-zinc-800/90 w-40 border border-white/5 rounded-md p-2 absolute z-20"
         style={{
           left: interactionData.xPos,
           top: interactionData.yPos,
