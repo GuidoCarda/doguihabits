@@ -1,21 +1,38 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import useClickOutside from "../hooks/useClickOutside";
-import HabitForm from "../pages/components/HabitForm";
-
-import { motion } from "framer-motion";
 import clsx from "clsx";
+import { motion } from "framer-motion";
+import { IconButton } from "./Buttons";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import useClickOutside from "../hooks/useClickOutside";
+import useMediaQuery from "../hooks/useMediaQuery";
+import { useIsMutating } from "@tanstack/react-query";
+import useDialogStore, { useDialog } from "../store/useDialogStore";
 
-const Modal = ({ onClose, isMobile }, ref) => {
-  const domNode = useClickOutside(onClose);
+const Modal = ({ onClose, title, className, children }, ref) => {
+  const isMutating = useIsMutating({
+    mutationKey: ["habits"],
+  });
+
+  const isDialogOpen = useDialogStore((state) => state.open);
+
+  const domNode = useClickOutside(
+    isMutating > 0 || isDialogOpen ? () => {} : onClose
+  );
+
+  //Conditionally style components and animations based on device
+  const isMobile = useMediaQuery("(max-width: 638px)");
 
   //Show diferent animation based on viewport
   const modalVariants = isMobile
     ? {
-        hidden: { y: 300 },
+        hidden: { y: 400, transition: { damping: 2 } },
         visible: { y: 0, transition: { damping: 2 } },
       }
-    : { hidden: { scale: 0.8 }, visible: { scale: 1 } };
+    : {
+        hidden: { y: 50, transition: { damping: 1 } },
+        visible: { y: 0, transition: { damping: 1 } },
+      };
 
   return ReactDOM.createPortal(
     <Backdrop>
@@ -26,23 +43,28 @@ const Modal = ({ onClose, isMobile }, ref) => {
         exit="hidden"
         ref={domNode}
         aria-modal="true"
+        key={"modal"}
         className={clsx(
-          "bg-zinc-700 px-6 py-10 w-full h-2/4 self-end rounded-t-2xl",
-          "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg ",
-          "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md"
+          "bg-zinc-900 p-6 w-full min-h-2/4 self-end rounded-t-2xl border-2 border-zinc-800",
+          "sm:self-center sm:rounded-md sm:h-auto sm:max-w-lg",
+          "overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-thumb-rounded-md",
+          className
         )}
       >
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl text-neutral-300 font-semibold">New Habit</h2>
-          <button
+          <h2 className="text-2xl text-zinc-200 font-semibold">{title}</h2>
+          <IconButton
             aria-label="close modal"
-            className="h-8 w-8 rounded-md bg-zinc-400 font-bold text-black/50"
+            className="group rounded-md bg-zinc-800 hover:bg-zinc-700 font-bold text-zinc-500"
             onClick={onClose}
           >
-            X
-          </button>
+            <XMarkIcon
+              className="transition-colors group-hover:text-zinc-100   h-5 w-5"
+              strokeWidth={3}
+            />
+          </IconButton>
         </div>
-        <HabitForm onClose={onClose} />
+        {children}
       </motion.div>
     </Backdrop>,
     document.getElementById("portal")
@@ -60,13 +82,14 @@ const backdrop = {
 export const Backdrop = ({ children }) => {
   return (
     <motion.div
-      variants={backdrop}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
+      // variants={backdrop}
+      // initial="hidden"
+      // animate="visible"
+      // exit="hidden"
+      key={"modal_backdrop"}
       className={clsx(
-        "fixed inset-0 h-screen w-full",
-        "bg-black/50 backdrop-blur-[2px] md:px-4",
+        "fixed inset-0 h-full w-full",
+        "bg-black/50 backdrop-brightness-50 md:px-4",
         "grid place-items-center"
       )}
     >
