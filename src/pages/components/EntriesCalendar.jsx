@@ -7,13 +7,15 @@ import {
   getPrevMonthPlaceholderDates,
   getWeekDayString,
   isPast,
+  isPreviousTo,
   isSameDay,
+  isToday,
 } from "../../utils";
 import { ENTRY_STATE } from "../../constants";
 import { AnimatePresence, motion } from "framer-motion";
 
 const EntriesCalendar = (props) => {
-  const { date, entries, onDateClick } = props;
+  const { date, entries, startingDate, onDateClick } = props;
 
   const firstDayOfMonth = date.getDay();
   const placeholder = getPrevMonthPlaceholderDates(date, firstDayOfMonth).map(
@@ -55,7 +57,9 @@ const EntriesCalendar = (props) => {
               return (
                 <li key={idx} className="aspect-square h-10 w-10">
                   <button
-                    disabled={!isPast(day.date)}
+                    disabled={
+                      !isPast(day.date) || isPreviousTo(day.date, startingDate)
+                    }
                     aria-label="toggle habit state"
                     onClick={() => onDateClick(day.date)}
                     className={clsx(
@@ -68,7 +72,8 @@ const EntriesCalendar = (props) => {
                           day.state !== ENTRY_STATE.completed,
                       },
                       "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent",
-                      "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20"
+                      "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20",
+                      { "border-white/40": isToday(day.date) }
                     )}
                   >
                     {day.date.getDate()}

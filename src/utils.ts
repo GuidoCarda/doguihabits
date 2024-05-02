@@ -42,9 +42,9 @@ export const daysInCurrentMonth = (): number => {
 };
 
 export const nextState = (state: string): string => {
-  if (state === "pending") return "completed";
-  if (state === "completed") return "failed";
-  return "pending";
+  if (state === ENTRY_STATE.pending) return ENTRY_STATE.completed;
+  if (state === ENTRY_STATE.completed) return ENTRY_STATE.failed;
+  return ENTRY_STATE.pending;
 };
 
 // Returns an array containing the day, month year extracted from the given date
@@ -158,6 +158,35 @@ export const isPast = (dirtyDateToCompare: Date | string): boolean => {
   const dateToCompare = startOfDay(dirtyDateToCompare);
 
   return date.getTime() >= dateToCompare.getTime();
+};
+
+export const isPreviousTo = (
+  dirtyDateLeft: Date | string,
+  dirtyDateRight: Date | string
+) => {
+  const dateLeft = startOfDay(dirtyDateLeft);
+  const dateRight = startOfDay(dirtyDateRight);
+
+  if (dateLeft.getFullYear() < dateRight.getFullYear()) {
+    return true;
+  }
+
+  if (
+    dateLeft.getMonth() < dateRight.getMonth() &&
+    dateLeft.getFullYear() === dateRight.getFullYear()
+  ) {
+    return true;
+  }
+
+  if (
+    dateLeft.getDate() < dateRight.getDate() &&
+    dateLeft.getMonth() === dateRight.getMonth() &&
+    dateLeft.getFullYear() === dateRight.getFullYear()
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
 export const getPast7Days = (initialDate = new Date()) => {

@@ -7,6 +7,7 @@ import {
   getDatesInRange,
   getDayMonthYear,
   isPast,
+  isPreviousTo,
   isSameDay,
   isToday,
   nextState,
@@ -35,8 +36,9 @@ const HabitEntriesHeatmap = ({ id }) => {
       <div className="flex justify-between items-center ">
         <IconButton
           onClick={onPrevClick}
+          disabled={year <= habitQuery?.data?.createdAt.getFullYear()}
           className={
-            "text-zinc-400 hover:text-white transition-colors duration-150 "
+            "text-zinc-400 hover:text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:zinc-400"
           }
         >
           <ArrowLeftIcon className="h-5 w-5" strokeWidth={2} />
@@ -49,20 +51,25 @@ const HabitEntriesHeatmap = ({ id }) => {
           disabled={year === new Date().getFullYear()}
           className={cn(
             "text-zinc-400 hover:text-white transition-colors duration-150",
-            "disabled:text-zinc-600 disabled:cursor-not-allowed disabled:hover:text-zinc-600 "
+            "disabled:opacity-25 disabled:cursor-not-allowed disabled:hover:zinc-400"
           )}
         >
           <ArrowRightIcon className="h-5 w-5" strokeWidth={2} />
         </IconButton>
       </div>
-      <SVGHeatmap year={year} id={id} entries={habitQuery?.data?.entries} />
+      <SVGHeatmap
+        year={year}
+        id={id}
+        startingDate={habitQuery?.data?.createdAt}
+        entries={habitQuery?.data?.entries}
+      />
     </>
   );
 };
 
 export default HabitEntriesHeatmap;
 
-export const SVGHeatmap = ({ year, id, entries }) => {
+export const SVGHeatmap = ({ year, id, entries, startingDate }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
 
   if (!entries || !id) {
@@ -181,7 +188,7 @@ export const SVGHeatmap = ({ year, id, entries }) => {
           entry.state === ENTRY_STATE.failed && "fill-red-500",
           entry.state === ENTRY_STATE.pending && "fill-zinc-800",
           isToday(entry.date) && "stroke-zinc-600",
-          !isPast(entry.date)
+          !isPast(entry.date) || isPreviousTo(entry.date, startingDate)
             ? "cursor-not-allowed fill-zinc-800/30 stroke-zinc-800/30"
             : "hover:stroke-zinc-700"
         )}

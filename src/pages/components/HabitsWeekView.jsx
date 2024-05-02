@@ -5,7 +5,9 @@ import {
   getPast7Days,
   getTotal,
   getWeekDayString,
+  isPreviousTo,
   isSameDay,
+  isToday,
   startOfDay,
 } from "../../utils";
 import { useDialog } from "../../store/useDialogStore";
@@ -148,14 +150,7 @@ const HabitsWeekView = ({ habit }) => {
               </span>
               <button
                 aria-label="toggle habit state"
-                disabled={
-                  startOfDay(date).getFullYear() <
-                    startOfDay(habit.createdAt).getFullYear() ||
-                  (startOfDay(date).getMonth() <
-                    startOfDay(habit.createdAt).getMonth() &&
-                    startOfDay(date).getFullYear() ===
-                      startOfDay(habit.createdAt).getFullYear())
-                }
+                disabled={isPreviousTo(date, habit.createdAt)}
                 onClick={() =>
                   mutation.mutate(
                     {
@@ -182,7 +177,8 @@ const HabitsWeekView = ({ habit }) => {
                       state !== ENTRY_STATE.completed,
                   },
                   "outline-none enabled:hover:border-white/30 focus:ring-2 focus:ring-white/20",
-                  "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent"
+                  "disabled:cursor-not-allowed disabled:text-white/30 disabled:bg-transparent",
+                  { "border-white/40": isToday(date) }
                 )}
               >
                 {day}

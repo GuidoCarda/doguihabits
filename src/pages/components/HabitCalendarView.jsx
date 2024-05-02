@@ -4,12 +4,12 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import EntriesCalendar from "./EntriesCalendar";
 import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
 import { useHabit } from "../../hooks/api/useHabits";
-import { cn, getMonthString, startOfMonth } from "../../utils";
+import { cn, getMonthString, isPreviousTo, startOfMonth } from "../../utils";
 
 const HabitCalendarView = ({ habitId, className }) => {
   const [date, setDate] = useState(startOfMonth(new Date()));
 
-  const habitsQuery = useHabit(habitId);
+  const habitQuery = useHabit(habitId);
   const updateEntryMutation = useUpdateHabitEntry();
 
   const getNextMonthDate = (dirtyDate) => {
@@ -33,13 +33,13 @@ const HabitCalendarView = ({ habitId, className }) => {
     setDate(prevMonth);
   };
 
-  if (habitsQuery.isPending) return <div>Loading...</div>;
+  if (habitQuery.isPending) return <div>Loading...</div>;
 
   const onDateClick = (date) => {
     updateEntryMutation.mutate({
       habitId: habitId,
       entryDate: date,
-      entries: habitsQuery?.data.entries,
+      entries: habitQuery?.data.entries,
     });
   };
 
@@ -48,8 +48,12 @@ const HabitCalendarView = ({ habitId, className }) => {
       <div className="flex justify-between items-center mb-2">
         <IconButton
           onClick={onPrevClick}
+          disabled={isPreviousTo(
+            getPrevMonthDate(date),
+            habitQuery?.data.createdAt
+          )}
           className={
-            "text-zinc-400 hover:text-white transition-colors duration-150 "
+            "text-zinc-400 hover:text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-25"
           }
         >
           <ArrowLeftIcon className="h-5 w-5" strokeWidth={2} />
@@ -70,7 +74,8 @@ const HabitCalendarView = ({ habitId, className }) => {
       </div>
       <EntriesCalendar
         date={date}
-        entries={habitsQuery?.data.entries}
+        startingDate={habitQuery?.data.createdAt}
+        entries={habitQuery?.data.entries}
         onDateClick={onDateClick}
       />
     </div>
