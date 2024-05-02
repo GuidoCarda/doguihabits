@@ -4,7 +4,13 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import EntriesCalendar from "./EntriesCalendar";
 import useUpdateHabitEntry from "../../hooks/api/useUpdateHabitEntry";
 import { useHabit } from "../../hooks/api/useHabits";
-import { cn, getMonthString, isPreviousTo, startOfMonth } from "../../utils";
+import {
+  cn,
+  getMonthString,
+  isPreviousTo,
+  isSameMonth,
+  startOfMonth,
+} from "../../utils";
 
 const HabitCalendarView = ({ habitId, className }) => {
   const [date, setDate] = useState(startOfMonth(new Date()));
@@ -48,10 +54,7 @@ const HabitCalendarView = ({ habitId, className }) => {
       <div className="flex justify-between items-center mb-2">
         <IconButton
           onClick={onPrevClick}
-          disabled={isPreviousTo(
-            getPrevMonthDate(date),
-            habitQuery?.data.createdAt
-          )}
+          disabled={isSameMonth(date, habitQuery?.data.createdAt)}
           className={
             "text-zinc-400 hover:text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-25"
           }

@@ -121,7 +121,10 @@ const HabitsWeekView = ({ habit }) => {
             {habit.title}
           </span>
           <span className="text-xs group-focus:bg-emerald-400/20 group-focus:text-zinc-50 group-hover:bg-emerald-400/20 group-hover:text-zinc-50 bg-zinc-700 text-zinc-300  font-normal w-max h-5 leading-2 grid place-items-center px-2 rounded-sm">
-            created at {getDayMonthYear(habit.createdAt).join("/")}
+            created{" "}
+            {isToday(habit.createdAt)
+              ? "today"
+              : "at " + getDayMonthYear(habit.createdAt).join("/")}
           </span>
         </Link>
         <IconButton
