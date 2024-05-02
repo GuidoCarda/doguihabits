@@ -100,9 +100,17 @@ const Login = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          <h1 className="text-zinc-100 font-semibold text-4xl mb-10">
-            {action}
-          </h1>
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={action}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="text-zinc-100 font-semibold text-4xl mb-10"
+            >
+              {action}
+            </motion.h1>
+          </AnimatePresence>
           <label htmlFor="email" className="text-zinc-300 block mb-2">
             Email
           </label>
