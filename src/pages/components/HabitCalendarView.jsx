@@ -49,12 +49,17 @@ const HabitCalendarView = ({ habitId, className }) => {
     });
   };
 
+  console.log(habitQuery?.data.isStrictMode);
+
   return (
     <div className={cn("max-w-sm", className)}>
       <div className="flex justify-between items-center mb-2">
         <IconButton
           onClick={onPrevClick}
-          disabled={isSameMonth(date, habitQuery?.data.createdAt)}
+          disabled={
+            habitQuery?.data?.isStrictMode &&
+            isSameMonth(date, habitQuery?.data.createdAt)
+          }
           className={
             "text-zinc-400 hover:text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-25"
           }
@@ -77,6 +82,7 @@ const HabitCalendarView = ({ habitId, className }) => {
       </div>
       <EntriesCalendar
         date={date}
+        isStrictMode={habitQuery?.data.isStrictMode}
         startingDate={habitQuery?.data.createdAt}
         entries={habitQuery?.data.entries}
         onDateClick={onDateClick}

@@ -2,8 +2,6 @@ import clsx from "clsx";
 import React from "react";
 import {
   getAllDaysInMonth,
-  getDayMonthYear,
-  getMonthString,
   getPrevMonthPlaceholderDates,
   getWeekDayString,
   isPast,
@@ -15,7 +13,7 @@ import { ENTRY_STATE } from "../../constants";
 import { AnimatePresence, motion } from "framer-motion";
 
 const EntriesCalendar = (props) => {
-  const { date, entries, startingDate, onDateClick } = props;
+  const { date, entries, startingDate, isStrictMode, onDateClick } = props;
 
   const firstDayOfMonth = date.getDay();
   const placeholder = getPrevMonthPlaceholderDates(date, firstDayOfMonth).map(
@@ -58,7 +56,8 @@ const EntriesCalendar = (props) => {
                 <li key={idx} className="aspect-square h-10 w-10">
                   <button
                     disabled={
-                      !isPast(day.date) || isPreviousTo(day.date, startingDate)
+                      !isPast(day.date) ||
+                      (isStrictMode && isPreviousTo(day.date, startingDate))
                     }
                     aria-label="toggle habit state"
                     onClick={() => onDateClick(day.date)}

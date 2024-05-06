@@ -12,9 +12,10 @@ import { useParams } from "react-router-dom";
 import useCreateHabit from "../../hooks/api/useCreateHabit";
 import useEditHabit from "../../hooks/api/useEditHabit";
 import { HABIT_FORM_ACTIONS } from "../../constants";
+import { cn } from "../../utils";
 
 const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
-  const { title, description } = formValues;
+  const { title, description, isStrictMode } = formValues;
 
   const { id: habitId } = useParams();
 
@@ -32,7 +33,7 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
       return toast.error("The title is too long");
     }
 
-    const habitData = { title, description: description?.trim() };
+    const habitData = { title, description: description?.trim(), isStrictMode };
 
     if (action === HABIT_FORM_ACTIONS.edit && habitId) {
       editHabitMutation.mutate(
@@ -61,6 +62,8 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
       });
     }
   };
+
+  console.log("isStrictMode", isStrictMode);
 
   const isTitleLengthInvalid = title.length > 30;
   const isDescriptionLengthInvalid = description.length > 100;
@@ -147,6 +150,12 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
         </AnimatePresence>
       </div>
 
+      <Toggle
+        isOn={isStrictMode}
+        setIsOn={() => handleInputChange("isStrictMode", !isStrictMode)}
+        className={"mt-6"}
+      />
+
       <Button
         className={clsx(
           "w-max mt-8 ml-auto bg-emerald-600 text-white font-bold rounded-md",
@@ -167,6 +176,41 @@ const HabitForm = ({ onClose, action, formValues, handleInputChange }) => {
           : "create"}
       </Button>
     </form>
+  );
+};
+
+const Toggle = ({ isOn, setIsOn, className }) => {
+  return (
+    <div
+      className={cn(
+        "group cursor-pointer select-none flex text-zinc-200 justify-between items-center",
+        className
+      )}
+      onClick={() => setIsOn((prev) => !prev)}
+    >
+      <div>
+        <p>Strict Mode</p>
+        <p className="text-sm text-zinc-400">
+          Track habits from the creation date, moving foward.
+        </p>
+      </div>
+
+      <div
+        className={cn(
+          "w-10 p-[2px] rounded-full flex items-center cursor-pointer bg-zinc-800 border border-white/5 group-hover:border-white/10 transition-colors duration-200",
+          isOn ? "justify-end" : "justify-start"
+        )}
+      >
+        <motion.span
+          layout
+          className={cn(
+            `h-4 w-4 rounded-full block bg-zinc-500 transition-colors duration-150 ${
+              isOn ? "bg-emerald-600" : "justify-self-end"
+            }`
+          )}
+        ></motion.span>
+      </div>
+    </div>
   );
 };
 

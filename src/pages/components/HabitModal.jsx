@@ -8,6 +8,7 @@ const HabitModal = ({ isOpen, onClose, title, action, initialValues }) => {
   const [formValues, setFormValues] = useState({
     title: initialValues?.title ?? "",
     description: initialValues?.description ?? "",
+    isStrictMode: initialValues?.isStrictMode ?? false,
   });
 
   const handleInputChange = (fieldName, value) => {

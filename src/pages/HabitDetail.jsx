@@ -183,6 +183,7 @@ const HabitDetail = () => {
           initialValues={{
             title: habitQuery.data.title,
             description: habitQuery.data.description,
+            isStrictMode: habitQuery.data.isStrictMode,
           }}
         />
         <HabitDetailHeader
@@ -286,7 +287,14 @@ const HabitDetailHeader = ({ habit, handleDelete, handleEdit }) => {
         />
       </div>
       <div className="mb-4">
-        <h3 className="text-3xl font-bold">{title}</h3>
+        <div className="flex items-baseline gap-3">
+          <h3 className="text-3xl font-bold">{title}</h3>
+          {habit?.isStrictMode && (
+            <span className="block select-none   text-sm text-zinc-400 rounded  px-2 py-1 font-semibold uppercase tracking-wider">
+              Strict mode
+            </span>
+          )}
+        </div>
         <p className="text-zinc-400 max-w-[50ch] mt-2 text-pretty  h-14">
           {description?.length > 0 ? description : "No description provided"}
         </p>

@@ -36,7 +36,10 @@ const HabitEntriesHeatmap = ({ id }) => {
       <div className="flex justify-between items-center ">
         <IconButton
           onClick={onPrevClick}
-          disabled={year <= habitQuery?.data?.createdAt.getFullYear()}
+          disabled={
+            habitQuery?.data?.isStrictMode &&
+            year <= habitQuery?.data?.createdAt.getFullYear()
+          }
           className={
             "text-zinc-400 hover:text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-25 disabled:hover:zinc-400"
           }
@@ -60,6 +63,7 @@ const HabitEntriesHeatmap = ({ id }) => {
       <SVGHeatmap
         year={year}
         id={id}
+        isStrictMode={habitQuery?.data?.isStrictMode}
         startingDate={habitQuery?.data?.createdAt}
         entries={habitQuery?.data?.entries}
       />
@@ -69,7 +73,13 @@ const HabitEntriesHeatmap = ({ id }) => {
 
 export default HabitEntriesHeatmap;
 
-export const SVGHeatmap = ({ year, id, entries, startingDate }) => {
+export const SVGHeatmap = ({
+  year,
+  id,
+  entries,
+  startingDate,
+  isStrictMode,
+}) => {
   const [hoveredCell, setHoveredCell] = useState(null);
 
   if (!entries || !id) {
@@ -158,8 +168,12 @@ export const SVGHeatmap = ({ year, id, entries, startingDate }) => {
         width={cellSize}
         height={cellSize}
         opacity={1}
+        // ugghhh this is a mess - refactor this ._.
         onClick={
-          isPast(entry.date)
+          (isStrictMode &&
+            !isPreviousTo(entry.date, startingDate) &&
+            isPast(entry.date)) ||
+          (!isStrictMode && isPast(entry.date))
             ? (e) => {
                 toggleHabitDay(entry.date);
                 handleSetHoveredCell(e, {
@@ -174,12 +188,15 @@ export const SVGHeatmap = ({ year, id, entries, startingDate }) => {
         }
         rx={4}
         onMouseEnter={(e) => {
-          handleSetHoveredCell(e, {
-            date: getDayMonthYear(entry.date).join("/"),
-            state: entry.state,
-            xPos: colIndex * (cellSize + gapSize) + 10 + leftLabelWidth + 25,
-            yPos: rowIndex * (cellSize + gapSize) + 10 + 32,
-          });
+          isStrictMode && isPreviousTo(entry.date, startingDate)
+            ? null
+            : handleSetHoveredCell(e, {
+                date: getDayMonthYear(entry.date).join("/"),
+                state: entry.state,
+                xPos:
+                  colIndex * (cellSize + gapSize) + 10 + leftLabelWidth + 25,
+                yPos: rowIndex * (cellSize + gapSize) + 10 + 32,
+              });
         }}
         onMouseLeave={() => setHoveredCell(null)}
         className={cn(
@@ -188,7 +205,8 @@ export const SVGHeatmap = ({ year, id, entries, startingDate }) => {
           entry.state === ENTRY_STATE.failed && "fill-red-500",
           entry.state === ENTRY_STATE.pending && "fill-zinc-800",
           isToday(entry.date) && "stroke-zinc-600",
-          !isPast(entry.date) || isPreviousTo(entry.date, startingDate)
+          !isPast(entry.date) ||
+            (isStrictMode && isPreviousTo(entry.date, startingDate))
             ? "cursor-not-allowed fill-zinc-800/30 stroke-zinc-800/30"
             : "hover:stroke-zinc-700"
         )}
