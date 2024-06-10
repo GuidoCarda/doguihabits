@@ -199,6 +199,26 @@ export const getPast7Days = (initialDate = new Date()) => {
   });
 };
 
+export const getPastNDays = (count: number, initialDate = new Date()) => {
+  const pastNDays = [...Array(count).keys()];
+
+  return pastNDays.map((index) => {
+    const date = new Date(initialDate);
+    date.setDate(date.getDate() - index);
+    return date;
+  });
+};
+
+export const getNextNDays = (count: number, initialDate = new Date()) => {
+  const nextNDays = [...Array(count).keys()];
+
+  return nextNDays.map((index) => {
+    const date = new Date(initialDate);
+    date.setDate(date.getDate() + index);
+    return date;
+  });
+};
+
 //Check based on two dates if they're the same day
 export const isSameDay = (
   dirtyDateLeft: Date | string | number,
@@ -391,6 +411,16 @@ export const getMonthsDifference = (
     12 * (rightDate.getFullYear() - leftDate.getFullYear()) +
     1
   );
+};
+
+export const getDaysDifference = (
+  dirtyDateLeft: Date | string | number,
+  dirtyDateRight: Date | string | number
+) => {
+  const leftDate = startOfDay(dirtyDateLeft).getTime();
+  const rightDate = startOfDay(dirtyDateRight).getTime();
+
+  return Math.round((leftDate - rightDate) / 86400000);
 };
 
 export const getPrevMonthPlaceholderDates = (

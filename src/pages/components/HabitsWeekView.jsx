@@ -1,6 +1,7 @@
 import React from "react";
 import {
   getDayMonthYear,
+  getDaysDifference,
   getHabitStreak,
   getPast7Days,
   getTotal,
@@ -70,6 +71,8 @@ const HabitsWeekView = ({ habit }) => {
   }
 
   const currentDate = startOfDay(new Date());
+
+  const daysSinceCreation = getDaysDifference(habit.createdAt, currentDate);
 
   const lastWeek = getPast7Days(currentDate)
     .sort((a, b) => a - b)

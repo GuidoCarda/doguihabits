@@ -190,22 +190,13 @@ const PageHeader = ({ habitsLimitReached, showHabitModal, signOut }) => {
     <div className="flex items-center justify-between mb-10">
       <h1 className="text-3xl font-semibold">My Habits</h1>
       <div className="flex gap-3">
-        {!habitsLimitReached && (
-          <IconTextButton
-            onClick={showHabitModal}
-            text="new habit"
-            className="bg-emerald-600 font-bold"
-            icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
-          />
-        )}
-        {habitsLimitReached && (
-          <span className="text-sm items-center text-zinc-400 flex gap-2">
-            Habits limit reached.
-            <Link className="text-zinc-300 hover:text-emerald-500 transition-colors">
-              See why
-            </Link>
-          </span>
-        )}
+        <IconTextButton
+          onClick={showHabitModal}
+          text="new habit"
+          className="bg-emerald-600 font-bold"
+          icon={<PlusIcon className="block h-4 w-4" strokeWidth="3" />}
+        />
+
         <SettingsModal />
 
         <IconButton onClick={signOut} className={"group bg-zinc-800"}>

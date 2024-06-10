@@ -82,10 +82,6 @@ const backdrop = {
 export const Backdrop = ({ children }) => {
   return (
     <motion.div
-      // variants={backdrop}
-      // initial="hidden"
-      // animate="visible"
-      // exit="hidden"
       key={"modal_backdrop"}
       className={clsx(
         "fixed inset-0 h-full w-full",
